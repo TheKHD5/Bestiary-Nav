@@ -1,0 +1,17 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <PropertyGroup>
+    <Version>0.4.6</Version>
+    <Author>BestiaryNav contributors</Author>
+    <Name>Bestiary Nav</Name>
+    <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>
+    <Punchline>Find beasts on the map or open their duty in Duty Finder.</Punchline>
+    <Description>Left-click Master's Bestiary entries to open acquisition map flags or select their duty in Duty Finder. Includes navigation data for all 50 beasts and quest guidance.</Description>
+    <Tags>beastmaster;map;bestiary</Tags>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="locations.json" LogicalName="BestiaryNav.locations.json" />
+    <EmbeddedResource Include="binding.json" LogicalName="BestiaryNav.binding.json" />
+    <EmbeddedResource Include="capture-targets.json" LogicalName="BestiaryNav.capture-targets.json" />
+  </ItemGroup>
+</Project>

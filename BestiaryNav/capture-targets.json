@@ -1,0 +1,366 @@
+{
+  "gameVersion": "2026.09.01.0000.0000",
+  "source": "Local game BNpcName sheet; exact English capture-target names from locations.json",
+  "targets": [
+    {
+      "bestiaryNumber": 2,
+      "captureTarget": "Ground Squirrel",
+      "bNpcNameIds": [
+        37
+      ]
+    },
+    {
+      "bestiaryNumber": 3,
+      "captureTarget": "Lost Lamb",
+      "bNpcNameIds": [
+        392,
+        1099
+      ]
+    },
+    {
+      "bestiaryNumber": 4,
+      "captureTarget": "Pugil",
+      "bNpcNameIds": [
+        640,
+        14410
+      ]
+    },
+    {
+      "bestiaryNumber": 5,
+      "captureTarget": "Opo-opo",
+      "bNpcNameIds": [
+        5,
+        14411
+      ]
+    },
+    {
+      "bestiaryNumber": 6,
+      "captureTarget": "Wild Dodo",
+      "bNpcNameIds": [
+        393
+      ]
+    },
+    {
+      "bestiaryNumber": 7,
+      "captureTarget": "Rusty Coblyn",
+      "bNpcNameIds": [
+        276
+      ]
+    },
+    {
+      "bestiaryNumber": 8,
+      "captureTarget": "Diremite",
+      "bNpcNameIds": [
+        10,
+        14414
+      ]
+    },
+    {
+      "bestiaryNumber": 9,
+      "captureTarget": "Megalocrab",
+      "bNpcNameIds": [
+        561,
+        14415
+      ]
+    },
+    {
+      "bestiaryNumber": 10,
+      "captureTarget": "Huge Hornet",
+      "bNpcNameIds": [
+        632
+      ]
+    },
+    {
+      "bestiaryNumber": 11,
+      "captureTarget": "Nesting Buzzard",
+      "bNpcNameIds": [
+        299
+      ]
+    },
+    {
+      "bestiaryNumber": 12,
+      "captureTarget": "Tiny Mandragora",
+      "bNpcNameIds": [
+        405
+      ]
+    },
+    {
+      "bestiaryNumber": 13,
+      "captureTarget": "Geshunpest",
+      "bNpcNameIds": [
+        7466,
+        14419,
+        14941
+      ]
+    },
+    {
+      "bestiaryNumber": 14,
+      "captureTarget": "Puk Hatchling",
+      "bNpcNameIds": [
+        401,
+        402
+      ]
+    },
+    {
+      "bestiaryNumber": 15,
+      "captureTarget": "Thickshell",
+      "bNpcNameIds": [
+        636
+      ]
+    },
+    {
+      "bestiaryNumber": 16,
+      "captureTarget": "Killer Mantis",
+      "bNpcNameIds": [
+        644
+      ]
+    },
+    {
+      "bestiaryNumber": 17,
+      "captureTarget": "Ichorous Ire",
+      "bNpcNameIds": [
+        554
+      ]
+    },
+    {
+      "bestiaryNumber": 18,
+      "captureTarget": "Doctore",
+      "bNpcNameIds": [
+        1188
+      ]
+    },
+    {
+      "bestiaryNumber": 19,
+      "captureTarget": "Cave Bat",
+      "bNpcNameIds": [
+        364
+      ]
+    },
+    {
+      "bestiaryNumber": 20,
+      "captureTarget": "Roselet",
+      "bNpcNameIds": [
+        22
+      ]
+    },
+    {
+      "bestiaryNumber": 21,
+      "captureTarget": "Rothlyt Pelican",
+      "bNpcNameIds": [
+        1181
+      ]
+    },
+    {
+      "bestiaryNumber": 22,
+      "captureTarget": "Cactuar",
+      "bNpcNameIds": [
+        287
+      ]
+    },
+    {
+      "bestiaryNumber": 23,
+      "captureTarget": "Sandstone Golem",
+      "bNpcNameIds": [
+        280
+      ]
+    },
+    {
+      "bestiaryNumber": 24,
+      "captureTarget": "Apkallu",
+      "bNpcNameIds": [
+        341,
+        14430
+      ]
+    },
+    {
+      "bestiaryNumber": 25,
+      "captureTarget": "Giant Tortoise",
+      "bNpcNameIds": [
+        244
+      ]
+    },
+    {
+      "bestiaryNumber": 26,
+      "captureTarget": "Wounded Aurochs",
+      "bNpcNameIds": [
+        358
+      ]
+    },
+    {
+      "bestiaryNumber": 27,
+      "captureTarget": "Scaphite",
+      "bNpcNameIds": [
+        635
+      ]
+    },
+    {
+      "bestiaryNumber": 28,
+      "captureTarget": "Sandworm",
+      "bNpcNameIds": [
+        290
+      ]
+    },
+    {
+      "bestiaryNumber": 29,
+      "captureTarget": "Spriggan Graverobber",
+      "bNpcNameIds": [
+        317
+      ]
+    },
+    {
+      "bestiaryNumber": 30,
+      "captureTarget": "Mossless Goobbue",
+      "bNpcNameIds": [
+        354
+      ]
+    },
+    {
+      "bestiaryNumber": 31,
+      "captureTarget": "Rivertoad",
+      "bNpcNameIds": [
+        349
+      ]
+    },
+    {
+      "bestiaryNumber": 32,
+      "captureTarget": "Colibri",
+      "bNpcNameIds": [
+        639,
+        14438
+      ]
+    },
+    {
+      "bestiaryNumber": 33,
+      "captureTarget": "Master Coeurl",
+      "bNpcNameIds": [
+        9911
+      ]
+    },
+    {
+      "bestiaryNumber": 34,
+      "captureTarget": "Anole",
+      "bNpcNameIds": [
+        120
+      ]
+    },
+    {
+      "bestiaryNumber": 35,
+      "captureTarget": "Sundrake",
+      "bNpcNameIds": [
+        264
+      ]
+    },
+    {
+      "bestiaryNumber": 36,
+      "captureTarget": "Treant Sapling",
+      "bNpcNameIds": [
+        128
+      ]
+    },
+    {
+      "bestiaryNumber": 37,
+      "captureTarget": "Myrmidon Princess",
+      "bNpcNameIds": [
+        1585
+      ]
+    },
+    {
+      "bestiaryNumber": 38,
+      "captureTarget": "Chimera",
+      "bNpcNameIds": [
+        1590,
+        7632,
+        14444
+      ]
+    },
+    {
+      "bestiaryNumber": 39,
+      "captureTarget": "Stroper",
+      "bNpcNameIds": [
+        238
+      ]
+    },
+    {
+      "bestiaryNumber": 40,
+      "captureTarget": "Bogy",
+      "bNpcNameIds": [
+        404
+      ]
+    },
+    {
+      "bestiaryNumber": 41,
+      "captureTarget": "Black Eft",
+      "bNpcNameIds": [
+        196
+      ]
+    },
+    {
+      "bestiaryNumber": 42,
+      "captureTarget": "Lake Cobra",
+      "bNpcNameIds": [
+        1851
+      ]
+    },
+    {
+      "bestiaryNumber": 43,
+      "captureTarget": "Hydra",
+      "bNpcNameIds": [
+        2161,
+        14449
+      ]
+    },
+    {
+      "bestiaryNumber": 44,
+      "captureTarget": "Gadfly",
+      "bNpcNameIds": [
+        2578
+      ]
+    },
+    {
+      "bestiaryNumber": 45,
+      "captureTarget": "Decaying Gourmand",
+      "bNpcNameIds": [
+        2556
+      ]
+    },
+    {
+      "bestiaryNumber": 46,
+      "captureTarget": "Zu",
+      "bNpcNameIds": [
+        2261,
+        14452
+      ]
+    },
+    {
+      "bestiaryNumber": 47,
+      "captureTarget": "Wandil",
+      "bNpcNameIds": [
+        3038
+      ]
+    },
+    {
+      "bestiaryNumber": 48,
+      "captureTarget": "Karlabos",
+      "bNpcNameIds": [
+        3014,
+        14454
+      ]
+    },
+    {
+      "bestiaryNumber": 49,
+      "captureTarget": "Rafflesia",
+      "bNpcNameIds": [
+        2609,
+        14455
+      ]
+    },
+    {
+      "bestiaryNumber": 50,
+      "captureTarget": "King Behemoth",
+      "bNpcNameIds": [
+        727,
+        5628
+      ]
+    }
+  ]
+}

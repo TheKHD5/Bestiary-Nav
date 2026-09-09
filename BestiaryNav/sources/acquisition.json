@@ -1,0 +1,1675 @@
+{
+  "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+  "retrievedOn": "2026-09-09",
+  "beasts": [
+    {
+      "bestiaryNumber": 1,
+      "displayName": "Cu Sith",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Cu_Sith_(Beast)",
+      "captureTarget": "",
+      "enemySource": null,
+      "area": "",
+      "areaSource": null,
+      "capturePoint": null,
+      "detail": "",
+      "minimumLevel": 1,
+      "gourd": "Cu Sith Gourd from Strangers in the Wood",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Cu_Sith_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Strangers_in_the_Wood"
+      ]
+    },
+    {
+      "bestiaryNumber": 2,
+      "displayName": "Squirrel",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Squirrel_(Beast)",
+      "captureTarget": "Ground Squirrel",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Ground_Squirrel",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 24,
+        "y": 16
+      },
+      "detail": "Central Shroud ( X: 24, Y: 16)",
+      "minimumLevel": 1,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533486",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 24,
+            "y": 16
+          },
+          "level": "1–2"
+        },
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 30,
+            "y": 25
+          },
+          "level": "1–2"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 3,
+      "displayName": "Lamb",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Lamb_(Beast)",
+      "captureTarget": "Lost Lamb",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Lost_Lamb",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 24,
+        "y": 25
+      },
+      "detail": "Middle La Noscea ( X: 24, Y: 25)",
+      "minimumLevel": 3,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532598",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 24.5,
+            "y": 24
+          },
+          "level": "1–5"
+        },
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 22.2,
+            "y": 25.6
+          },
+          "level": "3–6"
+        },
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 24,
+            "y": 25
+          },
+          "level": "3–6"
+        },
+        {
+          "area": "The Azim Steppe",
+          "point": {
+            "x": 20.6,
+            "y": 22.1
+          },
+          "level": "—"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 4,
+      "displayName": "Pugil",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Beast)",
+      "captureTarget": "Pugil",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Enemy)",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 22,
+        "y": 22
+      },
+      "detail": "Middle La Noscea ( X: 22, Y: 22)",
+      "minimumLevel": 4,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532583",
+      "enemyLocations": [
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 21.7,
+            "y": 22.3
+          },
+          "level": "4–6"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 5,
+      "displayName": "Opo-opo",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Beast)",
+      "captureTarget": "Opo-opo",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Mob)",
+      "area": "North Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/North_Shroud",
+      "capturePoint": {
+        "x": 27,
+        "y": 24
+      },
+      "detail": "North Shroud ( X: 27, Y: 24)",
+      "minimumLevel": 5,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532602",
+      "enemyLocations": [
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 25,
+            "y": 28
+          },
+          "level": "2"
+        },
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 26.9,
+            "y": 23.5
+          },
+          "level": "7"
+        },
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 27,
+            "y": 24
+          },
+          "level": "5–9"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 6,
+      "displayName": "Dodo",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Dodo_(Beast)",
+      "captureTarget": "Wild Dodo",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Wild_Dodo",
+      "area": "Lower La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Lower_La_Noscea",
+      "capturePoint": {
+        "x": 29,
+        "y": 21
+      },
+      "detail": "Lower La Noscea ( X: 29, Y: 21)",
+      "minimumLevel": 4,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533491",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 29,
+            "y": 21
+          },
+          "level": "4"
+        },
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 30,
+            "y": 16
+          },
+          "level": "7"
+        },
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 32.5,
+            "y": 13.7
+          },
+          "level": "9"
+        },
+        {
+          "area": "Western La Noscea",
+          "point": {
+            "x": 33.5,
+            "y": 29
+          },
+          "level": "9"
+        },
+        {
+          "area": "Western La Noscea",
+          "point": null,
+          "level": "16"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 7,
+      "displayName": "Coblyn",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Coblyn_(Beast)",
+      "captureTarget": "Rusty Coblyn",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Rusty_Coblyn",
+      "area": "Western Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_Thanalan",
+      "capturePoint": {
+        "x": 21,
+        "y": 26
+      },
+      "detail": "Western Thanalan ( X: 21, Y: 26)",
+      "minimumLevel": 6,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533399",
+      "enemyLocations": [
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 23,
+            "y": 25
+          },
+          "level": "3"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 21,
+            "y": 26
+          },
+          "level": "6–8"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 8,
+      "displayName": "Diremite",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Diremite_(Beast)",
+      "captureTarget": "Diremite",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Diremite_(Enemy)",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 20,
+        "y": 19
+      },
+      "detail": "Central Shroud ( X: 20, Y: 19)",
+      "minimumLevel": 10,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532605",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": null,
+          "level": "10"
+        },
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 20.2,
+            "y": 28.9
+          },
+          "level": "12"
+        },
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 18.7,
+            "y": 27.3
+          },
+          "level": "12"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 9,
+      "displayName": "Megalocrab",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Beast)",
+      "captureTarget": "Megalocrab",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Enemy)",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 16,
+        "y": 14
+      },
+      "detail": "Middle La Noscea ( X: 16, Y: 14)",
+      "minimumLevel": 10,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532608",
+      "enemyLocations": [
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 16,
+            "y": 14
+          },
+          "level": "10–13"
+        },
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 23,
+            "y": 37
+          },
+          "level": "11–13"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 10,
+      "displayName": "Wespe",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Wespe_(Beast)",
+      "captureTarget": "Huge Hornet",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Huge_Hornet",
+      "area": "Central Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Thanalan",
+      "capturePoint": {
+        "x": 20,
+        "y": 27
+      },
+      "detail": "Central Thanalan ( X: 20, Y: 27)",
+      "minimumLevel": 1,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532612",
+      "enemyLocations": [
+        {
+          "area": "Central Thanalan",
+          "point": {
+            "x": 20,
+            "y": 27
+          },
+          "level": "1–4"
+        },
+        {
+          "area": "Central Thanalan",
+          "point": {
+            "x": 20,
+            "y": 27
+          },
+          "level": "1–4"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 11,
+      "displayName": "Vulture",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Vulture_(Beast)",
+      "captureTarget": "Nesting Buzzard",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Nesting_Buzzard",
+      "area": "Western Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_Thanalan",
+      "capturePoint": {
+        "x": 21,
+        "y": 25
+      },
+      "detail": "Western Thanalan ( X: 21, Y: 25)",
+      "minimumLevel": 6,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532593",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 32,
+            "y": 16
+          },
+          "level": "6"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 21,
+            "y": 25
+          },
+          "level": "6"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 12,
+      "displayName": "Mandragora",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Mandragora_(Beast)",
+      "captureTarget": "Tiny Mandragora",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Tiny_Mandragora",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 23,
+        "y": 18
+      },
+      "detail": "Middle La Noscea ( X: 23, Y: 18)",
+      "minimumLevel": 5,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532620",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 30,
+            "y": 19
+          },
+          "level": "5–8"
+        },
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 23,
+            "y": 18
+          },
+          "level": "5–7"
+        },
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 18.6,
+            "y": 17.5
+          },
+          "level": "9"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 13,
+      "displayName": "Geshunpest",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Beast)",
+      "captureTarget": "Geshunpest",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Enemy)",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 19,
+        "y": 28
+      },
+      "detail": "Central Shroud ( X: 19, Y: 28)",
+      "minimumLevel": 14,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532621",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 19,
+            "y": 28
+          },
+          "level": "14"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 14,
+      "displayName": "Puk",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Puk_(Beast)",
+      "captureTarget": "Puk Hatchling",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Puk_Hatchling",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 23,
+        "y": 19
+      },
+      "detail": "Middle La Noscea ( X: 23, Y: 19)",
+      "minimumLevel": 4,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "615025",
+      "enemyLocations": [
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 23,
+            "y": 19
+          },
+          "level": "4–15"
+        },
+        {
+          "area": "Western La Noscea",
+          "point": {
+            "x": 28,
+            "y": 25
+          },
+          "level": "15"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 29.5,
+            "y": 25.5
+          },
+          "level": "13–14"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 15,
+      "displayName": "Crab",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Crab_(Beast)",
+      "captureTarget": "Thickshell",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Thickshell",
+      "area": "Western Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_Thanalan",
+      "capturePoint": {
+        "x": 15,
+        "y": 15
+      },
+      "detail": "Western Thanalan ( X: 15, Y: 15)",
+      "minimumLevel": 13,
+      "gourd": "Crab Gourd ; requires level 30 quest Into the Crucible",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Crab_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Into_the_Crucible"
+      ],
+      "enemyRevision": "866126",
+      "enemyLocations": [
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 15,
+            "y": 15
+          },
+          "level": "13"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 16,
+      "displayName": "Mantis",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Mantis_(Beast)",
+      "captureTarget": "Killer Mantis",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Killer_Mantis",
+      "area": "Western La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_La_Noscea",
+      "capturePoint": {
+        "x": 22,
+        "y": 23
+      },
+      "detail": "Western La Noscea ( X: 22, Y: 23)",
+      "minimumLevel": 16,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533388",
+      "enemyLocations": [
+        {
+          "area": "Western La Noscea",
+          "point": {
+            "x": 22,
+            "y": 23
+          },
+          "level": "16"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 17,
+      "displayName": "Slime",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Slime_(Beast)",
+      "captureTarget": "Ichorous Ire",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Ichorous_Ire",
+      "area": "Copperbell Mines",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Copperbell_Mines",
+      "capturePoint": null,
+      "detail": "Copperbell Mines (second boss)",
+      "minimumLevel": 17,
+      "gourd": "Slime Gourd ; requires level 30 quest Into the Crucible",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Slime_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Into_the_Crucible"
+      ],
+      "enemyRevision": "1323313",
+      "enemyLocations": [
+        {
+          "area": "Copperbell Mines",
+          "point": null,
+          "level": "17"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 18,
+      "displayName": "Dullahan",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Dullahan_(Beast)",
+      "captureTarget": "Doctore",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Doctore",
+      "area": "Halatali",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Halatali",
+      "capturePoint": null,
+      "detail": "Halatali (start of dungeon)",
+      "minimumLevel": 20,
+      "gourd": "Dullahan Gourd ; requires level 30 quest Into the Crucible",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Dullahan_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Into_the_Crucible"
+      ],
+      "enemyRevision": "1532683",
+      "enemyLocations": [
+        {
+          "area": "Halatali",
+          "point": {
+            "x": 14,
+            "y": 30
+          },
+          "level": "20"
+        },
+        {
+          "area": "Eastern Thanalan",
+          "point": null,
+          "level": "32"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 19,
+      "displayName": "Bat",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Bat_(Beast)",
+      "captureTarget": "Cave Bat",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Cave_Bat",
+      "area": "Lower La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Lower_La_Noscea",
+      "capturePoint": {
+        "x": 27,
+        "y": 16
+      },
+      "detail": "Lower La Noscea ( X: 27, Y: 16)",
+      "minimumLevel": 7,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533393",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 27,
+            "y": 15.9
+          },
+          "level": "7"
+        },
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 25.9,
+            "y": 15.3
+          },
+          "level": "7"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 20,
+      "displayName": "Flying Trap",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Flying_Trap_(Beast)",
+      "captureTarget": "Roselet",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Roselet",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 23,
+        "y": 26
+      },
+      "detail": "Central Shroud ( X: 23, Y: 26)",
+      "minimumLevel": 10,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532689",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 23,
+            "y": 26
+          },
+          "level": "10"
+        },
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 19.8,
+            "y": 30.7
+          },
+          "level": "10"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 21,
+      "displayName": "Ziz",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Ziz_(Beast)",
+      "captureTarget": "Rothlyt Pelican",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Rothlyt_Pelican",
+      "area": "Western La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_La_Noscea",
+      "capturePoint": {
+        "x": 23,
+        "y": 24
+      },
+      "detail": "Western La Noscea ( X: 23, Y: 24)",
+      "minimumLevel": 16,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533569",
+      "enemyLocations": [
+        {
+          "area": "Western La Noscea",
+          "point": {
+            "x": 23,
+            "y": 24
+          },
+          "level": "16–17"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 22,
+      "displayName": "Sabotender",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Sabotender_(Beast)",
+      "captureTarget": "Cactuar",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Cactuar_(Enemy)",
+      "area": "Western Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_Thanalan",
+      "capturePoint": {
+        "x": 28,
+        "y": 24
+      },
+      "detail": "Western Thanalan ( X: 28, Y: 24)",
+      "minimumLevel": 3,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533520",
+      "enemyLocations": [
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 23,
+            "y": 25
+          },
+          "level": "3"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 28,
+            "y": 24
+          },
+          "level": "3–4"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 23,
+      "displayName": "Golem",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Golem_(Beast)",
+      "captureTarget": "Sandstone Golem",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Sandstone_Golem",
+      "area": "Southern Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Southern_Thanalan",
+      "capturePoint": {
+        "x": 24,
+        "y": 12
+      },
+      "detail": "Southern Thanalan ( X: 24, Y: 12)",
+      "minimumLevel": 29,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532761",
+      "enemyLocations": [
+        {
+          "area": "Southern Thanalan",
+          "point": {
+            "x": 24,
+            "y": 12
+          },
+          "level": "29"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 24,
+      "displayName": "Apkallu",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Beast)",
+      "captureTarget": "Apkallu",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Mob)",
+      "area": "Eastern La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Eastern_La_Noscea",
+      "capturePoint": {
+        "x": 27,
+        "y": 35
+      },
+      "detail": "Eastern La Noscea ( X: 27, Y: 35)",
+      "minimumLevel": 30,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532814",
+      "enemyLocations": [
+        {
+          "area": "Eastern La Noscea",
+          "point": {
+            "x": 27,
+            "y": 35
+          },
+          "level": "30"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 25,
+      "displayName": "Adamantoise",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Adamantoise_(Beast)",
+      "captureTarget": "Giant Tortoise",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Giant_Tortoise",
+      "area": "Central Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Thanalan",
+      "capturePoint": {
+        "x": 24,
+        "y": 30
+      },
+      "detail": "Central Thanalan ( X: 24, Y: 30)",
+      "minimumLevel": 12,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532822",
+      "enemyLocations": [
+        {
+          "area": "Central Thanalan",
+          "point": {
+            "x": 24,
+            "y": 30
+          },
+          "level": "12"
+        },
+        {
+          "area": "Central Thanalan",
+          "point": {
+            "x": 19,
+            "y": 17
+          },
+          "level": "17"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 26,
+            "y": 24
+          },
+          "level": "12"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 23,
+            "y": 26
+          },
+          "level": "17"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 26,
+      "displayName": "Buffalo",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Buffalo_(Beast)",
+      "captureTarget": "Wounded Aurochs",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Wounded_Aurochs",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 18,
+        "y": 17
+      },
+      "detail": "Middle La Noscea ( X: 18, Y: 17)",
+      "minimumLevel": 8,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533576",
+      "enemyLocations": [
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 18,
+            "y": 17
+          },
+          "level": "8"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 27,
+      "displayName": "Uragnite",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Uragnite_(Beast)",
+      "captureTarget": "Scaphite",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Scaphite",
+      "area": "Western Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Western_Thanalan",
+      "capturePoint": {
+        "x": 17,
+        "y": 14
+      },
+      "detail": "Western Thanalan ( X: 17, Y: 14)",
+      "minimumLevel": 14,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "864756",
+      "enemyLocations": [
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 17,
+            "y": 14
+          },
+          "level": "14"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 16,
+            "y": 13
+          },
+          "level": "14"
+        },
+        {
+          "area": "Western Thanalan",
+          "point": {
+            "x": 16,
+            "y": 14
+          },
+          "level": "14"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 28,
+      "displayName": "Worm",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Worm_(Beast)",
+      "captureTarget": "Sandworm",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Sandworm",
+      "area": "Southern Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Southern_Thanalan",
+      "capturePoint": {
+        "x": 16,
+        "y": 34
+      },
+      "detail": "Southern Thanalan ( X: 16, Y: 34)",
+      "minimumLevel": 31,
+      "gourd": "Worm Gourd ; requires level 30 quest Into the Crucible",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Worm_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Into_the_Crucible"
+      ],
+      "enemyRevision": "1532829",
+      "enemyLocations": [
+        {
+          "area": "Southern Thanalan",
+          "point": {
+            "x": 13.2,
+            "y": 34.3
+          },
+          "level": "31–32"
+        },
+        {
+          "area": "Southern Thanalan",
+          "point": {
+            "x": 16,
+            "y": 34
+          },
+          "level": "31–32"
+        },
+        {
+          "area": "Southern Thanalan",
+          "point": {
+            "x": 23,
+            "y": 32
+          },
+          "level": "31–32"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 29,
+      "displayName": "Spriggan",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Spriggan_(Beast)",
+      "captureTarget": "Spriggan Graverobber",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Spriggan_Graverobber",
+      "area": "Central Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Thanalan",
+      "capturePoint": {
+        "x": 17,
+        "y": 23
+      },
+      "detail": "Central Thanalan ( X: 17, Y: 23)",
+      "minimumLevel": 7,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533408",
+      "enemyLocations": [
+        {
+          "area": "Central Thanalan",
+          "point": {
+            "x": 17,
+            "y": 23
+          },
+          "level": "7"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 30,
+      "displayName": "Goobbue",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Goobbue_(Beast)",
+      "captureTarget": "Mossless Goobbue",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Mossless_Goobbue",
+      "area": "Lower La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Lower_La_Noscea",
+      "capturePoint": {
+        "x": 25,
+        "y": 26
+      },
+      "detail": "Lower La Noscea ( X: 25, Y: 26)",
+      "minimumLevel": 12,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532833",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 25,
+            "y": 26
+          },
+          "level": "12–17"
+        },
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 21,
+            "y": 23
+          },
+          "level": "12–17"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 31,
+      "displayName": "Gigantoad",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Gigantoad_(Beast)",
+      "captureTarget": "Rivertoad",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Rivertoad",
+      "area": "Lower La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Lower_La_Noscea",
+      "capturePoint": {
+        "x": 25,
+        "y": 23
+      },
+      "detail": "Lower La Noscea ( X: 25, Y: 23)",
+      "minimumLevel": 4,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1533495",
+      "enemyLocations": [
+        {
+          "area": "Lower La Noscea",
+          "point": {
+            "x": 25,
+            "y": 23
+          },
+          "level": "4"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 32,
+      "displayName": "Colibri",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Beast)",
+      "captureTarget": "Colibri",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Mob)",
+      "area": "Eastern La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Eastern_La_Noscea",
+      "capturePoint": {
+        "x": 30,
+        "y": 25
+      },
+      "detail": "Eastern La Noscea ( X: 30, Y: 25)",
+      "minimumLevel": 33,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1531731",
+      "enemyLocations": [
+        {
+          "area": "Eastern La Noscea",
+          "point": {
+            "x": 30,
+            "y": 25
+          },
+          "level": "33"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 33,
+      "displayName": "Coeurl",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Coeurl_(Beast)",
+      "captureTarget": "Master Coeurl",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Master_Coeurl",
+      "area": "Upper La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Upper_La_Noscea",
+      "capturePoint": {
+        "x": 9,
+        "y": 21
+      },
+      "detail": "Upper La Noscea ( X: 9, Y: 21)",
+      "minimumLevel": 24,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532843",
+      "enemyLocations": [
+        {
+          "area": "Upper La Noscea",
+          "point": {
+            "x": 9,
+            "y": 21
+          },
+          "level": "24"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 34,
+      "displayName": "Raptor",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Raptor_(Beast)",
+      "captureTarget": "Anole",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Anole",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 31,
+        "y": 21
+      },
+      "detail": "Central Shroud ( X: 31, Y: 21)",
+      "minimumLevel": 9,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532907",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 30,
+            "y": 19
+          },
+          "level": "3"
+        },
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 31,
+            "y": 21
+          },
+          "level": "9"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 35,
+      "displayName": "Drake",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Drake_(Beast)",
+      "captureTarget": "Sundrake",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Sundrake",
+      "area": "Southern Thanalan",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Southern_Thanalan",
+      "capturePoint": {
+        "x": 25,
+        "y": 38
+      },
+      "detail": "Southern Thanalan ( X: 25, Y: 38)",
+      "minimumLevel": 32,
+      "gourd": "Drake Gourd ; requires level 30 quest Into the Crucible",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Drake_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Into_the_Crucible"
+      ],
+      "enemyRevision": "1439133",
+      "enemyLocations": [
+        {
+          "area": "Southern Thanalan",
+          "point": {
+            "x": 25,
+            "y": 38
+          },
+          "level": "32"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 36,
+      "displayName": "Treant",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Treant_(Beast)",
+      "captureTarget": "Treant Sapling",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Treant_Sapling",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 27,
+        "y": 15
+      },
+      "detail": "Central Shroud ( X: 27, Y: 15)",
+      "minimumLevel": 12,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532941",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 27,
+            "y": 15
+          },
+          "level": "12"
+        },
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 30,
+            "y": 26
+          },
+          "level": "12"
+        },
+        {
+          "area": "East Shroud",
+          "point": {
+            "x": 14,
+            "y": 25
+          },
+          "level": "14"
+        },
+        {
+          "area": "North Shroud",
+          "point": {
+            "x": 28,
+            "y": 21
+          },
+          "level": "17"
+        },
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 21,
+            "y": 17
+          },
+          "level": "17"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 37,
+      "displayName": "Antling",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Antling_(Beast)",
+      "captureTarget": "Myrmidon Princess",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Myrmidon_Princess",
+      "area": "Cutter's Cry",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Cutter%27s_Cry",
+      "capturePoint": null,
+      "detail": "Cutter's Cry (first boss)",
+      "minimumLevel": 38,
+      "gourd": "Antling Gourd ; requires level 40 quest Gobsmacked",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Antling_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Gobsmacked"
+      ],
+      "enemyRevision": "1323342",
+      "enemyLocations": [
+        {
+          "area": "Cutter's Cry",
+          "point": {
+            "x": 16,
+            "y": 14
+          },
+          "level": "38"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 38,
+      "displayName": "Chimera",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Chimera_(Beast)",
+      "captureTarget": "Chimera",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Chimera_(Boss)",
+      "area": "Cutter's Cry",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Cutter%27s_Cry",
+      "capturePoint": null,
+      "detail": "Cutter's Cry (final boss)",
+      "minimumLevel": 38,
+      "gourd": "Chimera Gourd ; requires level 40 quest Gobsmacked",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Chimera_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/Gobsmacked"
+      ],
+      "enemyRevision": "1531177",
+      "enemyLocations": [
+        {
+          "area": "Cutter's Cry",
+          "point": null,
+          "level": "38"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 39,
+      "displayName": "Morbol",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Morbol_(Beast)",
+      "captureTarget": "Stroper",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Stroper",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 14,
+        "y": 23
+      },
+      "detail": "Central Shroud ( X: 14, Y: 23)",
+      "minimumLevel": 31,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532945",
+      "enemyLocations": [
+        {
+          "area": "Central Shroud",
+          "point": {
+            "x": 14,
+            "y": 23
+          },
+          "level": "31"
+        },
+        {
+          "area": "South Shroud",
+          "point": {
+            "x": 16,
+            "y": 29
+          },
+          "level": "34"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 40,
+      "displayName": "Ghost",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Ghost_(Beast)",
+      "captureTarget": "Bogy",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Bogy",
+      "area": "Middle La Noscea",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Middle_La_Noscea",
+      "capturePoint": {
+        "x": 20,
+        "y": 19
+      },
+      "detail": "Middle La Noscea ( X: 20, Y: 19)",
+      "minimumLevel": 7,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532946",
+      "enemyLocations": [
+        {
+          "area": "Middle La Noscea",
+          "point": {
+            "x": 20,
+            "y": 19
+          },
+          "level": "7"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 41,
+      "displayName": "Salamander",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Salamander_(Beast)",
+      "captureTarget": "Black Eft",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Black_Eft",
+      "area": "Central Shroud",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Central_Shroud",
+      "capturePoint": {
+        "x": 26,
+        "y": 21
+      },
+      "detail": "Central Shroud ( X: 26, Y: 21)",
+      "minimumLevel": 6,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1532951",
+      "enemyLocations": []
+    },
+    {
+      "bestiaryNumber": 42,
+      "displayName": "Cobra",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Cobra_(Beast)",
+      "captureTarget": "Lake Cobra",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Lake_Cobra",
+      "area": "Mor Dhona",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Mor_Dhona",
+      "capturePoint": {
+        "x": 25,
+        "y": 13
+      },
+      "detail": "Mor Dhona ( X: 25, Y: 13)",
+      "minimumLevel": 45,
+      "gourd": "—",
+      "gourdSources": [],
+      "enemyRevision": "1223032",
+      "enemyLocations": [
+        {
+          "area": "Mor Dhona",
+          "point": {
+            "x": 25.1,
+            "y": 9.5
+          },
+          "level": "42"
+        },
+        {
+          "area": "Mor Dhona",
+          "point": {
+            "x": 25,
+            "y": 13
+          },
+          "level": "45"
+        },
+        {
+          "area": "Mor Dhona",
+          "point": {
+            "x": 27,
+            "y": 13
+          },
+          "level": "45"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 43,
+      "displayName": "Hydra",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Hydra_(Beast)",
+      "captureTarget": "Hydra",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Hydra_(Boss)",
+      "area": "A Relic Reborn: The Hydra",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/A_Relic_Reborn:_The_Hydra",
+      "capturePoint": null,
+      "detail": "A Relic Reborn: The Hydra (trial boss)",
+      "minimumLevel": 50,
+      "gourd": "Hydra Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Hydra_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1531744",
+      "enemyLocations": []
+    },
+    {
+      "bestiaryNumber": 44,
+      "displayName": "Damselfly",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Damselfly_(Beast)",
+      "captureTarget": "Gadfly",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Gadfly",
+      "area": "The Lost City of Amdapor",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/The_Lost_City_of_Amdapor",
+      "capturePoint": null,
+      "detail": "The Lost City of Amdapor (second section)",
+      "minimumLevel": 50,
+      "gourd": "Damselfly Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Damselfly_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1011645",
+      "enemyLocations": [
+        {
+          "area": "The Lost City of Amdapor",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 45,
+      "displayName": "Rotting Goobbue",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Rotting_Goobbue_(Beast)",
+      "captureTarget": "Decaying Gourmand",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Decaying_Gourmand",
+      "area": "The Lost City of Amdapor",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/The_Lost_City_of_Amdapor",
+      "capturePoint": null,
+      "detail": "The Lost City of Amdapor (first boss)",
+      "minimumLevel": 50,
+      "gourd": "Rotting Goobbue Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Rotting_Goobbue_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1324487",
+      "enemyLocations": [
+        {
+          "area": "The Lost City of Amdapor",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 46,
+      "displayName": "Zu",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Zu_(Beast)",
+      "captureTarget": "Zu",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Zu_(Boss)",
+      "area": "Pharos Sirius",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Pharos_Sirius",
+      "capturePoint": null,
+      "detail": "Pharos Sirius (second boss)",
+      "minimumLevel": 50,
+      "gourd": "Zu Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Zu_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1531748",
+      "enemyLocations": [
+        {
+          "area": "Pharos Sirius",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 47,
+      "displayName": "Ice Golem",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Ice_Golem_(Beast)",
+      "captureTarget": "Wandil",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Wandil",
+      "area": "Snowcloak",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Snowcloak",
+      "capturePoint": null,
+      "detail": "Snowcloak (first boss)",
+      "minimumLevel": 50,
+      "gourd": "Ice Golem Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Ice_Golem_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1324601",
+      "enemyLocations": [
+        {
+          "area": "Snowcloak",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 48,
+      "displayName": "Karlabos",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Karlabos_(Beast)",
+      "captureTarget": "Karlabos",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Karlabos_(Boss)",
+      "area": "Sastasha (Hard)",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/Sastasha_(Hard)",
+      "capturePoint": null,
+      "detail": "Sastasha (Hard) (first boss)",
+      "minimumLevel": 50,
+      "gourd": "Karlabos Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Karlabos_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1531168",
+      "enemyLocations": [
+        {
+          "area": "Sastasha (Hard)",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 49,
+      "displayName": "Rafflesia",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Rafflesia_(Beast)",
+      "captureTarget": "Rafflesia",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/Rafflesia_(Enemy)",
+      "area": "The Second Coil of Bahamut - Turn 1",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/The_Second_Coil_of_Bahamut_-_Turn_1",
+      "capturePoint": null,
+      "detail": "The Second Coil of Bahamut - Turn 1 (final boss)",
+      "minimumLevel": 50,
+      "gourd": "Rafflesia Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Rafflesia_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1531752",
+      "enemyLocations": [
+        {
+          "area": "The Second Coil of Bahamut - Turn 1",
+          "point": null,
+          "level": "50"
+        },
+        {
+          "area": "The Second Coil of Bahamut (Savage) - Turn 1",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    },
+    {
+      "bestiaryNumber": 50,
+      "displayName": "Behemoth",
+      "beastSource": "https://ffxiv.consolegameswiki.com/wiki/Behemoth_(Beast)",
+      "captureTarget": "King Behemoth",
+      "enemySource": "https://ffxiv.consolegameswiki.com/wiki/King_Behemoth",
+      "area": "The Labyrinth of the Ancients",
+      "areaSource": "https://ffxiv.consolegameswiki.com/wiki/The_Labyrinth_of_the_Ancients",
+      "capturePoint": null,
+      "detail": "The Labyrinth of the Ancients (third boss)",
+      "minimumLevel": 50,
+      "gourd": "Behemoth Gourd ; requires level 50 quest A Beastmaster's Path",
+      "gourdSources": [
+        "https://ffxiv.consolegameswiki.com/wiki/Behemoth_Gourd",
+        "https://ffxiv.consolegameswiki.com/wiki/A_Beastmaster%27s_Path"
+      ],
+      "enemyRevision": "1327717",
+      "enemyLocations": [
+        {
+          "area": "The Labyrinth of the Ancients",
+          "point": null,
+          "level": "50"
+        }
+      ]
+    }
+  ]
+}

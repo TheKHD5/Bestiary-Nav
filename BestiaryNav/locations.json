@@ -1,0 +1,1325 @@
+{
+  "schemaVersion": 2,
+  "idSpace": "masters-bestiary-number",
+  "researchedOn": "2026-09-09",
+  "gameDataVersion": "f5af21155b99a524",
+  "nativeIdMappingVerified": false,
+  "monsters": [
+    {
+      "bestiaryNumber": 1,
+      "displayName": "Cu Sith",
+      "classification": "Beastkin",
+      "captureTarget": "",
+      "navigationKind": "quest",
+      "acquisitionNote": "Use the Cu Sith Gourd awarded by Strangers in the Wood, the Beastmaster starting quest. Cu Sith has no wild capture point or target duty.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Cu_Sith_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Strangers_in_the_Wood"
+      ],
+      "locations": [],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 2,
+      "displayName": "Squirrel",
+      "classification": "Beastkin",
+      "captureTarget": "Ground Squirrel",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Squirrel_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Ground_Squirrel",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 24,
+          "y": 16,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:24, Y:16); level 1+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 3,
+      "displayName": "Lamb",
+      "classification": "Beastkin",
+      "captureTarget": "Lost Lamb",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Lamb_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Lost_Lamb",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 24,
+          "y": 25,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:24, Y:25); level 3+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 4,
+      "displayName": "Pugil",
+      "classification": "Wavekin",
+      "captureTarget": "Pugil",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Enemy)",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 21.7,
+          "y": 22.3,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:21.7, Y:22.3); level 4+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Enemy)?oldid=1532583",
+          "precision": "reported-to-1-decimal"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 5,
+      "displayName": "Opo-opo",
+      "classification": "Beastkin",
+      "captureTarget": "Opo-opo",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Mob)",
+        "https://v2.xivapi.com/api/sheet/Map/7?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 154,
+          "mapId": 7,
+          "x": 27,
+          "y": 24,
+          "area": "North Shroud",
+          "note": "North Shroud (X:27, Y:24); level 5+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 6,
+      "displayName": "Dodo",
+      "classification": "Cloudkin",
+      "captureTarget": "Wild Dodo",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Dodo_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Wild_Dodo",
+        "https://v2.xivapi.com/api/sheet/Map/16?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 135,
+          "mapId": 16,
+          "x": 29,
+          "y": 21,
+          "area": "Lower La Noscea",
+          "note": "Lower La Noscea (X:29, Y:21); level 4+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 7,
+      "displayName": "Coblyn",
+      "classification": "Soulkin",
+      "captureTarget": "Rusty Coblyn",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Coblyn_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Rusty_Coblyn",
+        "https://v2.xivapi.com/api/sheet/Map/20?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 140,
+          "mapId": 20,
+          "x": 21,
+          "y": 26,
+          "area": "Western Thanalan",
+          "note": "Western Thanalan (X:21, Y:26); level 6+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 8,
+      "displayName": "Diremite",
+      "classification": "Vilekin",
+      "captureTarget": "Diremite",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Diremite_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Diremite_(Enemy)",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 20,
+          "y": 19,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:20, Y:19); level 10+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 9,
+      "displayName": "Megalocrab",
+      "classification": "Wavekin",
+      "captureTarget": "Megalocrab",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Enemy)",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 16,
+          "y": 14,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:16, Y:14); level 10+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 10,
+      "displayName": "Wespe",
+      "classification": "Vilekin",
+      "captureTarget": "Huge Hornet",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Wespe_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Huge_Hornet",
+        "https://v2.xivapi.com/api/sheet/Map/21?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 141,
+          "mapId": 21,
+          "x": 20,
+          "y": 27,
+          "area": "Central Thanalan",
+          "note": "Central Thanalan (X:20, Y:27); level 1+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 11,
+      "displayName": "Vulture",
+      "classification": "Cloudkin",
+      "captureTarget": "Nesting Buzzard",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Vulture_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Nesting_Buzzard",
+        "https://v2.xivapi.com/api/sheet/Map/20?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 140,
+          "mapId": 20,
+          "x": 21,
+          "y": 25,
+          "area": "Western Thanalan",
+          "note": "Western Thanalan (X:21, Y:25); level 6+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 12,
+      "displayName": "Mandragora",
+      "classification": "Seedkin",
+      "captureTarget": "Tiny Mandragora",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Mandragora_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Tiny_Mandragora",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 23,
+          "y": 18,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:23, Y:18); level 5+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 13,
+      "displayName": "Geshunpest",
+      "classification": "Ashkin",
+      "captureTarget": "Geshunpest",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Enemy)",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 19,
+          "y": 28,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:19, Y:28); level 14+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 14,
+      "displayName": "Puk",
+      "classification": "Scalekin",
+      "captureTarget": "Puk Hatchling",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Puk_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Puk_Hatchling",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 23,
+          "y": 19,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:23, Y:19); level 4+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 15,
+      "displayName": "Crab",
+      "classification": "Wavekin",
+      "captureTarget": "Thickshell",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Crab_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Thickshell",
+        "https://v2.xivapi.com/api/sheet/Map/20?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 140,
+          "mapId": 20,
+          "x": 15,
+          "y": 15,
+          "area": "Western Thanalan",
+          "note": "Western Thanalan (X:15, Y:15); level 13+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 16,
+      "displayName": "Mantis",
+      "classification": "Vilekin",
+      "captureTarget": "Killer Mantis",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Mantis_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Killer_Mantis",
+        "https://v2.xivapi.com/api/sheet/Map/18?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 138,
+          "mapId": 18,
+          "x": 22,
+          "y": 23,
+          "area": "Western La Noscea",
+          "note": "Western La Noscea (X:22, Y:23); level 16+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 17,
+      "displayName": "Slime",
+      "classification": "Ashkin",
+      "captureTarget": "Ichorous Ire",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Ichorous Ire in Copperbell Mines. Gourd alternative: Slime Gourd ; requires level 30 quest Into the Crucible",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Slime_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/3?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 3,
+        "territoryTypeId": 1038,
+        "name": "Copperbell Mines",
+        "note": "second boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/3?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 18,
+      "displayName": "Dullahan",
+      "classification": "Soulkin",
+      "captureTarget": "Doctore",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Doctore in Halatali. Gourd alternative: Dullahan Gourd ; requires level 30 quest Into the Crucible",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Dullahan_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/7?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 7,
+        "territoryTypeId": 1245,
+        "name": "Halatali",
+        "note": "start of dungeon",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/7?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 19,
+      "displayName": "Bat",
+      "classification": "Cloudkin",
+      "captureTarget": "Cave Bat",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Bat_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Cave_Bat",
+        "https://v2.xivapi.com/api/sheet/Map/16?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 135,
+          "mapId": 16,
+          "x": 27,
+          "y": 15.9,
+          "area": "Lower La Noscea",
+          "note": "Lower La Noscea (X:27, Y:15.9); level 7+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Cave_Bat?oldid=1533393",
+          "precision": "reported-to-1-decimal"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 20,
+      "displayName": "Flying Trap",
+      "classification": "Seedkin",
+      "captureTarget": "Roselet",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Flying_Trap_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Roselet",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 23,
+          "y": 26,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:23, Y:26); level 10+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 21,
+      "displayName": "Ziz",
+      "classification": "Scalekin",
+      "captureTarget": "Rothlyt Pelican",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Ziz_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Rothlyt_Pelican",
+        "https://v2.xivapi.com/api/sheet/Map/18?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 138,
+          "mapId": 18,
+          "x": 23,
+          "y": 24,
+          "area": "Western La Noscea",
+          "note": "Western La Noscea (X:23, Y:24); level 16+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 22,
+      "displayName": "Sabotender",
+      "classification": "Seedkin",
+      "captureTarget": "Cactuar",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Sabotender_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Cactuar_(Enemy)",
+        "https://v2.xivapi.com/api/sheet/Map/20?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 140,
+          "mapId": 20,
+          "x": 28,
+          "y": 24,
+          "area": "Western Thanalan",
+          "note": "Western Thanalan (X:28, Y:24); level 3+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 23,
+      "displayName": "Golem",
+      "classification": "Soulkin",
+      "captureTarget": "Sandstone Golem",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Golem_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Sandstone_Golem",
+        "https://v2.xivapi.com/api/sheet/Map/23?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 146,
+          "mapId": 23,
+          "x": 24,
+          "y": 12,
+          "area": "Southern Thanalan",
+          "note": "Southern Thanalan (X:24, Y:12); level 29+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 24,
+      "displayName": "Apkallu",
+      "classification": "Cloudkin",
+      "captureTarget": "Apkallu",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Mob)",
+        "https://v2.xivapi.com/api/sheet/Map/17?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 137,
+          "mapId": 17,
+          "x": 27,
+          "y": 35,
+          "area": "Eastern La Noscea",
+          "note": "Eastern La Noscea (X:27, Y:35); level 30+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 25,
+      "displayName": "Adamantoise",
+      "classification": "Scalekin",
+      "captureTarget": "Giant Tortoise",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Adamantoise_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Giant_Tortoise",
+        "https://v2.xivapi.com/api/sheet/Map/21?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 141,
+          "mapId": 21,
+          "x": 24,
+          "y": 30,
+          "area": "Central Thanalan",
+          "note": "Central Thanalan (X:24, Y:30); level 12+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 26,
+      "displayName": "Buffalo",
+      "classification": "Beastkin",
+      "captureTarget": "Wounded Aurochs",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Buffalo_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Wounded_Aurochs",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 18,
+          "y": 17,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:18, Y:17); level 8+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 27,
+      "displayName": "Uragnite",
+      "classification": "Wavekin",
+      "captureTarget": "Scaphite",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Uragnite_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Scaphite",
+        "https://v2.xivapi.com/api/sheet/Map/20?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 140,
+          "mapId": 20,
+          "x": 17,
+          "y": 14,
+          "area": "Western Thanalan",
+          "note": "Western Thanalan (X:17, Y:14); level 14+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 28,
+      "displayName": "Worm",
+      "classification": "Vilekin",
+      "captureTarget": "Sandworm",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Worm_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Sandworm",
+        "https://v2.xivapi.com/api/sheet/Map/23?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 146,
+          "mapId": 23,
+          "x": 16,
+          "y": 34,
+          "area": "Southern Thanalan",
+          "note": "Southern Thanalan (X:16, Y:34); level 31+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 29,
+      "displayName": "Spriggan",
+      "classification": "Soulkin",
+      "captureTarget": "Spriggan Graverobber",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Spriggan_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Spriggan_Graverobber",
+        "https://v2.xivapi.com/api/sheet/Map/21?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 141,
+          "mapId": 21,
+          "x": 17,
+          "y": 23,
+          "area": "Central Thanalan",
+          "note": "Central Thanalan (X:17, Y:23); level 7+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 30,
+      "displayName": "Goobbue",
+      "classification": "Beastkin",
+      "captureTarget": "Mossless Goobbue",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Goobbue_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Mossless_Goobbue",
+        "https://v2.xivapi.com/api/sheet/Map/16?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 135,
+          "mapId": 16,
+          "x": 25,
+          "y": 26,
+          "area": "Lower La Noscea",
+          "note": "Lower La Noscea (X:25, Y:26); level 12+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 31,
+      "displayName": "Gigantoad",
+      "classification": "Wavekin",
+      "captureTarget": "Rivertoad",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Gigantoad_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Rivertoad",
+        "https://v2.xivapi.com/api/sheet/Map/16?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 135,
+          "mapId": 16,
+          "x": 25,
+          "y": 23,
+          "area": "Lower La Noscea",
+          "note": "Lower La Noscea (X:25, Y:23); level 4+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 32,
+      "displayName": "Colibri",
+      "classification": "Cloudkin",
+      "captureTarget": "Colibri",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Mob)",
+        "https://v2.xivapi.com/api/sheet/Map/17?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 137,
+          "mapId": 17,
+          "x": 30,
+          "y": 25,
+          "area": "Eastern La Noscea",
+          "note": "Eastern La Noscea (X:30, Y:25); level 33+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 33,
+      "displayName": "Coeurl",
+      "classification": "Beastkin",
+      "captureTarget": "Master Coeurl",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Coeurl_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Master_Coeurl",
+        "https://v2.xivapi.com/api/sheet/Map/19?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 139,
+          "mapId": 19,
+          "x": 9,
+          "y": 21,
+          "area": "Upper La Noscea",
+          "note": "Upper La Noscea (X:9, Y:21); level 24+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 34,
+      "displayName": "Raptor",
+      "classification": "Scalekin",
+      "captureTarget": "Anole",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Raptor_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Anole",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 31,
+          "y": 21,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:31, Y:21); level 9+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 35,
+      "displayName": "Drake",
+      "classification": "Scalekin",
+      "captureTarget": "Sundrake",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Drake_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Sundrake",
+        "https://v2.xivapi.com/api/sheet/Map/23?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 146,
+          "mapId": 23,
+          "x": 25,
+          "y": 38,
+          "area": "Southern Thanalan",
+          "note": "Southern Thanalan (X:25, Y:38); level 32+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 36,
+      "displayName": "Treant",
+      "classification": "Seedkin",
+      "captureTarget": "Treant Sapling",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Treant_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Treant_Sapling",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 27,
+          "y": 15,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:27, Y:15); level 12+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 37,
+      "displayName": "Antling",
+      "classification": "Vilekin",
+      "captureTarget": "Myrmidon Princess",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Myrmidon Princess in Cutter's Cry. Gourd alternative: Antling Gourd ; requires level 40 quest Gobsmacked",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Antling_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/12?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 12,
+        "territoryTypeId": 1303,
+        "name": "Cutter's Cry",
+        "note": "first boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/12?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 38,
+      "displayName": "Chimera",
+      "classification": "Beastkin",
+      "captureTarget": "Chimera",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Chimera in Cutter's Cry. Gourd alternative: Chimera Gourd ; requires level 40 quest Gobsmacked",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Chimera_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/12?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 12,
+        "territoryTypeId": 1303,
+        "name": "Cutter's Cry",
+        "note": "final boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/12?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 39,
+      "displayName": "Morbol",
+      "classification": "Seedkin",
+      "captureTarget": "Stroper",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Morbol_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Stroper",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 14,
+          "y": 23,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:14, Y:23); level 31+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 40,
+      "displayName": "Ghost",
+      "classification": "Ashkin",
+      "captureTarget": "Bogy",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Ghost_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Bogy",
+        "https://v2.xivapi.com/api/sheet/Map/15?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 134,
+          "mapId": 15,
+          "x": 20,
+          "y": 19,
+          "area": "Middle La Noscea",
+          "note": "Middle La Noscea (X:20, Y:19); level 7+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 41,
+      "displayName": "Salamander",
+      "classification": "Wavekin",
+      "captureTarget": "Black Eft",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Salamander_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Black_Eft",
+        "https://v2.xivapi.com/api/sheet/Map/4?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 148,
+          "mapId": 4,
+          "x": 26,
+          "y": 21,
+          "area": "Central Shroud",
+          "note": "Central Shroud (X:26, Y:21); level 6+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 42,
+      "displayName": "Cobra",
+      "classification": "Scalekin",
+      "captureTarget": "Lake Cobra",
+      "navigationKind": "map",
+      "acquisitionNote": "Reported capture-area coordinates; enemies can move or be temporarily absent.",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Cobra_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://ffxiv.consolegameswiki.com/wiki/Lake_Cobra",
+        "https://v2.xivapi.com/api/sheet/Map/25?fields=SizeFactor,TerritoryType,PlaceName.Name&version=f5af21155b99a524"
+      ],
+      "locations": [
+        {
+          "territoryTypeId": 156,
+          "mapId": 25,
+          "x": 25,
+          "y": 13,
+          "area": "Mor Dhona",
+          "note": "Mor Dhona (X:25, Y:13); level 45+.",
+          "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+          "precision": "reported-to-whole-map-unit"
+        }
+      ],
+      "duty": null
+    },
+    {
+      "bestiaryNumber": 43,
+      "displayName": "Hydra",
+      "classification": "Scalekin",
+      "captureTarget": "Hydra",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Hydra in A Relic Reborn: The Hydra. Gourd alternative: Hydra Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Hydra_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/75?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 75,
+        "territoryTypeId": 369,
+        "name": "A Relic Reborn: The Hydra",
+        "note": "trial boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/75?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 44,
+      "displayName": "Damselfly",
+      "classification": "Vilekin",
+      "captureTarget": "Gadfly",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Gadfly in The Lost City of Amdapor. Gourd alternative: Damselfly Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Damselfly_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/22?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 22,
+        "territoryTypeId": 363,
+        "name": "The Lost City of Amdapor",
+        "note": "second section",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/22?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 45,
+      "displayName": "Rotting Goobbue",
+      "classification": "Ashkin",
+      "captureTarget": "Decaying Gourmand",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Decaying Gourmand in The Lost City of Amdapor. Gourd alternative: Rotting Goobbue Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Rotting_Goobbue_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/22?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 22,
+        "territoryTypeId": 363,
+        "name": "The Lost City of Amdapor",
+        "note": "first boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/22?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 46,
+      "displayName": "Zu",
+      "classification": "Cloudkin",
+      "captureTarget": "Zu",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Zu in Pharos Sirius. Gourd alternative: Zu Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Zu_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/17?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 17,
+        "territoryTypeId": 160,
+        "name": "Pharos Sirius",
+        "note": "second boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/17?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 47,
+      "displayName": "Ice Golem",
+      "classification": "Soulkin",
+      "captureTarget": "Wandil",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Wandil in Snowcloak. Gourd alternative: Ice Golem Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Ice_Golem_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/27?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 27,
+        "territoryTypeId": 1062,
+        "name": "Snowcloak",
+        "note": "first boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/27?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 48,
+      "displayName": "Karlabos",
+      "classification": "Wavekin",
+      "captureTarget": "Karlabos",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Karlabos in Sastasha (Hard). Gourd alternative: Karlabos Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Karlabos_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/28?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 28,
+        "territoryTypeId": 387,
+        "name": "Sastasha (Hard)",
+        "note": "first boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/28?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 49,
+      "displayName": "Rafflesia",
+      "classification": "Seedkin",
+      "captureTarget": "Rafflesia",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture Rafflesia in The Second Coil of Bahamut - Turn 1. Gourd alternative: Rafflesia Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Rafflesia_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/98?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 98,
+        "territoryTypeId": 355,
+        "name": "The Second Coil of Bahamut - Turn 1",
+        "note": "final boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/98?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    },
+    {
+      "bestiaryNumber": 50,
+      "displayName": "Behemoth",
+      "classification": "Beastkin",
+      "captureTarget": "King Behemoth",
+      "navigationKind": "duty",
+      "acquisitionNote": "Capture King Behemoth in The Labyrinth of the Ancients. Gourd alternative: Behemoth Gourd ; requires level 50 quest A Beastmaster's Path",
+      "sources": [
+        "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+        "https://ffxiv.consolegameswiki.com/wiki/Behemoth_(Beast)",
+        "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "https://v2.xivapi.com/api/sheet/ContentFinderCondition/92?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      ],
+      "locations": [],
+      "duty": {
+        "contentFinderConditionId": 92,
+        "territoryTypeId": 174,
+        "name": "The Labyrinth of the Ancients",
+        "note": "third boss",
+        "source": "https://v2.xivapi.com/api/sheet/ContentFinderCondition/92?fields=Name,TerritoryType,ContentType&version=f5af21155b99a524"
+      }
+    }
+  ]
+}

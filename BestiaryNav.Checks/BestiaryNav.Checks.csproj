@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\BestiaryNav\LocationData.cs" Link="LocationData.cs" />
+    <Compile Include="..\BestiaryNav\BestiaryEntryLabel.cs" Link="BestiaryEntryLabel.cs" />
+    <Compile Include="..\BestiaryNav\CaptureTargets.cs" Link="CaptureTargets.cs" />
+    <Content Include="..\BestiaryNav\capture-targets.json" Link="capture-targets.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\BestiaryNav\locations.json" Link="locations.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\BestiaryNav\sources\*.json" Link="sources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

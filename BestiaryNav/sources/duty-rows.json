@@ -1,0 +1,66 @@
+{
+  "sourceBase": "https://v2.xivapi.com/api/sheet/ContentFinderCondition",
+  "gameVersion": "f5af21155b99a524",
+  "duties": [
+    {
+      "id": 3,
+      "name": "Copperbell Mines",
+      "territoryTypeId": 1038,
+      "contentTypeId": 2
+    },
+    {
+      "id": 7,
+      "name": "Halatali",
+      "territoryTypeId": 1245,
+      "contentTypeId": 2
+    },
+    {
+      "id": 12,
+      "name": "Cutter's Cry",
+      "territoryTypeId": 1303,
+      "contentTypeId": 2
+    },
+    {
+      "id": 17,
+      "name": "Pharos Sirius",
+      "territoryTypeId": 160,
+      "contentTypeId": 2
+    },
+    {
+      "id": 22,
+      "name": "the Lost City of Amdapor",
+      "territoryTypeId": 363,
+      "contentTypeId": 2
+    },
+    {
+      "id": 27,
+      "name": "Snowcloak",
+      "territoryTypeId": 1062,
+      "contentTypeId": 2
+    },
+    {
+      "id": 28,
+      "name": "Sastasha (Hard)",
+      "territoryTypeId": 387,
+      "contentTypeId": 2
+    },
+    {
+      "id": 75,
+      "name": "A Relic Reborn: the Hydra",
+      "territoryTypeId": 369,
+      "contentTypeId": 4
+    },
+    {
+      "id": 92,
+      "name": "the Labyrinth of the Ancients",
+      "territoryTypeId": 174,
+      "contentTypeId": 5
+    },
+    {
+      "id": 98,
+      "name": "the Second Coil of Bahamut - Turn 1",
+      "territoryTypeId": 355,
+      "contentTypeId": 5
+    }
+  ]
+}

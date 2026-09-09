@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\BestiaryNav\NativeSnapshot.cs" Link="NativeSnapshot.cs" />
+    <Compile Include="..\BestiaryNav\EnemyListRows.cs" Link="EnemyListRows.cs" />
+    <Compile Include="..\BestiaryNav\EnemyLabelLayout.cs" Link="EnemyLabelLayout.cs" />
+    <Reference Include="FFXIVClientStructs" HintPath="$(AppData)\XIVLauncher\addon\Hooks\dev\FFXIVClientStructs.dll" />
+    <Reference Include="InteropGenerator.Runtime" HintPath="$(AppData)\XIVLauncher\addon\Hooks\dev\InteropGenerator.Runtime.dll" />
+  </ItemGroup>
+</Project>

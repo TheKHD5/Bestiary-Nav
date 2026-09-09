@@ -1,0 +1,306 @@
+{
+  "source": "https://www.icy-veins.com/ffxiv/beastmaster-pve-dps-beast-summary#known-beasts",
+  "retrievedOn": "2026-09-09",
+  "beasts": [
+    {
+      "bestiaryNumber": 1,
+      "displayName": "Cu Sith",
+      "classification": "Beastkin",
+      "listedArea": "&mdash;"
+    },
+    {
+      "bestiaryNumber": 2,
+      "displayName": "Squirrel",
+      "classification": "Beastkin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 3,
+      "displayName": "Lamb",
+      "classification": "Beastkin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 4,
+      "displayName": "Pugil",
+      "classification": "Wavekin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 5,
+      "displayName": "Opo-opo",
+      "classification": "Beastkin",
+      "listedArea": "North Shroud"
+    },
+    {
+      "bestiaryNumber": 6,
+      "displayName": "Dodo",
+      "classification": "Cloudkin",
+      "listedArea": "Lower La Noscea"
+    },
+    {
+      "bestiaryNumber": 7,
+      "displayName": "Coblyn",
+      "classification": "Soulkin",
+      "listedArea": "Western Thanalan"
+    },
+    {
+      "bestiaryNumber": 8,
+      "displayName": "Diremite",
+      "classification": "Vilekin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 9,
+      "displayName": "Megalocrab",
+      "classification": "Wavekin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 10,
+      "displayName": "Wespe",
+      "classification": "Vilekin",
+      "listedArea": "Central Thanalan"
+    },
+    {
+      "bestiaryNumber": 11,
+      "displayName": "Vulture",
+      "classification": "Cloudkin",
+      "listedArea": "Western Thanalan"
+    },
+    {
+      "bestiaryNumber": 12,
+      "displayName": "Mandragora",
+      "classification": "Seedkin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 13,
+      "displayName": "Geshunpest",
+      "classification": "Ashkin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 14,
+      "displayName": "Puk",
+      "classification": "Scalekin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 15,
+      "displayName": "Crab",
+      "classification": "Wavekin",
+      "listedArea": "Western Thanalan"
+    },
+    {
+      "bestiaryNumber": 16,
+      "displayName": "Mantis",
+      "classification": "Vilekin",
+      "listedArea": "Western La Noscea"
+    },
+    {
+      "bestiaryNumber": 17,
+      "displayName": "Slime",
+      "classification": "Ashkin",
+      "listedArea": "Copperbell Mines"
+    },
+    {
+      "bestiaryNumber": 18,
+      "displayName": "Dullahan",
+      "classification": "Soulkin",
+      "listedArea": "Halatali"
+    },
+    {
+      "bestiaryNumber": 19,
+      "displayName": "Bat",
+      "classification": "Cloudkin",
+      "listedArea": "Lower La Noscea"
+    },
+    {
+      "bestiaryNumber": 20,
+      "displayName": "Flying Trap",
+      "classification": "Seedkin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 21,
+      "displayName": "Ziz",
+      "classification": "Scalekin",
+      "listedArea": "Western La Noscea"
+    },
+    {
+      "bestiaryNumber": 22,
+      "displayName": "Sabotender",
+      "classification": "Seedkin",
+      "listedArea": "Western Thanalan"
+    },
+    {
+      "bestiaryNumber": 23,
+      "displayName": "Golem",
+      "classification": "Soulkin",
+      "listedArea": "Southern Thanalan"
+    },
+    {
+      "bestiaryNumber": 24,
+      "displayName": "Apkallu",
+      "classification": "Cloudkin",
+      "listedArea": "Eastern La Noscea"
+    },
+    {
+      "bestiaryNumber": 25,
+      "displayName": "Adamantoise",
+      "classification": "Scalekin",
+      "listedArea": "Central Thanalan"
+    },
+    {
+      "bestiaryNumber": 26,
+      "displayName": "Buffalo",
+      "classification": "Beastkin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 27,
+      "displayName": "Uragnite",
+      "classification": "Wavekin",
+      "listedArea": "Western Thanalan"
+    },
+    {
+      "bestiaryNumber": 28,
+      "displayName": "Worm",
+      "classification": "Vilekin",
+      "listedArea": "Southern Thanalan"
+    },
+    {
+      "bestiaryNumber": 29,
+      "displayName": "Spriggan",
+      "classification": "Soulkin",
+      "listedArea": "Central Thanalan"
+    },
+    {
+      "bestiaryNumber": 30,
+      "displayName": "Goobbue",
+      "classification": "Beastkin",
+      "listedArea": "Lower La Noscea"
+    },
+    {
+      "bestiaryNumber": 31,
+      "displayName": "Gigantoad",
+      "classification": "Wavekin",
+      "listedArea": "Lower La Noscea"
+    },
+    {
+      "bestiaryNumber": 32,
+      "displayName": "Colibri",
+      "classification": "Cloudkin",
+      "listedArea": "Eastern La Noscea"
+    },
+    {
+      "bestiaryNumber": 33,
+      "displayName": "Coeurl",
+      "classification": "Beastkin",
+      "listedArea": "Outer La Noscea"
+    },
+    {
+      "bestiaryNumber": 34,
+      "displayName": "Raptor",
+      "classification": "Scalekin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 35,
+      "displayName": "Drake",
+      "classification": "Scalekin",
+      "listedArea": "Southern Thanalan"
+    },
+    {
+      "bestiaryNumber": 36,
+      "displayName": "Treant",
+      "classification": "Seedkin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 37,
+      "displayName": "Antling",
+      "classification": "Vilekin",
+      "listedArea": "Cutter's Cry"
+    },
+    {
+      "bestiaryNumber": 38,
+      "displayName": "Chimera",
+      "classification": "Beastkin",
+      "listedArea": "Cutter's Cry"
+    },
+    {
+      "bestiaryNumber": 39,
+      "displayName": "Morbol",
+      "classification": "Seedkin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 40,
+      "displayName": "Ghost",
+      "classification": "Ashkin",
+      "listedArea": "Middle La Noscea"
+    },
+    {
+      "bestiaryNumber": 41,
+      "displayName": "Salamander",
+      "classification": "Wavekin",
+      "listedArea": "Central Shroud"
+    },
+    {
+      "bestiaryNumber": 42,
+      "displayName": "Cobra",
+      "classification": "Scalekin",
+      "listedArea": "Mor Dhona"
+    },
+    {
+      "bestiaryNumber": 43,
+      "displayName": "Hydra",
+      "classification": "Scalekin",
+      "listedArea": "A Relic Reborn: the Hydra"
+    },
+    {
+      "bestiaryNumber": 44,
+      "displayName": "Damselfly",
+      "classification": "Vilekin",
+      "listedArea": "The Lost City of Amdapor"
+    },
+    {
+      "bestiaryNumber": 45,
+      "displayName": "Rotting Goobbue",
+      "classification": "Ashkin",
+      "listedArea": "The Lost City of Amdapor"
+    },
+    {
+      "bestiaryNumber": 46,
+      "displayName": "Zu",
+      "classification": "Cloudkin",
+      "listedArea": "Pharos Sirius"
+    },
+    {
+      "bestiaryNumber": 47,
+      "displayName": "Ice Golem",
+      "classification": "Soulkin",
+      "listedArea": "Snowcloak"
+    },
+    {
+      "bestiaryNumber": 48,
+      "displayName": "Karlabos",
+      "classification": "Wavekin",
+      "listedArea": "Sastasha (Hard)"
+    },
+    {
+      "bestiaryNumber": 49,
+      "displayName": "Rafflesia",
+      "classification": "Seedkin",
+      "listedArea": "The Second Coil of Bahamut - Turn 1"
+    },
+    {
+      "bestiaryNumber": 50,
+      "displayName": "Behemoth",
+      "classification": "Beastkin",
+      "listedArea": "The Labyrinth of the Ancients"
+    }
+  ]
+}

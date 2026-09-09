@@ -1,0 +1,102 @@
+{
+  "sourceBase": "https://v2.xivapi.com/api/sheet/Map",
+  "gameVersion": "f5af21155b99a524",
+  "maps": [
+    {
+      "id": 2,
+      "name": "New Gridania",
+      "territoryTypeId": 132,
+      "sizeFactor": 200,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 4,
+      "name": "Central Shroud",
+      "territoryTypeId": 148,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 7,
+      "name": "North Shroud",
+      "territoryTypeId": 154,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 15,
+      "name": "Middle La Noscea",
+      "territoryTypeId": 134,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 16,
+      "name": "Lower La Noscea",
+      "territoryTypeId": 135,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 17,
+      "name": "Eastern La Noscea",
+      "territoryTypeId": 137,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 18,
+      "name": "Western La Noscea",
+      "territoryTypeId": 138,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 19,
+      "name": "Upper La Noscea",
+      "territoryTypeId": 139,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 20,
+      "name": "Western Thanalan",
+      "territoryTypeId": 140,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 21,
+      "name": "Central Thanalan",
+      "territoryTypeId": 141,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 23,
+      "name": "Southern Thanalan",
+      "territoryTypeId": 146,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    {
+      "id": 25,
+      "name": "Mor Dhona",
+      "territoryTypeId": 156,
+      "sizeFactor": 100,
+      "offsetX": 0,
+      "offsetY": 0
+    }
+  ]
+}
