@@ -97,7 +97,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += OpenUi;
         Commands.AddHandler(Command, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Settings, or: beast <number/name> | go <number/name> (auto travel) | map <territoryId> <mapId> <x> <y> | probe <addonName> | stop",
+            HelpMessage = "Open Master's Bestiary. Use /bnav config for settings or /bnav stop to cancel travel.",
         });
         Framework.Update += OnFrameworkUpdate;
         if (bindingActive)
@@ -196,7 +196,7 @@ public sealed class Plugin : IDalamudPlugin
         if (pendingBestiaryOpen)
         {
             pendingBestiaryOpen = false;
-            OpenBestiaryIfCaptureDataMissing();
+            OpenBestiary();
         }
         if (disposed || pendingRequest is not { } request)
             return;
@@ -233,7 +233,6 @@ public sealed class Plugin : IDalamudPlugin
                         travel.Start(plan, GetTravelPlayer(), Environment.TickCount64);
                     }
                     Chat.Print($"[Bestiary Nav] {travel.Status}");
-                    settingsWindow.Open();
                 }
             }
             else if (startTravel) travel.Stop("Quest guidance shown. There is no automatic route for this entry.");
@@ -287,13 +286,16 @@ public sealed class Plugin : IDalamudPlugin
         travel.Stop();
     }
 
-    private unsafe void OpenBestiaryIfCaptureDataMissing()
+    private unsafe void OpenBestiary()
     {
-        if (!bindingActive || !captureState.IsAvailable || captureState.TryRead(out _))
+        if (!bindingActive)
+        {
+            Chat.PrintError("[Bestiary Nav] Update the plugin for this game version to open Master's Bestiary with /bnav.");
             return;
+        }
         if (!CanNavigate(out var reason))
         {
-            Chat.Print($"[Bestiary Nav] Open Master's Bestiary once to load capture records. {reason}");
+            Chat.Print($"[Bestiary Nav] Cannot open Master's Bestiary right now. {reason}");
             return;
         }
         var addon = GameGui.GetAddonByName(BestiarySelectionReader.AddonName);
@@ -306,11 +308,11 @@ public sealed class Plugin : IDalamudPlugin
         if (ui == null || Data.GetExcelSheet<MainCommand>().GetRowOrDefault(bestiaryCommand) == null ||
             !ui->IsMainCommandUnlocked(bestiaryCommand))
         {
-            Chat.PrintError("[Bestiary Nav] Master's Bestiary is not available. Open it once when accessible to load capture records.");
+            Chat.PrintError("[Bestiary Nav] Master's Bestiary is not available or has not been unlocked.");
             return;
         }
         ui->ExecuteMainCommand(bestiaryCommand);
-        Log.Information("Requested Master's Bestiary to load missing capture records.");
+        Log.Information("Opened Master's Bestiary from /bnav.");
     }
 
     private bool CanNavigate(out string reason)
@@ -400,11 +402,14 @@ public sealed class Plugin : IDalamudPlugin
     private void OnCommand(string command, string arguments)
     {
         var words = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length == 0 || (words.Length == 1 && words[0] == "config"))
+        if (words.Length == 0)
+        {
+            pendingBestiaryOpen = true;
+            return;
+        }
+        if (words.Length == 1 && words[0] == "config")
         {
             OpenUi();
-            if (words.Length == 0)
-                pendingBestiaryOpen = true;
             return;
         }
         if (words.Length >= 2 && words[0] is "beast" or "go")

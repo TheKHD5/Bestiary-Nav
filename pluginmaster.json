@@ -3,8 +3,8 @@
     "Author": "BestiaryNav contributors",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.5.4.0",
-    "Description": "Left-click Master's Bestiary entries to open acquisition map flags or select their duty in Duty Finder. Highlight nearby uncaptured beasts with level-colored model and enemy-list labels. Use the Auto Navigate toggle for optional teleporting and walking through Lifestream and vnavmesh (both required for automatic travel). Includes all 50 beasts and quest guidance. Use /bnav for settings.",
+    "AssemblyVersion": "0.5.5.0",
+    "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
     "Tags": [
@@ -17,14 +17,19 @@
     "LoadSync": false,
     "CanUnloadAsync": false,
     "LoadPriority": 0,
-    "Punchline": "Navigate to beasts and highlight nearby uncaptured targets.",
+    "Punchline": "Find your next capture.",
     "AcceptsFeedback": true,
+    "IconUrl": "https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v0.5.5/assets/icon.png",
+    "ImageUrls": [
+      "https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v0.5.5/assets/screenshots/uncaptured-overview.png",
+      "https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v0.5.5/assets/screenshots/uncaptured-detail.png"
+    ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.4/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.4/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.4/latest.zip",
-    "LastUpdate": 1788963551,
-    "Changelog": "Release 0.5.4. See GitHub releases for details."
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.5/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.5/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.5.5/latest.zip",
+    "LastUpdate": 1788966627,
+    "Changelog": "Release 0.5.5. See GitHub releases for details."
   }
 ]

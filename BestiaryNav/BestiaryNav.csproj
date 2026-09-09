@@ -1,12 +1,14 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.5.4</Version>
+    <Version>0.5.5</Version>
     <Author>BestiaryNav contributors</Author>
     <Name>Bestiary Nav</Name>
     <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>
-    <Punchline>Navigate to beasts and highlight nearby uncaptured targets.</Punchline>
-    <Description>Left-click Master's Bestiary entries to open acquisition map flags or select their duty in Duty Finder. Highlight nearby uncaptured beasts with level-colored model and enemy-list labels. Use the Auto Navigate toggle for optional teleporting and walking through Lifestream and vnavmesh (both required for automatic travel). Includes all 50 beasts and quest guidance. Use /bnav for settings.</Description>
+    <Punchline>Find your next capture.</Punchline>
+    <Description>Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.</Description>
     <Tags>beastmaster;map;bestiary</Tags>
+    <IconUrl>https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/icon.png</IconUrl>
+    <ImageUrls>https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/screenshots/uncaptured-overview.png;https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/screenshots/uncaptured-detail.png</ImageUrls>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 ## Prepare
 
 1. Update `BestiaryNav/BestiaryNav.csproj` with the new numeric version. Never overwrite an already published version or release asset.
-2. Record release notes under `releases/v<version>.md` and update the README version. Revalidate native bindings when the game or Dalamud changes.
+2. Record release notes under `releases/v<version>.md`. Update the README if features or installation change. Revalidate native bindings when the game or Dalamud changes.
 3. Build, validate the package, and regenerate the repository index with PowerShell 7.2 or later:
 
 ```powershell
@@ -16,12 +16,14 @@ dotnet run --project ./BestiaryNav.NativeChecks -c Release
 
 The packaging script accepts `-Dotnet <path-to-dotnet>` and uses the installed Dalamud development libraries. `-SkipBuild` validates existing output without rebuilding. It checks DLL/manifest versions, ZIP structure and the packed DLL hash. It writes `pluginmaster.json` and ignored `artifacts/v<version>/` files: `latest.zip`, `BestiaryNav.json`, and `checksums.txt`. Game files, Dalamud DLLs and dependency plugins are not bundled.
 
+The project manifest also supplies `IconUrl` and two `ImageUrls`, pinned to the release tag. Commit the files under `assets/` before publishing that tag. The packaging script validates their PNG dimensions, URLs, and packed manifest fields; icons must be square and no larger than 512 × 512, and previews must fit within 730 × 380. `tools/prepare-images.ps1` reproduces the supplied-image crops and resizing on Windows.
+
 ## Publish
 
 Commit the source, release notes and generated index. Publish the tag and its assets before advancing `main`, so subscribers do not see an index with a missing download. Replace `v0.5.3` in these example commands with the version being published:
 
 ```powershell
-git add BestiaryNav README.md RELEASING.md releases tools pluginmaster.json .gitignore
+git add BestiaryNav README.md RELEASING.md releases tools assets pluginmaster.json .gitignore
 git commit -m "Publish Bestiary Nav 0.5.3"
 git tag v0.5.3
 git push origin refs/tags/v0.5.3

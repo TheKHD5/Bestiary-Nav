@@ -11,65 +11,75 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
 {
     public override void Draw()
     {
-        ImGui.TextWrapped("Left-click a numbered entry in Master's Bestiary to open its acquisition map flag or target duty.");
-        ImGui.Spacing();
         var enabled = configuration.EnableClickNavigation;
         if (ImGui.Checkbox("Enable entry click navigation", ref enabled))
         {
             configuration.EnableClickNavigation = enabled;
             save();
         }
+        Tip("Left-click a Bestiary entry to open its map flag, Duty Finder, or quest guidance. Includes all 50 beasts. Settings save automatically.");
         var blockCombat = configuration.BlockInCombat;
         if (ImGui.Checkbox("Skip navigation while in combat", ref blockCombat))
         {
             configuration.BlockInCombat = blockCombat;
             save();
         }
-        ImGui.Spacing();
-        ImGui.TextWrapped(!bindingActive
-            ? "Click navigation is unavailable for this game or Dalamud version. Update Bestiary Nav; manual commands remain available."
-            : enabled ? "Entry click navigation is active." : "Entry click navigation is turned off.");
+        Tip("Skip map and duty navigation during combat. Automatic travel always stops when combat starts.");
+        if (!bindingActive) ImGui.TextWrapped("Update required for Bestiary integration.");
         ImGui.Separator();
         var autoTravel = configuration.AutoTravel;
-        if (ImGui.Checkbox("Automatically travel to selected beasts", ref autoTravel))
+        if (ImGui.Checkbox("Auto Navigate", ref autoTravel))
             setAutoTravel(autoTravel);
+        Tip("Travel when clicking an outdoor entry: teleport to an unlocked aetheryte, then walk to its capture area. Normal teleport costs apply. Duties open in Duty Finder.\n\n" +
+            (travelAvailable() ? "Lifestream and vnavmesh connected." : "Requires Lifestream and vnavmesh installed and enabled."));
         var cancelOnMovement = configuration.CancelTravelOnManualMovement;
-        if (ImGui.Checkbox("Cancel auto travel when manually moving", ref cancelOnMovement))
+        if (ImGui.Checkbox("Cancel travel on manual movement", ref cancelOnMovement))
         {
             configuration.CancelTravelOnManualMovement = cancelOnMovement;
             save();
         }
-        ImGui.TextWrapped("Movement keys, the controller movement stick, or holding both mouse buttons cancel the current trip. Auto Navigate stays enabled.");
-        ImGui.TextWrapped(travelAvailable() ? "vnavmesh and Lifestream connected." : "Auto travel needs vnavmesh and Lifestream installed and enabled.");
-        ImGui.TextWrapped("Teleports to an unlocked aetheryte, then walks to outdoor capture areas. Normal teleport costs apply. Duties open in Duty Finder.");
-        ImGui.TextWrapped(travel.Status);
-        if (ImGui.Button("Stop travel")) stopTravel();
+        Tip("Movement keys, the controller movement stick, or both mouse buttons cancel the current trip. Auto Navigate stays enabled for your next selection.");
+        if (autoTravel && !travelAvailable()) ImGui.TextWrapped("Auto Navigate needs Lifestream + vnavmesh.");
+        if (travel.Active)
+        {
+            ImGui.TextWrapped(travel.Status);
+            if (ImGui.Button("Stop travel")) stopTravel();
+        }
         ImGui.Separator();
         var showMarkers = configuration.ShowUncapturedMarkers;
-        if (ImGui.Checkbox("Tag nearby uncaptured beasts", ref showMarkers))
+        if (ImGui.Checkbox("Highlight uncaptured beasts", ref showMarkers))
         {
             configuration.ShowUncapturedMarkers = showMarkers;
             save();
         }
+        Tip("Labels appear above beasts and beside enemy-list rows. Green: at or below your level. Red: above your level. Labels disappear after capture. Duty beasts may award a gourd after the encounter.");
         var range = configuration.MarkerRange;
+        ImGui.SetNextItemWidth(190);
         if (ImGui.SliderFloat("Marker range (yalms)", ref range, 10, 100, "%.0f"))
         {
             configuration.MarkerRange = range;
             save();
         }
-        ImGui.TextWrapped(markerStatus());
-        ImGui.TextWrapped("Green: at or below your level. Red: above your level.");
-        ImGui.TextWrapped("Marks known capture targets above their models and beside existing enemy-list rows. Duty targets may award a gourd after the encounter.");
-        ImGui.Separator();
-        ImGui.TextWrapped("Includes all 50 beasts. Cu Sith shows quest guidance because it has no map or duty acquisition.");
-        ImGui.TextWrapped("Changes are saved automatically.");
+        Tip("Maximum distance for nearby labels. Each beast name counts once, even when several of the same beast are nearby.");
+        if (showMarkers) ImGui.TextWrapped(markerStatus());
+    }
+
+    private static void Tip(string text)
+    {
+        ImGui.SameLine();
+        ImGui.TextDisabled("(i)");
+        if (!ImGui.IsItemHovered()) return;
+        ImGui.BeginTooltip();
+        ImGui.PushTextWrapPos(ImGui.GetFontSize() * 25);
+        ImGui.TextUnformatted(text);
+        ImGui.PopTextWrapPos();
+        ImGui.EndTooltip();
     }
 
     public void Open()
     {
-        Size = new Vector2(500, 610);
-        SizeCondition = ImGuiCond.FirstUseEver;
-        SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(320, 240), MaximumSize = new Vector2(float.MaxValue) };
+        Flags = ImGuiWindowFlags.AlwaysAutoResize;
+        SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(440, 0), MaximumSize = new Vector2(600, float.MaxValue) };
         IsOpen = true;
     }
 }

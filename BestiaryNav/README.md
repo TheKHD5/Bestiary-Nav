@@ -4,7 +4,7 @@ An MIT-licensed Dalamud API 15 / .NET 10 plugin. Left-click an entry in the nati
 
 ## Build and use
 
-For normal installation without Dev Plugin Locations, follow the [repository installation instructions](../README.md#install). The source-build workflow below is for development.
+For normal installation without Dev Plugin Locations, follow the [repository installation instructions](../README.md#installation). The source-build workflow below is for development.
 
 Install the .NET 10 SDK and use Dalamud 15 libraries updated by XIVLauncher. The project uses `Dalamud.NET.Sdk/15.0.0`. On Windows the SDK normally resolves `%APPDATA%\XIVLauncher\addon\Hooks\dev`; `DALAMUD_HOME` can override this location.
 
@@ -16,7 +16,7 @@ Add `bin/Release/BestiaryNav.dll` to Dalamud's development plugin locations, the
 
 Commands remain available for diagnostics:
 
-- `/bnav` opens settings and also opens Master's Bestiary if capture records have not loaded yet. `/bnav config` opens only settings. The plugin installer's main-window and configuration buttons open this same settings window. Entry click navigation and combat blocking can be changed here; preferences save automatically through Dalamud.
+- `/bnav` opens only Master's Bestiary, whether or not capture records have already loaded. `/bnav config` opens only settings. The plugin installer's main-window and configuration buttons open this same settings window. Entry click navigation and combat blocking can be changed here; preferences save automatically through Dalamud.
 - `/bnav beast <number or name>` navigates directly. Examples: `/bnav beast 2`, `/bnav beast Pugil`.
 - `/bnav go <number or name>` starts automatic travel to an outdoor entry using Lifestream and vnavmesh.
 - `/bnav map <territoryId> <mapId> <x> <y>` tests a map flag using displayed coordinates.
@@ -25,11 +25,11 @@ Commands remain available for diagnostics:
 
 ## Automatic travel
 
-Install and enable **vnavmesh** and **Lifestream**, then use **Auto Navigate** above Master's Bestiary or **Automatically travel to selected beasts** in settings. The two controls share the same saved setting. Outdoor entry selections teleport to an unlocked destination-zone aetheryte when needed, then walk to the capture area. Settings show dependency availability, progress and a **Stop travel** button. Turning Auto Navigate off stops current travel. This option is off by default; `/bnav go` requests it for one selection. Duty entries still open Duty Finder. See [AUTO-TRAVEL.md](AUTO-TRAVEL.md) for the IPC contracts, route limitations and cancellation behavior.
+Install and enable **vnavmesh** and **Lifestream**, then use **Auto Navigate** above Master's Bestiary or **Auto Navigate** in settings. The two controls share the same saved setting. Outdoor entry selections teleport to an unlocked destination-zone aetheryte when needed, then walk to the capture area. Settings show dependency availability, progress and a **Stop travel** button. Turning Auto Navigate off stops current travel. This option is off by default; `/bnav go` requests it for one selection. Duty entries still open Duty Finder. See [AUTO-TRAVEL.md](AUTO-TRAVEL.md) for the IPC contracts, route limitations and cancellation behavior.
 
 ## Uncaptured beast markers
 
-In settings, enable **Tag nearby uncaptured beasts** to show labels above nearby acquisition targets and beside their existing enemy-list rows. Green means the enemy is at or below your current level; red means it is above your level. The option is off by default; range is adjustable from 10 to 100 yalms. Capture status updates from the game's collection records even with the Bestiary closed. The markers use numeric enemy IDs and the sourced habitats/duties in the catalog. They are local visual overlays and do not change targeting or place shared party markers. See [CAPTURE-MARKERS.md](CAPTURE-MARKERS.md) for coverage and validation details.
+In settings, enable **Highlight uncaptured beasts** to show labels above nearby acquisition targets and beside their existing enemy-list rows. Green means the enemy is at or below your current level; red means it is above your level. The option is off by default; range is adjustable from 10 to 100 yalms. Capture status updates from the game's collection records even with the Bestiary closed. The markers use numeric enemy IDs and the sourced habitats/duties in the catalog. They are local visual overlays and do not change targeting or place shared party markers. See [CAPTURE-MARKERS.md](CAPTURE-MARKERS.md) for coverage and validation details.
 
 ## Native entry clicks
 

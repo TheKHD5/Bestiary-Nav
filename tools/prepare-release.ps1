@@ -26,6 +26,26 @@ if ($taskManifest.InternalName -ne 'BestiaryNav' -or $taskManifest.AssemblyVersi
     throw 'Project, DLL and manifest metadata disagree.'
 }
 
+# The installer rejects oversized previews and non-square icons.
+$taskImages = @('assets/icon.png', 'assets/screenshots/uncaptured-overview.png', 'assets/screenshots/uncaptured-detail.png')
+$taskImageUrls = @($taskManifest.IconUrl) + @($taskManifest.ImageUrls)
+if ($taskImageUrls.Count -ne $taskImages.Count) { throw 'Expected an icon and two preview URLs.' }
+for ($taskImageIndex = 0; $taskImageIndex -lt $taskImages.Count; $taskImageIndex++) {
+    $taskImagePath = $taskImages[$taskImageIndex]
+    if ($taskImageUrls[$taskImageIndex] -ne "https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/$taskTag/$taskImagePath") {
+        throw "Incorrect versioned image URL: $taskImagePath"
+    }
+    $taskImageBytes = [IO.File]::ReadAllBytes((Join-Path $taskRepoRoot $taskImagePath))
+    if ($taskImageBytes.Length -lt 24 -or [Convert]::ToHexString($taskImageBytes[0..7]) -ne '89504E470D0A1A0A') {
+        throw "Not a PNG: $taskImagePath"
+    }
+    $taskWidth = [Net.IPAddress]::NetworkToHostOrder([BitConverter]::ToInt32($taskImageBytes, 16))
+    $taskHeight = [Net.IPAddress]::NetworkToHostOrder([BitConverter]::ToInt32($taskImageBytes, 20))
+    $taskValidImage = if ($taskImageIndex -eq 0) { $taskWidth -eq $taskHeight -and $taskWidth -le 512 }
+        else { $taskWidth -le 730 -and $taskHeight -le 380 }
+    if (!$taskValidImage -or $taskWidth -le 0 -or $taskHeight -le 0) { throw "Invalid installer image dimensions: $taskImagePath" }
+}
+
 $taskZip = [IO.Compression.ZipFile]::OpenRead($taskZipPath)
 try {
     $taskAllowed = @('BestiaryNav.dll', 'BestiaryNav.json', 'BestiaryNav.deps.json')
@@ -37,8 +57,11 @@ try {
     $taskReader = [IO.StreamReader]::new($taskManifestEntry.Open())
     try { $taskPackedManifest = $taskReader.ReadToEnd() | ConvertFrom-Json -AsHashtable }
     finally { $taskReader.Dispose() }
-    foreach ($taskKey in @('InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline')) {
+    foreach ($taskKey in @('InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline', 'IconUrl')) {
         if ($taskPackedManifest[$taskKey] -ne $taskManifest[$taskKey]) { throw "ZIP manifest mismatch: $taskKey" }
+    }
+    if (($taskPackedManifest.ImageUrls | ConvertTo-Json -Compress) -ne ($taskManifest.ImageUrls | ConvertTo-Json -Compress)) {
+        throw 'ZIP preview URLs differ from the built manifest.'
     }
     $taskDllStream = $taskDllEntry.Open()
     try { $taskPackedHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($taskDllStream)) }
@@ -60,7 +83,7 @@ $taskChecksums = foreach ($taskFile in @('latest.zip', 'BestiaryNav.json')) {
 $taskDownload = "https://github.com/TheKHD5/Bestiary-Nav/releases/download/$taskTag/latest.zip"
 $taskEntry = [ordered]@{}
 foreach ($taskKey in @('Author', 'Name', 'InternalName', 'AssemblyVersion', 'Description', 'ApplicableVersion',
-    'RepoUrl', 'Tags', 'DalamudApiLevel', 'LoadRequiredState', 'LoadSync', 'CanUnloadAsync', 'LoadPriority', 'Punchline', 'AcceptsFeedback')) {
+    'RepoUrl', 'Tags', 'DalamudApiLevel', 'LoadRequiredState', 'LoadSync', 'CanUnloadAsync', 'LoadPriority', 'Punchline', 'AcceptsFeedback', 'IconUrl', 'ImageUrls')) {
     if ($taskManifest.ContainsKey($taskKey)) { $taskEntry[$taskKey] = $taskManifest[$taskKey] }
 }
 $taskEntry.IsHide = $false
