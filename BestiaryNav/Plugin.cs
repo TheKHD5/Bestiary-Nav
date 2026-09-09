@@ -44,6 +44,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly Configuration configuration;
     private readonly WindowSystem windowSystem = new("BestiaryNav");
     private readonly SettingsWindow settingsWindow;
+    private readonly BestiaryQuickToggle quickToggle;
     private readonly UncapturedMarkers markers;
     private readonly CaptureStateReader captureState;
     private readonly TravelIpc travelIpc;
@@ -85,10 +86,12 @@ public sealed class Plugin : IDalamudPlugin
         travel = new TravelController(travelIpc);
         travelPlans = new TravelPlanBuilder(Data, Aetherytes);
         settingsWindow = new SettingsWindow(configuration, bindingActive, SaveConfiguration, () => markers.Status,
-            travel, () => travelIpc.Available, StopTravel);
+            travel, () => travelIpc.Available, StopTravel, SetAutoTravel);
+        quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel);
         windowSystem.AddWindow(settingsWindow);
         PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         PluginInterface.UiBuilder.Draw += markers.Draw;
+        PluginInterface.UiBuilder.Draw += quickToggle.Draw;
         ClientState.Logout += OnLogout;
         PluginInterface.UiBuilder.OpenConfigUi += OpenUi;
         PluginInterface.UiBuilder.OpenMainUi += OpenUi;
@@ -116,6 +119,14 @@ public sealed class Plugin : IDalamudPlugin
         if (!configuration.EnableClickNavigation)
             pendingRequest = null;
         PluginInterface.SavePluginConfig(configuration);
+    }
+
+    private void SetAutoTravel(bool enabled)
+    {
+        configuration.AutoTravel = enabled;
+        if (enabled) configuration.EnableClickNavigation = true;
+        if (!enabled) StopTravel();
+        SaveConfiguration();
     }
 
     private static T ReadResource<T>(string name)
@@ -460,6 +471,7 @@ public sealed class Plugin : IDalamudPlugin
         pendingRequest = null;
         PluginInterface.UiBuilder.Draw -= windowSystem.Draw;
         PluginInterface.UiBuilder.Draw -= markers.Draw;
+        PluginInterface.UiBuilder.Draw -= quickToggle.Draw;
         ClientState.Logout -= OnLogout;
         markers.Reset();
         PluginInterface.UiBuilder.OpenConfigUi -= OpenUi;

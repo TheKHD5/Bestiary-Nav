@@ -23,7 +23,7 @@ Commands remain available for diagnostics:
 
 ## Automatic travel
 
-Install and enable **vnavmesh** and **Lifestream**, then enable **Automatically travel to selected beasts** in settings. Outdoor entry selections teleport to an unlocked destination-zone aetheryte when needed, then walk to the capture area. Settings show dependency availability, progress and a **Stop travel** button. This option is off by default; `/bnav go` requests it for one selection. Duty entries still open Duty Finder. See [AUTO-TRAVEL.md](AUTO-TRAVEL.md) for the IPC contracts, route limitations and cancellation behavior.
+Install and enable **vnavmesh** and **Lifestream**, then use **Auto Navigate** above Master's Bestiary or **Automatically travel to selected beasts** in settings. The two controls share the same saved setting. Outdoor entry selections teleport to an unlocked destination-zone aetheryte when needed, then walk to the capture area. Settings show dependency availability, progress and a **Stop travel** button. Turning Auto Navigate off stops current travel. This option is off by default; `/bnav go` requests it for one selection. Duty entries still open Duty Finder. See [AUTO-TRAVEL.md](AUTO-TRAVEL.md) for the IPC contracts, route limitations and cancellation behavior.
 
 ## Uncaptured beast markers
 

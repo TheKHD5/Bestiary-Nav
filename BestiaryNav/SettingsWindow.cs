@@ -6,7 +6,7 @@ using Dalamud.Interface.Windowing;
 namespace BestiaryNav;
 
 internal sealed class SettingsWindow(Configuration configuration, bool bindingActive, Action save, Func<string> markerStatus,
-    TravelController travel, Func<bool> travelAvailable, Action stopTravel)
+    TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
@@ -32,11 +32,7 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
         ImGui.Separator();
         var autoTravel = configuration.AutoTravel;
         if (ImGui.Checkbox("Automatically travel to selected beasts", ref autoTravel))
-        {
-            configuration.AutoTravel = autoTravel;
-            if (!autoTravel) stopTravel();
-            save();
-        }
+            setAutoTravel(autoTravel);
         ImGui.TextWrapped(travelAvailable() ? "vnavmesh and Lifestream connected." : "Auto travel needs vnavmesh and Lifestream installed and enabled.");
         ImGui.TextWrapped("Teleports to an unlocked aetheryte, then walks to outdoor capture areas. Normal teleport costs apply. Duties open in Duty Finder.");
         ImGui.TextWrapped(travel.Status);

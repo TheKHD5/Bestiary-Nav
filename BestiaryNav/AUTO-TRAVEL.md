@@ -4,6 +4,8 @@ Bestiary Nav connects to **vnavmesh** and **Lifestream** through Dalamud IPC. Bo
 
 Enable **Automatically travel to selected beasts** in `/bnav` settings. Left-clicking an outdoor Bestiary entry then opens its flag and starts travel. `/bnav beast <number/name>` follows the same setting. `/bnav go <number/name>` explicitly requests travel for that selection, without changing the saved setting. **Stop travel** or `/bnav stop` cancels the active route and pending Bestiary request. Turning the travel setting off also stops it.
 
+From 0.5.3, a single **Auto Navigate** checkbox is anchored above the top-left corner of Master's Bestiary. It follows window movement and scaling, stays within the viewport, and hides when the Bestiary is closed or the game UI is unavailable. It uses the same saved `AutoTravel` setting as the settings window. Turning it on also enables entry click handling; turning it off stops current automatic travel while leaving ordinary entry map/Duty Finder navigation enabled. The control is a small ImGui overlay, with no native UI node writes or extra click hooks. The user confirmed the checkbox appeared and followed window movement in 0.5.2; 0.5.3 moves the horizontal anchor from the center to the left as requested.
+
 ## Route behavior
 
 1. If already in the destination territory, start from the current position without teleporting.
