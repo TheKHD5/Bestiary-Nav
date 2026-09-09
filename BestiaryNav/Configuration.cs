@@ -11,4 +11,5 @@ public sealed class Configuration : IPluginConfiguration
     public bool BlockInCombat { get; set; } = true;
     public bool ShowUncapturedMarkers { get; set; }
     public float MarkerRange { get; set; } = 50;
+    public bool AutoTravel { get; set; }
 }

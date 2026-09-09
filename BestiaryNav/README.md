@@ -16,9 +16,14 @@ Commands remain available for diagnostics:
 
 - `/bnav` opens settings and also opens Master's Bestiary if capture records have not loaded yet. `/bnav config` opens only settings. The plugin installer's main-window and configuration buttons open this same settings window. Entry click navigation and combat blocking can be changed here; preferences save automatically through Dalamud.
 - `/bnav beast <number or name>` navigates directly. Examples: `/bnav beast 2`, `/bnav beast Pugil`.
+- `/bnav go <number or name>` starts automatic travel to an outdoor entry using Lifestream and vnavmesh.
 - `/bnav map <territoryId> <mapId> <x> <y>` tests a map flag using displayed coordinates.
 - `/bnav probe XBMMonsterNotebook` logs sampled native receive events and the first 32 integer AtkValues.
-- `/bnav stop` removes the probe.
+- `/bnav stop` stops automatic travel and removes the probe.
+
+## Automatic travel
+
+Install and enable **vnavmesh** and **Lifestream**, then enable **Automatically travel to selected beasts** in settings. Outdoor entry selections teleport to an unlocked destination-zone aetheryte when needed, then walk to the capture area. Settings show dependency availability, progress and a **Stop travel** button. This option is off by default; `/bnav go` requests it for one selection. Duty entries still open Duty Finder. See [AUTO-TRAVEL.md](AUTO-TRAVEL.md) for the IPC contracts, route limitations and cancellation behavior.
 
 ## Uncaptured beast markers
 

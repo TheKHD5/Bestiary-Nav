@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Numerics;
 using System.Text.Json;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
@@ -34,6 +35,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
     [PluginService] internal static ISigScanner SigScanner { get; private set; } = null!;
     [PluginService] internal static IObjectTable Objects { get; private set; } = null!;
+    [PluginService] internal static IAetheryteList Aetherytes { get; private set; } = null!;
 
     private const string Command = "/bnav";
     private readonly BindingProfile binding;
@@ -44,6 +46,11 @@ public sealed class Plugin : IDalamudPlugin
     private readonly SettingsWindow settingsWindow;
     private readonly UncapturedMarkers markers;
     private readonly CaptureStateReader captureState;
+    private readonly TravelIpc travelIpc;
+    private readonly TravelController travel;
+    private readonly TravelPlanBuilder travelPlans;
+    private bool pendingAutoTravel;
+    private string lastTravelStatus = "";
     private bool pendingBestiaryOpen;
     private NavigationRequest? pendingRequest;
     private uint lastBestiaryNumber;
@@ -74,7 +81,11 @@ public sealed class Plugin : IDalamudPlugin
         Log.Information($"Capture-state binding available: {captureState.IsAvailable}.");
         markers = new UncapturedMarkers(configuration, captureState, captureTargets.BuildIndex(monsters),
             Objects, ClientState, Condition, GameGui);
-        settingsWindow = new SettingsWindow(configuration, bindingActive, SaveConfiguration, () => markers.Status);
+        travelIpc = new TravelIpc(PluginInterface);
+        travel = new TravelController(travelIpc);
+        travelPlans = new TravelPlanBuilder(Data, Aetherytes);
+        settingsWindow = new SettingsWindow(configuration, bindingActive, SaveConfiguration, () => markers.Status,
+            travel, () => travelIpc.Available, StopTravel);
         windowSystem.AddWindow(settingsWindow);
         PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         PluginInterface.UiBuilder.Draw += markers.Draw;
@@ -83,7 +94,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += OpenUi;
         Commands.AddHandler(Command, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open settings, or: beast <number or name> | map <territoryId> <mapId> <x> <y> | probe <addonName> | stop",
+            HelpMessage = "Settings, or: beast <number/name> | go <number/name> (auto travel) | map <territoryId> <mapId> <x> <y> | probe <addonName> | stop",
         });
         Framework.Update += OnFrameworkUpdate;
         if (bindingActive)
@@ -140,10 +151,11 @@ public sealed class Plugin : IDalamudPlugin
         QueueBeast(number);
     }
 
-    private bool QueueBeast(uint bestiaryNumber)
+    private bool QueueBeast(uint bestiaryNumber, bool autoTravel = false)
     {
         // Clear an earlier request even if the new selection has no known location.
         pendingRequest = null;
+        pendingAutoTravel = false;
         if (!monsters.TryGetValue(bestiaryNumber, out var monster))
         {
             Log.Debug($"Unknown Bestiary number {bestiaryNumber}.");
@@ -151,6 +163,7 @@ public sealed class Plugin : IDalamudPlugin
         }
         // Curated order: first location is preferred. A future chooser can expose alternatives.
         pendingRequest = NavigationRequest.ForBeast(monster);
+        pendingAutoTravel = autoTravel;
         return true;
     }
 
@@ -159,6 +172,16 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         markers.Update();
+        if (travel.Active)
+        {
+            travel.Update(GetTravelPlayer(), Environment.TickCount64);
+            if (travel.Status != lastTravelStatus)
+            {
+                Log.Information($"Auto travel: {travel.Status}");
+                lastTravelStatus = travel.Status;
+                if (!travel.Active) Chat.Print($"[Bestiary Nav] {travel.Status}");
+            }
+        }
         if (pendingBestiaryOpen)
         {
             pendingBestiaryOpen = false;
@@ -167,6 +190,9 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed || pendingRequest is not { } request)
             return;
         pendingRequest = null;
+        var startTravel = pendingAutoTravel || configuration.AutoTravel;
+        pendingAutoTravel = false;
+        if (travel.Active) travel.Stop("Stopped to handle the newly selected destination.");
         // No native pointer or event args survive the click callback. Process the latest
         // request on the framework thread, after leaving native ReceiveEvent dispatch.
         try
@@ -178,9 +204,28 @@ public sealed class Plugin : IDalamudPlugin
             {
                 if (!TryOpenDutyFinder(duty, out reason))
                     Chat.PrintError($"[Bestiary Nav] {reason}");
+                else if (startTravel)
+                    travel.Stop("Duty Finder opened. Enter and navigate the duty manually.");
             }
-            else if (request.Location is { } point && !TryOpenMapAndFlag(point, out reason))
-                Chat.PrintError($"[Bestiary Nav] {reason}");
+            else if (request.Location is { } point)
+            {
+                if (!TryOpenMapAndFlag(point, out reason))
+                    Chat.PrintError($"[Bestiary Nav] {reason}");
+                else if (startTravel)
+                {
+                    if (!bindingActive)
+                        travel.Stop("Auto travel requires a compatible game and Dalamud version.");
+                    else
+                    {
+                        var plan = travelPlans.Build(point);
+                        Log.Information($"Auto travel requested: territory={plan.TerritoryId}, point={plan.MapPoint}, aetheryte={plan.AetheryteId}.");
+                        travel.Start(plan, GetTravelPlayer(), Environment.TickCount64);
+                    }
+                    Chat.Print($"[Bestiary Nav] {travel.Status}");
+                    settingsWindow.Open();
+                }
+            }
+            else if (startTravel) travel.Stop("Quest guidance shown. There is no automatic route for this entry.");
         }
         catch (Exception exception)
         {
@@ -192,7 +237,28 @@ public sealed class Plugin : IDalamudPlugin
     private void OnLogout(int type, int code)
     {
         pendingBestiaryOpen = false;
+        StopTravel();
         markers.Reset();
+    }
+
+    private TravelPlayer GetTravelPlayer()
+    {
+        var player = Objects.LocalPlayer;
+        var loading = Condition[ConditionFlag.BetweenAreas] || Condition[ConditionFlag.BetweenAreas51];
+        string? blocked = Condition[ConditionFlag.InCombat] ? "Travel stopped in combat." :
+            player?.IsDead == true ? "Travel stopped because the player is incapacitated." :
+            Condition[ConditionFlag.WatchingCutscene] || Condition[ConditionFlag.WatchingCutscene78] ||
+            Condition[ConditionFlag.OccupiedInQuestEvent] ? "Travel stopped during an event or cutscene." :
+            !loading && (player == null || GameGui.GameUiHidden) ? "Travel stopped while the game UI is unavailable." : null;
+        return new(ClientState.TerritoryType, player?.Position ?? Vector3.Zero, ClientState.IsLoggedIn,
+            loading, player?.IsCasting == true, blocked);
+    }
+
+    private void StopTravel()
+    {
+        pendingRequest = null;
+        pendingAutoTravel = false;
+        travel.Stop();
     }
 
     private unsafe void OpenBestiaryIfCaptureDataMissing()
@@ -315,12 +381,12 @@ public sealed class Plugin : IDalamudPlugin
                 pendingBestiaryOpen = true;
             return;
         }
-        if (words.Length >= 2 && words[0] == "beast")
+        if (words.Length >= 2 && words[0] is "beast" or "go")
         {
             var key = string.Join(' ', words.Skip(1));
             var number = uint.TryParse(key, out var parsed) ? parsed :
                 monsters.Values.FirstOrDefault(m => m.DisplayName.Equals(key, StringComparison.OrdinalIgnoreCase))?.BestiaryNumber ?? 0;
-            if (!QueueBeast(number))
+            if (!QueueBeast(number, words[0] == "go"))
                 Chat.PrintError("[Bestiary Nav] Unknown beast name or Bestiary number.");
             return;
         }
@@ -330,6 +396,7 @@ public sealed class Plugin : IDalamudPlugin
             float.TryParse(words[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
         {
             pendingRequest = new NavigationRequest(new MapLocation { TerritoryTypeId = territoryId, MapId = mapId, X = x, Y = y }, null, "");
+            pendingAutoTravel = false;
             return;
         }
         if (words.Length == 2 && words[0] == "probe")
@@ -342,10 +409,11 @@ public sealed class Plugin : IDalamudPlugin
         }
         if (words.Length == 1 && words[0] == "stop")
         {
+            StopTravel();
             StopProbe();
             return;
         }
-        Chat.Print($"[Bestiary Nav] {Command} beast <number or name> | map <territory> <map> <x> <y> | probe <addonName> | stop");
+        Chat.Print($"[Bestiary Nav] {Command} beast <number or name> | go <number or name> | map <territory> <map> <x> <y> | probe <addonName> | stop");
     }
 
     private unsafe void OnProbe(AddonEvent _, AddonArgs args)
@@ -387,6 +455,7 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         disposed = true;
+        travel.Dispose();
         pendingBestiaryOpen = false;
         pendingRequest = null;
         PluginInterface.UiBuilder.Draw -= windowSystem.Draw;

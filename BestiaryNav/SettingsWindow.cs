@@ -5,7 +5,8 @@ using Dalamud.Interface.Windowing;
 
 namespace BestiaryNav;
 
-internal sealed class SettingsWindow(Configuration configuration, bool bindingActive, Action save, Func<string> markerStatus)
+internal sealed class SettingsWindow(Configuration configuration, bool bindingActive, Action save, Func<string> markerStatus,
+    TravelController travel, Func<bool> travelAvailable, Action stopTravel)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
@@ -29,6 +30,18 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
             ? "Click navigation is unavailable for this game or Dalamud version. Update Bestiary Nav; manual commands remain available."
             : enabled ? "Entry click navigation is active." : "Entry click navigation is turned off.");
         ImGui.Separator();
+        var autoTravel = configuration.AutoTravel;
+        if (ImGui.Checkbox("Automatically travel to selected beasts", ref autoTravel))
+        {
+            configuration.AutoTravel = autoTravel;
+            if (!autoTravel) stopTravel();
+            save();
+        }
+        ImGui.TextWrapped(travelAvailable() ? "vnavmesh and Lifestream connected." : "Auto travel needs vnavmesh and Lifestream installed and enabled.");
+        ImGui.TextWrapped("Teleports to an unlocked aetheryte, then walks to outdoor capture areas. Normal teleport costs apply. Duties open in Duty Finder.");
+        ImGui.TextWrapped(travel.Status);
+        if (ImGui.Button("Stop travel")) stopTravel();
+        ImGui.Separator();
         var showMarkers = configuration.ShowUncapturedMarkers;
         if (ImGui.Checkbox("Tag nearby uncaptured beasts", ref showMarkers))
         {
@@ -51,7 +64,7 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
 
     public void Open()
     {
-        Size = new Vector2(480, 440);
+        Size = new Vector2(500, 610);
         SizeCondition = ImGuiCond.FirstUseEver;
         SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(320, 240), MaximumSize = new Vector2(float.MaxValue) };
         IsOpen = true;

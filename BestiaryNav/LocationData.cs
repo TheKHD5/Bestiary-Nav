@@ -90,6 +90,12 @@ public sealed class MapLocation
 
 public static class MapCoordinates
 {
+    public static float MarkerToWorld(short pixel, ushort sizeFactor, short offset)
+    {
+        if (sizeFactor == 0) throw new ArgumentOutOfRangeException(nameof(sizeFactor));
+        return (pixel - 1024f) / (sizeFactor / 100f) - offset;
+    }
+
     // World X maps to map X; world Z maps to map Y. World Y is altitude.
     public static float WorldToMap(float worldAxis, ushort sizeFactor, short offset)
     {

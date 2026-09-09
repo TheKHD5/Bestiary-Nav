@@ -131,4 +131,8 @@ Check(targetIndex[(387, 3014)] == 48 && !targetIndex.ContainsKey((1036, 3014)), 
 Check(!targetIndex.Values.Contains(1u), "quest-only beast has no enemy marker");
 var badTargets = new CaptureTargetDatabase { Targets = [new CaptureTargetRecord { BestiaryNumber = 2, CaptureTarget = "Wrong", BNpcNameIds = [37] }] };
 Reject(() => badTargets.BuildIndex(index), "name mismatch rejected");
-Console.WriteLine($"Passed {checks} coordinate, catalog, navigation, entry-label and capture-marker checks.");
+TravelChecks.Run(Check);
+Check(MapCoordinates.MarkerToWorld(1255, 100, 0) == 231 && MapCoordinates.MarkerToWorld(767, 100, 0) == -257, "Summerford map marker converts to world X/Z");
+Check(MapCoordinates.MarkerToWorld(1024, 200, 100) == -100 && MapCoordinates.MarkerToWorld(1536, 200, 0) == 256, "map marker scale and offset");
+Reject(() => MapCoordinates.MarkerToWorld(1024, 0, 0), "zero marker map scale");
+Console.WriteLine($"Passed {checks} coordinate, catalog, navigation, entry-label, capture-marker and auto-travel checks.");
