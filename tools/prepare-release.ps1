@@ -57,7 +57,7 @@ try {
     $taskReader = [IO.StreamReader]::new($taskManifestEntry.Open())
     try { $taskPackedManifest = $taskReader.ReadToEnd() | ConvertFrom-Json -AsHashtable }
     finally { $taskReader.Dispose() }
-    foreach ($taskKey in @('InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline', 'IconUrl')) {
+    foreach ($taskKey in @('Author', 'InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline', 'IconUrl')) {
         if ($taskPackedManifest[$taskKey] -ne $taskManifest[$taskKey]) { throw "ZIP manifest mismatch: $taskKey" }
     }
     if (($taskPackedManifest.ImageUrls | ConvertTo-Json -Compress) -ne ($taskManifest.ImageUrls | ConvertTo-Json -Compress)) {

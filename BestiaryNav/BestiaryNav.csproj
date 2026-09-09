@@ -1,7 +1,7 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.5.5</Version>
-    <Author>BestiaryNav contributors</Author>
+    <Version>0.5.6</Version>
+    <Author>TheKHD5</Author>
     <Name>Bestiary Nav</Name>
     <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>
     <Punchline>Find your next capture.</Punchline>
