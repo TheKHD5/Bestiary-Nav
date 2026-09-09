@@ -4,6 +4,8 @@ An MIT-licensed Dalamud API 15 / .NET 10 plugin. Left-click an entry in the nati
 
 ## Build and use
 
+For normal installation without Dev Plugin Locations, follow the [repository installation instructions](../README.md#install). The source-build workflow below is for development.
+
 Install the .NET 10 SDK and use Dalamud 15 libraries updated by XIVLauncher. The project uses `Dalamud.NET.Sdk/15.0.0`. On Windows the SDK normally resolves `%APPDATA%\XIVLauncher\addon\Hooks\dev`; `DALAMUD_HOME` can override this location.
 
 ```powershell
