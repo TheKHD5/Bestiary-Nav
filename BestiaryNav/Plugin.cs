@@ -185,7 +185,7 @@ public sealed class Plugin : IDalamudPlugin
         markers.Update();
         if (travel.Active)
         {
-            travel.Update(GetTravelPlayer(), Environment.TickCount64);
+            travel.Update(GetTravelPlayer(), Environment.TickCount64, configuration.CancelTravelOnManualMovement);
             if (travel.Status != lastTravelStatus)
             {
                 Log.Information($"Auto travel: {travel.Status}");
@@ -261,8 +261,23 @@ public sealed class Plugin : IDalamudPlugin
             Condition[ConditionFlag.WatchingCutscene] || Condition[ConditionFlag.WatchingCutscene78] ||
             Condition[ConditionFlag.OccupiedInQuestEvent] ? "Travel stopped during an event or cutscene." :
             !loading && (player == null || GameGui.GameUiHidden) ? "Travel stopped while the game UI is unavailable." : null;
+        var manualMovement = false;
+        if (configuration.CancelTravelOnManualMovement && ClientState.IsLoggedIn && !loading && blocked == null)
+        {
+            if (!bindingActive)
+                blocked = "Manual-movement cancellation is unavailable for this game version. Update Bestiary Nav or turn that setting off.";
+            else
+            {
+                try { manualMovement = ManualMovementInput.Read(); }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Could not read manual movement input.");
+                    blocked = "Travel stopped because movement input could not be checked.";
+                }
+            }
+        }
         return new(ClientState.TerritoryType, player?.Position ?? Vector3.Zero, ClientState.IsLoggedIn,
-            loading, player?.IsCasting == true, blocked);
+            loading, player?.IsCasting == true, blocked, manualMovement);
     }
 
     private void StopTravel()

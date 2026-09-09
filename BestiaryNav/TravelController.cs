@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace BestiaryNav;
 
 internal sealed record TravelPlan(uint TerritoryId, Vector3 MapPoint, uint AetheryteId, byte SubIndex, string Name);
-internal readonly record struct TravelPlayer(uint Territory, Vector3 Position, bool LoggedIn, bool Loading, bool Casting, string? BlockReason);
+internal readonly record struct TravelPlayer(uint Territory, Vector3 Position, bool LoggedIn, bool Loading, bool Casting, string? BlockReason,
+    bool ManualMovement = false);
 internal enum TravelPhase { Idle, Teleporting, WaitingForMesh, FindingPath, Moving }
 
 internal interface ITravelBackend
@@ -67,13 +68,16 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
         catch (Exception ex) { Stop($"Could not start travel: {ex.Message}"); }
     }
 
-    public void Update(TravelPlayer player, long now)
+    public void Update(TravelPlayer player, long now, bool cancelOnManualMovement = false)
     {
         if (!Active || plan == null) return;
         try
         {
             if (!player.LoggedIn || player.BlockReason != null)
             { Stop(player.BlockReason ?? "Travel stopped on logout."); return; }
+            // Cancel before polling or consuming a completed path, including during teleport/mesh waits.
+            if (cancelOnManualMovement && !player.Loading && player.ManualMovement)
+            { Stop("Auto travel canceled because you moved manually."); return; }
             if (!backend.Available) { Stop("Travel stopped: a dependency was disabled or reloaded."); return; }
             if (now >= deadline) { Stop($"Travel timed out during {Phase}."); return; }
             // Stop/combat checks stay immediate; avoid copying vnavmesh's waypoint

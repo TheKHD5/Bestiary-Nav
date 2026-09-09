@@ -33,6 +33,13 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
         var autoTravel = configuration.AutoTravel;
         if (ImGui.Checkbox("Automatically travel to selected beasts", ref autoTravel))
             setAutoTravel(autoTravel);
+        var cancelOnMovement = configuration.CancelTravelOnManualMovement;
+        if (ImGui.Checkbox("Cancel auto travel when manually moving", ref cancelOnMovement))
+        {
+            configuration.CancelTravelOnManualMovement = cancelOnMovement;
+            save();
+        }
+        ImGui.TextWrapped("Movement keys, the controller movement stick, or holding both mouse buttons cancel the current trip. Auto Navigate stays enabled.");
         ImGui.TextWrapped(travelAvailable() ? "vnavmesh and Lifestream connected." : "Auto travel needs vnavmesh and Lifestream installed and enabled.");
         ImGui.TextWrapped("Teleports to an unlocked aetheryte, then walks to outdoor capture areas. Normal teleport costs apply. Duties open in Duty Finder.");
         ImGui.TextWrapped(travel.Status);

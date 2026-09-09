@@ -56,6 +56,39 @@ internal static class TravelChecks
 
         Reset(); BeginMove(); controller.Update(player with { BlockReason = "Combat" }, 1200);
         check(!controller.Active && ipc.Stops == 1, "combat cancels movement");
+
+        Reset(); BeginMove();
+        controller.Update(player with { ManualMovement = true }, 1101, true);
+        check(!controller.Active && ipc.Stops == 1 && controller.Status.Contains("manually"),
+            "manual input stops walking immediately, before the next IPC poll");
+        Reset(); BeginMove();
+        controller.Update(player with { ManualMovement = true }, 1200, false);
+        check(controller.Active && ipc.Stops == 0, "manual movement option off preserves travel");
+        controller.Update(player with { ManualMovement = true }, 1201, true);
+        check(!controller.Active && ipc.Stops == 1, "enabling cancellation during a trip takes effect immediately");
+        Reset(); BeginMove();
+        controller.Update(player with { Position = new(10, 0, 10) }, 1200, true);
+        check(controller.Active && ipc.Stops == 0, "automated position changes do not cancel travel");
+        Reset(); BeginPath();
+        controller.Update(player with { ManualMovement = true }, 1001, true);
+        check(!controller.Active && ipc.Token.IsCancellationRequested, "manual input cancels pending pathfinding");
+        ipc.Completion.SetResult([player.Position, target.MapPoint]);
+        controller.Update(player, 2000, true);
+        check(!controller.Active && ipc.Moves == 0, "late result after manual cancellation never restarts walking");
+        Reset(); BeginPath(); ipc.Completion.SetResult([player.Position, target.MapPoint]);
+        controller.Update(player with { ManualMovement = true }, 1100, true);
+        check(!controller.Active && ipc.Moves == 0, "manual input wins over a completed path in the same update");
+        Reset(); controller.Start(target, player, 0);
+        controller.Update(player with { ManualMovement = true }, 1, true);
+        check(!controller.Active && ipc.Moves == 0, "manual input cancels while waiting for the mesh");
+        Reset(); controller.Start(target with { TerritoryId = 148 }, player, 0);
+        controller.Update(player with { ManualMovement = true, Casting = true }, 1, true);
+        controller.Update(player with { Territory = 148 }, 7000, true);
+        check(!controller.Active && ipc.Moves == 0, "manual cancellation during teleport prevents follow-up walking");
+        Reset(); controller.Start(target with { TerritoryId = 148 }, player, 0);
+        controller.Update(player with { ManualMovement = true, Loading = true }, 500, true);
+        check(controller.Phase == TravelPhase.Teleporting, "stale input during loading does not cancel the expected teleport");
+
         Reset(); BeginMove(); controller.Update(player with { LoggedIn = false }, 1200);
         check(!controller.Active && ipc.Stops == 1, "logout cancels movement");
         Reset(); BeginMove(); controller.Update(player with { Territory = 999, Loading = true }, 1200);

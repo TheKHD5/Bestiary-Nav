@@ -9,9 +9,11 @@ A lightweight, MIT-licensed Dalamud plugin for Final Fantasy XIV's Master's Best
 - Count unique nearby beasts and remove their markers when capture records update.
 - Use `/bnav` for settings and to open Master's Bestiary when capture records need loading.
 
-Includes navigation data for all 50 beasts, with quest guidance for Cu Sith. Current plugin version: **0.5.3**.
+Includes navigation data for all 50 beasts, with quest guidance for Cu Sith. Current plugin version: **0.5.4**.
 
 The **Auto Navigate** checkbox above the top-left corner of Master's Bestiary toggles automatic travel on entry clicks. It follows the Bestiary window and shares its setting with `/bnav` settings.
+
+Enable **Cancel auto travel when manually moving** in `/bnav` to cancel the current trip with movement keys, the controller movement stick, or both mouse buttons. This option defaults to off and leaves Auto Navigate enabled for your next selection.
 
 ## Install
 
