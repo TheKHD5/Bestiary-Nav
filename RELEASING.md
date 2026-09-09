@@ -16,7 +16,7 @@ dotnet run --project ./BestiaryNav.NativeChecks -c Release
 
 The packaging script accepts `-Dotnet <path-to-dotnet>` and uses the installed Dalamud development libraries. `-SkipBuild` validates existing output without rebuilding. It checks DLL/manifest versions, ZIP structure and the packed DLL hash. It writes `pluginmaster.json` and ignored `artifacts/v<version>/` files: `latest.zip`, `BestiaryNav.json`, and `checksums.txt`. Game files, Dalamud DLLs and dependency plugins are not bundled.
 
-The project manifest also supplies `IconUrl` and two `ImageUrls`, pinned to the release tag. Commit the files under `assets/` before publishing that tag. The packaging script validates their PNG dimensions, URLs, and packed manifest fields; icons must be square and no larger than 512 × 512, and previews must fit within 730 × 380. `tools/prepare-images.ps1` reproduces the supplied-image crops and resizing on Windows.
+The project manifest also supplies `IconUrl` and two `ImageUrls` through jsDelivr's GitHub CDN, pinned to `InstallerImageTag`. Unchanged images can keep their existing published tag across plugin updates. When changing images, update that tag and publish its `assets/` files before distributing the new manifest. Verify the public image downloads match the local assets. The packaging script validates PNG dimensions, URLs, and packed manifest fields; icons must be square and no larger than 512 × 512, and previews must fit within 730 × 380. `tools/prepare-images.ps1` reproduces the supplied-image crops and resizing on Windows.
 
 ## Publish
 

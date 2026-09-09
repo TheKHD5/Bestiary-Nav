@@ -14,6 +14,8 @@ if (!$SkipBuild) {
 $taskVersion = [string]$taskProjectXml.Project.PropertyGroup.Version
 if ($taskVersion -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') { throw 'Use a numeric release version.' }
 $taskTag = "v$taskVersion"
+$taskImageTag = [string]$taskProjectXml.Project.PropertyGroup.InstallerImageTag
+if ($taskImageTag -notmatch '^v\d+\.\d+\.\d+(\.\d+)?$') { throw 'Pin installer images to a numeric release tag.' }
 $taskExpectedAssembly = if ($taskVersion.Split('.').Count -eq 3) { "$taskVersion.0" } else { $taskVersion }
 $taskBuild = Join-Path $taskRepoRoot 'BestiaryNav/bin/Release'
 $taskManifestPath = Join-Path $taskBuild 'BestiaryNav.json'
@@ -32,7 +34,7 @@ $taskImageUrls = @($taskManifest.IconUrl) + @($taskManifest.ImageUrls)
 if ($taskImageUrls.Count -ne $taskImages.Count) { throw 'Expected an icon and two preview URLs.' }
 for ($taskImageIndex = 0; $taskImageIndex -lt $taskImages.Count; $taskImageIndex++) {
     $taskImagePath = $taskImages[$taskImageIndex]
-    if ($taskImageUrls[$taskImageIndex] -ne "https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/$taskTag/$taskImagePath") {
+    if ($taskImageUrls[$taskImageIndex] -ne "https://cdn.jsdelivr.net/gh/TheKHD5/Bestiary-Nav@$taskImageTag/$taskImagePath") {
         throw "Incorrect versioned image URL: $taskImagePath"
     }
     $taskImageBytes = [IO.File]::ReadAllBytes((Join-Path $taskRepoRoot $taskImagePath))

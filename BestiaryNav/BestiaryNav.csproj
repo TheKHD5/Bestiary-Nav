@@ -1,14 +1,16 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.5.6</Version>
+    <Version>0.5.7</Version>
     <Author>TheKHD5</Author>
     <Name>Bestiary Nav</Name>
     <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>
     <Punchline>Find your next capture.</Punchline>
     <Description>Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.</Description>
     <Tags>beastmaster;map;bestiary</Tags>
-    <IconUrl>https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/icon.png</IconUrl>
-    <ImageUrls>https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/screenshots/uncaptured-overview.png;https://raw.githubusercontent.com/TheKHD5/Bestiary-Nav/v$(Version)/assets/screenshots/uncaptured-detail.png</ImageUrls>
+    <!-- Keep unchanged images pinned to an existing tag, independently of plugin updates. -->
+    <InstallerImageTag>v0.5.6</InstallerImageTag>
+    <IconUrl>https://cdn.jsdelivr.net/gh/TheKHD5/Bestiary-Nav@$(InstallerImageTag)/assets/icon.png</IconUrl>
+    <ImageUrls>https://cdn.jsdelivr.net/gh/TheKHD5/Bestiary-Nav@$(InstallerImageTag)/assets/screenshots/uncaptured-overview.png;https://cdn.jsdelivr.net/gh/TheKHD5/Bestiary-Nav@$(InstallerImageTag)/assets/screenshots/uncaptured-detail.png</ImageUrls>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
