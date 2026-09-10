@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.5.9</Version>
+    <Version>0.6.0</Version>
     <Author>TheKHD5</Author>
     <Name>Bestiary Nav</Name>
     <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>
@@ -17,5 +17,6 @@
     <EmbeddedResource Include="locations.json" LogicalName="BestiaryNav.locations.json" />
     <EmbeddedResource Include="binding.json" LogicalName="BestiaryNav.binding.json" />
     <EmbeddedResource Include="capture-targets.json" LogicalName="BestiaryNav.capture-targets.json" />
+    <EmbeddedResource Include="collection.json" LogicalName="BestiaryNav.collection.json" />
   </ItemGroup>
 </Project>

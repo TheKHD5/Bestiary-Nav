@@ -30,6 +30,14 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
 {
     public TravelPhase Phase { get; private set; }
     public bool Active => Phase != TravelPhase.Idle;
+    public string CompactStatus => Phase switch
+    {
+        TravelPhase.Teleporting => "Teleporting…",
+        TravelPhase.WaitingForMesh => "Loading route…",
+        TravelPhase.FindingPath => "Finding route…",
+        TravelPhase.Moving => "Walking…",
+        _ => "Ready",
+    };
     public string Status { get; private set; } = "Select a beast to travel to its capture area.";
     private TravelPlan? plan;
     private CancellationTokenSource? cancellation;
@@ -104,7 +112,7 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
                 if (backend.Busy) { Stop("Another navigation request started. Bestiary travel stopped."); return; }
                 var ground = backend.GroundPoint(plan.MapPoint);
                 if (ground == null || !Finite(ground.Value) || HorizontalDistance(ground.Value, plan.MapPoint) > 10)
-                { Stop("No nearby walkable ground at the flag. Use the map to approach manually."); return; }
+                { Stop("No nearby walkable ground at the search area. Use the map to approach manually."); return; }
                 destination = ground.Value;
                 if (Vector3.Distance(player.Position, destination) <= 5) { Stop($"Arrived at {plan.Name}."); return; }
                 cancellation = new();
@@ -120,7 +128,7 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
                 pathTask = null;
                 cancellation?.Dispose(); cancellation = null;
                 if (!ValidPath(path, player.Position, destination))
-                { Stop("No complete walking route to the capture area. The map flag remains available."); return; }
+                { Stop("No complete walking route to the capture area. Approach the area manually."); return; }
                 if (backend.MovementBusy) { Stop("Another plugin started moving. Bestiary travel stopped."); return; }
                 backend.Move(path);
                 Phase = TravelPhase.Moving;

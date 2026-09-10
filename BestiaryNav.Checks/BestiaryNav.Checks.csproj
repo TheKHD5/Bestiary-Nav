@@ -8,6 +8,10 @@
     <Compile Include="..\BestiaryNav\LocationData.cs" Link="LocationData.cs" />
     <Compile Include="..\BestiaryNav\BestiaryEntryLabel.cs" Link="BestiaryEntryLabel.cs" />
     <Compile Include="..\BestiaryNav\CaptureTargets.cs" Link="CaptureTargets.cs" />
+    <Compile Include="..\BestiaryNav\ModelLabelLayout.cs" Link="ModelLabelLayout.cs" />
+    <Compile Include="..\BestiaryNav\SpawnAreaCoordinates.cs" Link="SpawnAreaCoordinates.cs" />
+    <Compile Include="..\BestiaryNav\CollectionPlanner.cs" Link="CollectionPlanner.cs" />
+    <Content Include="..\BestiaryNav\collection.json" Link="collection.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\BestiaryNav\TravelController.cs" Link="TravelController.cs" />
     <Content Include="..\BestiaryNav\capture-targets.json" Link="capture-targets.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\BestiaryNav\locations.json" Link="locations.json" CopyToOutputDirectory="PreserveNewest" />

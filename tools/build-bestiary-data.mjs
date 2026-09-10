@@ -58,6 +58,10 @@ const database = { schemaVersion: 2, idSpace: 'masters-bestiary-number', researc
   gameDataVersion: mapData.gameVersion, nativeIdMappingVerified: false, monsters };
 await fs.writeFile(path.join(project, 'locations.json'), JSON.stringify(database, null, 2) + '\n');
 const counts = Object.fromEntries(['map', 'duty', 'quest'].map(k => [k, monsters.filter(m => m.navigationKind === k).length]));
+const collection = { source: acquisition.source, retrievedOn: acquisition.retrievedOn,
+  beasts: acquisition.beasts.map(b => ({ bestiaryNumber: b.bestiaryNumber, minimumLevel: b.minimumLevel,
+    gourd: b.gourd === '—' ? '' : b.gourd, source: b.beastSource })) };
+await fs.writeFile(path.join(project, 'collection.json'), JSON.stringify(collection, null, 2) + '\n');
 const lines = ['# Bestiary Nav destinations', '',
   'Names and published Bestiary numbers come from [Icy Veins](' + roster.source + '). Capture targets/areas are cross-checked against the [community Bestiary](' + acquisition.source + ') and individual enemy pages. Territory, map and duty IDs use XIVAPI game data version `' + mapData.gameVersion + '`.', '',
   '**These are published capture-area coordinates, not guaranteed stationary spawn positions.** Decimal precision is preserved only where a source publishes it. Native selection-to-number mapping remains unverified. Quest/duty entries have no invented X/Y.', '',

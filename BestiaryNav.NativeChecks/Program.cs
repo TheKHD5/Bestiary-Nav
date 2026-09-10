@@ -2,6 +2,8 @@ using System.Runtime.InteropServices;
 using System.Numerics;
 using BestiaryNav;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.Interop;
 
 // This isolated process exercises the actual guarded reader on allocated native
 // fixtures. It never injects into, writes to, or calls functions in the game.
@@ -22,6 +24,44 @@ unsafe
     }
     try
     {
+        var finder = Allocate<AgentContentsFinder>();
+        var entries = Allocate<Pointer<Contents>>(3);
+        finder->ContentList.First = entries;
+        finder->ContentList.Last = finder->ContentList.End = entries + 3;
+        for (var i = 0; i < 3; i++)
+        {
+            var entry = Allocate<Contents>();
+            entries[i] = entry;
+            entry->Id = new() { ContentType = ContentsType.Regular, Id = (uint)(i + 3) };
+        }
+        entries[0].Value->Id.ContentType = ContentsType.Roulette;
+        entries[2].Value->Id.Id = 3;
+        Check(DutySelectionReader.TryFindEntry(finder, 3, out var dutyIndex) && dutyIndex == 3, "duty callback index is one-based and excludes same-ID roulette");
+        Check(!DutySelectionReader.TryFindEntry(finder, 0, out _) && !DutySelectionReader.TryFindEntry(finder, 999, out _), "invalid or absent duty cannot be selected");
+        entries[1].Value->Id.Id = 3;
+        Check(!DutySelectionReader.TryFindEntry(finder, 3, out _), "duplicate matching duties rejected");
+        entries[1].Value->Id.Id = 4;
+        var selected = Allocate<ContentsId>(6);
+        finder->SelectedContent.First = selected;
+        finder->SelectedContent.Last = selected;
+        finder->SelectedContent.End = selected + 6;
+        Check(DutySelectionReader.TryReadSelection(finder, 3, out var selectedCount, out var onlyTarget) && selectedCount == 0 && !onlyTarget, "cleared selection verified");
+        selected[0] = new() { ContentType = ContentsType.Regular, Id = 3 };
+        finder->SelectedContent.Last = selected + 1;
+        Check(DutySelectionReader.TryReadSelection(finder, 3, out selectedCount, out onlyTarget) && selectedCount == 1 && onlyTarget, "target-only selection verified");
+        selected[0].ContentType = ContentsType.Roulette;
+        Check(DutySelectionReader.TryReadSelection(finder, 3, out _, out onlyTarget) && !onlyTarget, "roulette with same ID is not target success");
+        selected[0].ContentType = ContentsType.Regular;
+        finder->SelectedContent.Last = selected + 2;
+        Check(DutySelectionReader.TryReadSelection(finder, 3, out selectedCount, out onlyTarget) && selectedCount == 2 && !onlyTarget, "extra checked duties prevent success");
+        finder->SelectedContent.Last = selected + 6;
+        Check(!DutySelectionReader.TryReadSelection(finder, 3, out _, out _), "invalid selection size rejected");
+        finder->ContentList.Last = entries + 2049;
+        Check(!DutySelectionReader.TryFindEntry(finder, 3, out _), "oversized content list rejected before traversal");
+        finder->ContentList.Last = entries + 3;
+        entries[1] = (Contents*)0x12345678;
+        Check(!DutySelectionReader.TryFindEntry(finder, 3, out _), "unreadable content pointer rejected safely");
+        Check(!DutySelectionReader.TryFindEntry(null, 3, out _) && !DutySelectionReader.TryReadSelection(null, 3, out _, out _), "missing agent safely rejected");
         Check(!NativeSnapshot.TryRead<long>(0, out _), "null pointer rejected");
         Check(!NativeSnapshot.TryRead<long>(0x12345678, out _), "unmapped memory returns false");
         var addon = Allocate<AtkUnitBase>();

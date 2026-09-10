@@ -126,12 +126,17 @@ var targetData = JsonSerializer.Deserialize<CaptureTargetDatabase>(File.ReadAllT
 var targetIndex = targetData.BuildIndex(index);
 Check(targetData.Targets.Count == 49 && targetData.Targets.Select(t => t.BestiaryNumber).Distinct().Count() == 49, "all non-quest capture targets");
 Check(targetIndex[(134, 392)] == 3, "Lost Lamb in Middle La Noscea maps to Lamb");
+Check(targetIndex[(1038, 554)] == 17, "live Copperbell Mines boss maps to Slime");
+Check(CaptureRules.IsUncaptured(0x300103EFFFF, 17) && !CaptureRules.IsUncaptured(0x300103FFFFF, 17),
+    "Slime is eligible before registration and hidden after registration");
 Check(!targetIndex.ContainsKey((148, 392)), "same name outside verified habitat is not assumed capturable");
 Check(targetIndex[(387, 3014)] == 48 && !targetIndex.ContainsKey((1036, 3014)), "duty variant restriction");
 Check(!targetIndex.Values.Contains(1u), "quest-only beast has no enemy marker");
 var badTargets = new CaptureTargetDatabase { Targets = [new CaptureTargetRecord { BestiaryNumber = 2, CaptureTarget = "Wrong", BNpcNameIds = [37] }] };
 Reject(() => badTargets.BuildIndex(index), "name mismatch rejected");
 TravelChecks.Run(Check);
+ModelLabelChecks.Run(Check);
+CollectionChecks.Run(Check, Reject, index);
 Check(MapCoordinates.MarkerToWorld(1255, 100, 0) == 231 && MapCoordinates.MarkerToWorld(767, 100, 0) == -257, "Summerford map marker converts to world X/Z");
 Check(MapCoordinates.MarkerToWorld(1024, 200, 100) == -100 && MapCoordinates.MarkerToWorld(1536, 200, 0) == 256, "map marker scale and offset");
 Reject(() => MapCoordinates.MarkerToWorld(1024, 0, 0), "zero marker map scale");

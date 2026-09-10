@@ -10,7 +10,8 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 namespace BestiaryNav;
 
 internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui gui,
-    IClientState client, ICondition conditions, bool bindingActive, Action<bool> setAutoTravel, Action openSettings)
+    IClientState client, ICondition conditions, bool bindingActive, Action<bool> setAutoTravel, Action openSettings,
+    Action openCollection, TravelController travel, Action stopTravel, Action<bool> setLocationPopup)
 {
     public unsafe void Draw()
     {
@@ -28,12 +29,18 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
             return;
 
         const string label = "Auto Navigate";
+        const string trackingLabel = "Location pop-up";
         var viewport = ImGui.GetMainViewport();
         var padding = new Vector2(8, 4);
         var frameHeight = ImGui.GetFrameHeight();
         var size = new Vector2(ImGui.CalcTextSize(label).X + frameHeight +
-            ImGui.GetStyle().ItemInnerSpacing.X + ImGui.GetStyle().ItemSpacing.X + frameHeight,
+            ImGui.GetStyle().ItemInnerSpacing.X + 2 * (ImGui.GetStyle().ItemSpacing.X + frameHeight),
             frameHeight) + padding * 2;
+        size.X += ImGui.CalcTextSize(trackingLabel).X + frameHeight +
+            ImGui.GetStyle().ItemInnerSpacing.X + ImGui.GetStyle().ItemSpacing.X;
+        if (travel.Active)
+            size.X += ImGui.CalcTextSize(travel.CompactStatus).X + ImGui.CalcTextSize("Stop").X +
+                2 * ImGui.GetStyle().ItemSpacing.X + 2 * ImGui.GetStyle().FramePadding.X;
         var min = viewport.Pos + new Vector2(4);
         var max = viewport.Pos + viewport.Size - size - new Vector2(4);
         if (max.X < min.X || max.Y < min.Y) return;
@@ -57,10 +64,24 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
                 if (!visible) return;
                 var enabled = configuration.AutoTravel;
                 if (ImGui.Checkbox(label, ref enabled)) setAutoTravel(enabled);
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Travel to the selected beast. Turning this on also enables Location pop-up.");
+                ImGui.SameLine();
+                var tracking = configuration.MapTrackingOnClick;
+                if (ImGui.Checkbox(trackingLabel, ref tracking)) setLocationPopup(tracking);
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Open the map or Duty Finder when clicking Bestiary entries.\nTurning this off also disables Auto Navigate and stops the current trip.");
                 ImGui.SameLine();
                 if (ImGuiComponents.IconButton("OpenSettings", FontAwesomeIcon.Cog, new Vector2(frameHeight)))
                     openSettings();
                 if (ImGui.IsItemHovered()) ImGui.SetTooltip("Settings (/bnav config)");
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton("OpenCollection", FontAwesomeIcon.Book, new Vector2(frameHeight))) openCollection();
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Collection, favorites, and Where next?");
+                if (travel.Active)
+                {
+                    ImGui.SameLine(); ImGui.TextUnformatted(travel.CompactStatus);
+                    if (ImGui.IsItemHovered()) ImGui.SetTooltip(travel.Status);
+                    ImGui.SameLine(); if (ImGui.Button("Stop")) stopTravel();
+                }
             }
             finally { ImGui.End(); }
         }

@@ -64,6 +64,8 @@ public sealed class DutyDestination
 
 public sealed record NavigationRequest(MapLocation? Location, DutyDestination? Duty, string Notice)
 {
+    public uint BestiaryNumber { get; init; }
+    public bool FromBestiaryClick { get; init; }
     public static NavigationRequest ForBeast(MonsterEntry entry) => entry.NavigationKind switch
     {
         "map" => new(entry.Locations[0], null,

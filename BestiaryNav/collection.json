@@ -1,0 +1,306 @@
+{
+  "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+  "retrievedOn": "2026-09-09",
+  "beasts": [
+    {
+      "bestiaryNumber": 1,
+      "minimumLevel": 1,
+      "gourd": "Cu Sith Gourd from Strangers in the Wood",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Cu_Sith_(Beast)"
+    },
+    {
+      "bestiaryNumber": 2,
+      "minimumLevel": 1,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Squirrel_(Beast)"
+    },
+    {
+      "bestiaryNumber": 3,
+      "minimumLevel": 3,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Lamb_(Beast)"
+    },
+    {
+      "bestiaryNumber": 4,
+      "minimumLevel": 4,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Beast)"
+    },
+    {
+      "bestiaryNumber": 5,
+      "minimumLevel": 5,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Beast)"
+    },
+    {
+      "bestiaryNumber": 6,
+      "minimumLevel": 4,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Dodo_(Beast)"
+    },
+    {
+      "bestiaryNumber": 7,
+      "minimumLevel": 6,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Coblyn_(Beast)"
+    },
+    {
+      "bestiaryNumber": 8,
+      "minimumLevel": 10,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Diremite_(Beast)"
+    },
+    {
+      "bestiaryNumber": 9,
+      "minimumLevel": 10,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Beast)"
+    },
+    {
+      "bestiaryNumber": 10,
+      "minimumLevel": 1,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Wespe_(Beast)"
+    },
+    {
+      "bestiaryNumber": 11,
+      "minimumLevel": 6,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Vulture_(Beast)"
+    },
+    {
+      "bestiaryNumber": 12,
+      "minimumLevel": 5,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Mandragora_(Beast)"
+    },
+    {
+      "bestiaryNumber": 13,
+      "minimumLevel": 14,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Beast)"
+    },
+    {
+      "bestiaryNumber": 14,
+      "minimumLevel": 4,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Puk_(Beast)"
+    },
+    {
+      "bestiaryNumber": 15,
+      "minimumLevel": 13,
+      "gourd": "Crab Gourd ; requires level 30 quest Into the Crucible",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Crab_(Beast)"
+    },
+    {
+      "bestiaryNumber": 16,
+      "minimumLevel": 16,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Mantis_(Beast)"
+    },
+    {
+      "bestiaryNumber": 17,
+      "minimumLevel": 17,
+      "gourd": "Slime Gourd ; requires level 30 quest Into the Crucible",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Slime_(Beast)"
+    },
+    {
+      "bestiaryNumber": 18,
+      "minimumLevel": 20,
+      "gourd": "Dullahan Gourd ; requires level 30 quest Into the Crucible",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Dullahan_(Beast)"
+    },
+    {
+      "bestiaryNumber": 19,
+      "minimumLevel": 7,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Bat_(Beast)"
+    },
+    {
+      "bestiaryNumber": 20,
+      "minimumLevel": 10,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Flying_Trap_(Beast)"
+    },
+    {
+      "bestiaryNumber": 21,
+      "minimumLevel": 16,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Ziz_(Beast)"
+    },
+    {
+      "bestiaryNumber": 22,
+      "minimumLevel": 3,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Sabotender_(Beast)"
+    },
+    {
+      "bestiaryNumber": 23,
+      "minimumLevel": 29,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Golem_(Beast)"
+    },
+    {
+      "bestiaryNumber": 24,
+      "minimumLevel": 30,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Beast)"
+    },
+    {
+      "bestiaryNumber": 25,
+      "minimumLevel": 12,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Adamantoise_(Beast)"
+    },
+    {
+      "bestiaryNumber": 26,
+      "minimumLevel": 8,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Buffalo_(Beast)"
+    },
+    {
+      "bestiaryNumber": 27,
+      "minimumLevel": 14,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Uragnite_(Beast)"
+    },
+    {
+      "bestiaryNumber": 28,
+      "minimumLevel": 31,
+      "gourd": "Worm Gourd ; requires level 30 quest Into the Crucible",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Worm_(Beast)"
+    },
+    {
+      "bestiaryNumber": 29,
+      "minimumLevel": 7,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Spriggan_(Beast)"
+    },
+    {
+      "bestiaryNumber": 30,
+      "minimumLevel": 12,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Goobbue_(Beast)"
+    },
+    {
+      "bestiaryNumber": 31,
+      "minimumLevel": 4,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Gigantoad_(Beast)"
+    },
+    {
+      "bestiaryNumber": 32,
+      "minimumLevel": 33,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Beast)"
+    },
+    {
+      "bestiaryNumber": 33,
+      "minimumLevel": 24,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Coeurl_(Beast)"
+    },
+    {
+      "bestiaryNumber": 34,
+      "minimumLevel": 9,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Raptor_(Beast)"
+    },
+    {
+      "bestiaryNumber": 35,
+      "minimumLevel": 32,
+      "gourd": "Drake Gourd ; requires level 30 quest Into the Crucible",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Drake_(Beast)"
+    },
+    {
+      "bestiaryNumber": 36,
+      "minimumLevel": 12,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Treant_(Beast)"
+    },
+    {
+      "bestiaryNumber": 37,
+      "minimumLevel": 38,
+      "gourd": "Antling Gourd ; requires level 40 quest Gobsmacked",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Antling_(Beast)"
+    },
+    {
+      "bestiaryNumber": 38,
+      "minimumLevel": 38,
+      "gourd": "Chimera Gourd ; requires level 40 quest Gobsmacked",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Chimera_(Beast)"
+    },
+    {
+      "bestiaryNumber": 39,
+      "minimumLevel": 31,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Morbol_(Beast)"
+    },
+    {
+      "bestiaryNumber": 40,
+      "minimumLevel": 7,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Ghost_(Beast)"
+    },
+    {
+      "bestiaryNumber": 41,
+      "minimumLevel": 6,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Salamander_(Beast)"
+    },
+    {
+      "bestiaryNumber": 42,
+      "minimumLevel": 45,
+      "gourd": "",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Cobra_(Beast)"
+    },
+    {
+      "bestiaryNumber": 43,
+      "minimumLevel": 50,
+      "gourd": "Hydra Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Hydra_(Beast)"
+    },
+    {
+      "bestiaryNumber": 44,
+      "minimumLevel": 50,
+      "gourd": "Damselfly Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Damselfly_(Beast)"
+    },
+    {
+      "bestiaryNumber": 45,
+      "minimumLevel": 50,
+      "gourd": "Rotting Goobbue Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Rotting_Goobbue_(Beast)"
+    },
+    {
+      "bestiaryNumber": 46,
+      "minimumLevel": 50,
+      "gourd": "Zu Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Zu_(Beast)"
+    },
+    {
+      "bestiaryNumber": 47,
+      "minimumLevel": 50,
+      "gourd": "Ice Golem Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Ice_Golem_(Beast)"
+    },
+    {
+      "bestiaryNumber": 48,
+      "minimumLevel": 50,
+      "gourd": "Karlabos Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Karlabos_(Beast)"
+    },
+    {
+      "bestiaryNumber": 49,
+      "minimumLevel": 50,
+      "gourd": "Rafflesia Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Rafflesia_(Beast)"
+    },
+    {
+      "bestiaryNumber": 50,
+      "minimumLevel": 50,
+      "gourd": "Behemoth Gourd ; requires level 50 quest A Beastmaster's Path",
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Behemoth_(Beast)"
+    }
+  ]
+}

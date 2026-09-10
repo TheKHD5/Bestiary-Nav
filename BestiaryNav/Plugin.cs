@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Numerics;
 using System.Text.Json;
+using System.Text;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Command;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.IoC;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -35,6 +35,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
     [PluginService] internal static ISigScanner SigScanner { get; private set; } = null!;
     [PluginService] internal static IObjectTable Objects { get; private set; } = null!;
+    [PluginService] internal static ITargetManager Targets { get; private set; } = null!;
+    [PluginService] internal static IUnlockState Unlocks { get; private set; } = null!;
     [PluginService] internal static IAetheryteList Aetherytes { get; private set; } = null!;
 
     private const string Command = "/bnav";
@@ -51,9 +53,19 @@ public sealed class Plugin : IDalamudPlugin
     private readonly TravelIpc travelIpc;
     private readonly TravelController travel;
     private readonly TravelPlanBuilder travelPlans;
+    private readonly SpawnAreaMap spawnAreas;
+    private readonly DutySelection dutySelection;
+    private readonly Dictionary<uint, BeastAcquisition> acquisition;
+    private readonly CollectionWindow collectionWindow;
+    private volatile CollectionSnapshot collectionSnapshot = CollectionSnapshot.Empty;
+    private long nextCollectionUpdate;
+    private volatile string diagnosticReport = "Diagnostics will be ready after the next game update.";
+    private string actualGameVersion = "";
+    private string actualDalamudVersion = "";
     private bool pendingAutoTravel;
     private string lastTravelStatus = "";
     private bool pendingBestiaryOpen;
+    private bool pendingClearSpawnAreas;
     private NavigationRequest? pendingRequest;
     private uint lastBestiaryNumber;
     private long lastSelectionAt;
@@ -70,6 +82,9 @@ public sealed class Plugin : IDalamudPlugin
         var gameVersion = Data.GameData.Repositories.TryGetValue("ffxiv", out var repository)
             ? repository.Version?.Trim() ?? "" : "";
         var dalamudVersion = typeof(IDalamudPlugin).Assembly.GetName().Version?.ToString() ?? "";
+        actualGameVersion = gameVersion;
+        actualDalamudVersion = dalamudVersion;
+        acquisition = ReadResource<CollectionMetadata>("collection.json").BuildIndex(monsters);
 
         bindingIssue = !binding.Enabled ? "Bestiary integration is disabled in this build." :
             gameVersion != binding.VerifiedGameVersion
@@ -82,18 +97,35 @@ public sealed class Plugin : IDalamudPlugin
         if (bindingIssue != null) Log.Warning(bindingIssue);
         configuration.MarkerRange = float.IsFinite(configuration.MarkerRange)
             ? Math.Clamp(configuration.MarkerRange, 10, 100) : 50;
+        configuration.SpawnAreaRadius = float.IsFinite(configuration.SpawnAreaRadius) ? Math.Clamp(configuration.SpawnAreaRadius, 10, 200) : 60;
+        configuration.LabelScale = float.IsFinite(configuration.LabelScale) ? Math.Clamp(configuration.LabelScale, 0.75f, 2f) : 1;
+        configuration.EligibleColor = ValidColor(configuration.EligibleColor, new(.4f, .88f, .4f, 1));
+        configuration.AboveLevelColor = ValidColor(configuration.AboveLevelColor, new(1, .33f, .33f, 1));
+        configuration.Favorites ??= [];
+        if (!configuration.MapTrackingOnClick) configuration.AutoTravel = false;
+        configuration.Favorites.RemoveWhere(n => !monsters.ContainsKey(n));
         var captureTargets = ReadResource<CaptureTargetDatabase>("capture-targets.json");
         captureState = new CaptureStateReader(SigScanner, Log, bindingIssue ??
             (captureTargets.GameVersion != gameVersion ? "Capture target data does not support this FFXIV version. Update Bestiary Nav." : null));
         Log.Information($"Capture-state binding available: {captureState.IsAvailable}.");
-        markers = new UncapturedMarkers(configuration, captureState, captureTargets.BuildIndex(monsters),
-            Objects, ClientState, Condition, GameGui);
+        // Resolve from the English sheet once, then compare stable row IDs across
+        // all client languages. No guessed job ID or native offset is needed.
+        var beastmasterJobId = Data.GetExcelSheet<ClassJob>(Dalamud.Game.ClientLanguage.English)
+            .FirstOrDefault(row => row.Abbreviation.ExtractText() == "BST").RowId;
+        markers = new UncapturedMarkers(configuration, captureState, captureTargets.BuildIndex(monsters), monsters,
+            Objects, ClientState, Condition, GameGui, beastmasterJobId);
         travelIpc = new TravelIpc(PluginInterface);
         travel = new TravelController(travelIpc);
         travelPlans = new TravelPlanBuilder(Data, Aetherytes);
+        spawnAreas = new SpawnAreaMap(Data, bindingActive);
+        dutySelection = new DutySelection(GameGui, CanEditDutySelection, message => Chat.Print($"[Bestiary Nav] {message}"));
+        collectionWindow = new CollectionWindow(monsters, acquisition, configuration, () => collectionSnapshot,
+            n => QueueBeast(n), SaveConfiguration, () => pendingBestiaryOpen = true);
+        windowSystem.AddWindow(collectionWindow);
         settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
-            travel, () => travelIpc.Available, StopTravel, SetAutoTravel);
-        quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi);
+            travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup);
+        quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
+            collectionWindow.Open, travel, StopTravel, SetLocationPopup);
         windowSystem.AddWindow(settingsWindow);
         PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         PluginInterface.UiBuilder.Draw += markers.Draw;
@@ -113,6 +145,10 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
+    private static Vector4 ValidColor(Vector4 color, Vector4 fallback) =>
+        float.IsFinite(color.X) && float.IsFinite(color.Y) && float.IsFinite(color.Z)
+            ? new(Vector3.Clamp(new(color.X, color.Y, color.Z), Vector3.Zero, Vector3.One), 1) : fallback;
+
     private void OpenUi()
     {
         if (!disposed)
@@ -127,10 +163,27 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.SavePluginConfig(configuration);
     }
 
+    private void SetLocationPopup(bool enabled)
+    {
+        configuration.MapTrackingOnClick = enabled;
+        if (enabled) configuration.EnableClickNavigation = true;
+        else
+        {
+            pendingClearSpawnAreas = true;
+            configuration.AutoTravel = false;
+            StopTravel();
+        }
+        SaveConfiguration();
+    }
+
     private void SetAutoTravel(bool enabled)
     {
         configuration.AutoTravel = enabled;
-        if (enabled) configuration.EnableClickNavigation = true;
+        if (enabled)
+        {
+            configuration.EnableClickNavigation = true;
+            configuration.MapTrackingOnClick = true;
+        }
         if (!enabled) StopTravel();
         SaveConfiguration();
     }
@@ -165,10 +218,10 @@ public sealed class Plugin : IDalamudPlugin
         lastBestiaryNumber = number;
         lastSelectionAt = now;
         Log.Information($"Bestiary left-click: eventParam={receive.EventParam}, number={number}.");
-        QueueBeast(number);
+        QueueBeast(number, fromBestiaryClick: true);
     }
 
-    private bool QueueBeast(uint bestiaryNumber, bool autoTravel = false)
+    private bool QueueBeast(uint bestiaryNumber, bool autoTravel = false, bool fromBestiaryClick = false)
     {
         // Clear an earlier request even if the new selection has no known location.
         pendingRequest = null;
@@ -178,8 +231,10 @@ public sealed class Plugin : IDalamudPlugin
             Log.Debug($"Unknown Bestiary number {bestiaryNumber}.");
             return false;
         }
-        // Curated order: first location is preferred. A future chooser can expose alternatives.
-        pendingRequest = NavigationRequest.ForBeast(monster);
+        // Prefer the current territory, then the closest reported location on this map.
+        pendingRequest = NavigationRequest.ForBeast(monster) with { BestiaryNumber = bestiaryNumber, FromBestiaryClick = fromBestiaryClick };
+        if (monster.NavigationKind == "map" && CollectionPlanner.PreferredLocation(monster, collectionSnapshot) is { } preferred)
+            pendingRequest = pendingRequest with { Location = preferred };
         pendingAutoTravel = autoTravel;
         return true;
     }
@@ -189,6 +244,14 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         markers.Update();
+        UpdateCollection();
+        if (pendingRequest != null) dutySelection.Cancel();
+        else dutySelection.Update();
+        if (pendingClearSpawnAreas)
+        {
+            pendingClearSpawnAreas = false;
+            spawnAreas.ClearOwned();
+        }
         if (travel.Active)
         {
             travel.Update(GetTravelPlayer(), Environment.TickCount64, configuration.CancelTravelOnManualMovement);
@@ -209,6 +272,10 @@ public sealed class Plugin : IDalamudPlugin
         pendingRequest = null;
         var startTravel = pendingAutoTravel || configuration.AutoTravel;
         pendingAutoTravel = false;
+        // With Location pop-up disabled, Bestiary browsing has no navigation
+        // side effects, including automatic travel and duty selection changes.
+        if (request.FromBestiaryClick && !configuration.MapTrackingOnClick) return;
+        dutySelection.Cancel();
         if (travel.Active) travel.Stop("Stopped to handle the newly selected destination.");
         // No native pointer or event args survive the click callback. Process the latest
         // request on the framework thread, after leaving native ReceiveEvent dispatch.
@@ -219,6 +286,7 @@ public sealed class Plugin : IDalamudPlugin
             string reason;
             if (request.Duty is { } duty)
             {
+                spawnAreas.ClearOwned();
                 if (!TryOpenDutyFinder(duty, out reason))
                     Chat.PrintError($"[Bestiary Nav] {reason}");
                 else if (startTravel)
@@ -226,7 +294,7 @@ public sealed class Plugin : IDalamudPlugin
             }
             else if (request.Location is { } point)
             {
-                if (!TryOpenMapAndFlag(point, out reason))
+                if (!TryOpenSpawnArea(request, point, out reason))
                     Chat.PrintError($"[Bestiary Nav] {reason}");
                 else if (startTravel)
                 {
@@ -241,7 +309,11 @@ public sealed class Plugin : IDalamudPlugin
                     Chat.Print($"[Bestiary Nav] {travel.Status}");
                 }
             }
-            else if (startTravel) travel.Stop("Quest guidance shown. There is no automatic route for this entry.");
+            else
+            {
+                spawnAreas.ClearOwned();
+                if (startTravel) travel.Stop("Quest guidance shown. There is no automatic route for this entry.");
+            }
         }
         catch (Exception exception)
         {
@@ -252,9 +324,39 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogout(int type, int code)
     {
+        collectionSnapshot = CollectionSnapshot.Empty;
+        nextCollectionUpdate = 0;
         pendingBestiaryOpen = false;
         StopTravel();
         markers.Reset();
+    }
+
+    private void UpdateCollection()
+    {
+        if (Environment.TickCount64 < nextCollectionUpdate) return;
+        nextCollectionUpdate = Environment.TickCount64 + 500;
+        var player = Objects.LocalPlayer;
+        ulong bits = 0;
+        var ready = ClientState.IsLoggedIn && player != null && captureState.TryRead(out bits);
+        var mapPosition = Vector2.Zero;
+        var map = Data.GetExcelSheet<Map>().GetRowOrDefault(ClientState.MapId);
+        if (player != null && map is { } row && row.SizeFactor > 0 &&
+            float.IsFinite(player.Position.X) && float.IsFinite(player.Position.Z))
+            mapPosition = new(MapCoordinates.WorldToMap(player.Position.X, row.SizeFactor, row.OffsetX),
+                MapCoordinates.WorldToMap(player.Position.Z, row.SizeFactor, row.OffsetY));
+        var issue = !captureState.IsAvailable ? captureState.UnavailableReason : !ClientState.IsLoggedIn || player == null
+            ? "Log in to see collection progress." : "Open Master's Bestiary once to load capture records.";
+        collectionSnapshot = new(ready, bits, player?.Level ?? 0, ClientState.TerritoryType, ClientState.MapId,
+            mapPosition, ready ? "Capture records ready." : issue);
+        var report = new StringBuilder();
+        report.AppendLine($"Bestiary Nav {typeof(Plugin).Assembly.GetName().Version}");
+        report.AppendLine($"FFXIV: {actualGameVersion}; Dalamud: {actualDalamudVersion}");
+        report.AppendLine($"Compatibility: {bindingIssue ?? "verified"}");
+        report.AppendLine($"Travel dependencies: {(travelIpc.Available ? "connected" : "unavailable")}; phase: {travel.Phase}");
+        report.AppendLine($"Travel: {travel.Status}");
+        report.AppendLine($"Spawn-area radius: {configuration.SpawnAreaRadius:0} yalms");
+        foreach (var line in markers.Diagnose(Targets.Target, false)) report.AppendLine(line);
+        diagnosticReport = report.ToString();
     }
 
     private TravelPlayer GetTravelPlayer()
@@ -287,6 +389,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void StopTravel()
     {
+        dutySelection.Cancel();
         pendingRequest = null;
         pendingAutoTravel = false;
         travel.Stop();
@@ -331,7 +434,7 @@ public sealed class Plugin : IDalamudPlugin
             reason = "Navigation skipped while logged out, loading, in a cutscene, or with the UI hidden.";
             return false;
         }
-        // This is a UX preference, not a technical requirement of OpenMapWithMapLink.
+        // Combat blocking is a user preference for manual map and duty navigation.
         if (configuration.BlockInCombat && Condition[ConditionFlag.InCombat])
         {
             reason = "Navigation skipped in combat.";
@@ -340,10 +443,20 @@ public sealed class Plugin : IDalamudPlugin
         return true;
     }
 
+    private bool IsDutyQueueActive() => Condition[ConditionFlag.InDutyQueue] ||
+        Condition[ConditionFlag.WaitingForDuty] || Condition[ConditionFlag.WaitingForDutyFinder];
+
+    private bool CanEditDutySelection() => bindingActive && CanNavigate(out _) && !IsDutyQueueActive();
+
     private unsafe bool TryOpenDutyFinder(DutyDestination destination, out string reason)
     {
         if (!CanNavigate(out reason))
             return false;
+        if (!bindingActive)
+        {
+            reason = bindingIssue ?? "Duty navigation needs a compatible plugin update.";
+            return false;
+        }
         var row = Data.GetExcelSheet<ContentFinderCondition>().GetRowOrDefault(destination.ContentFinderConditionId);
         if (destination.ContentFinderConditionId == 0 || row == null ||
             row.Value.TerritoryType.RowId != destination.TerritoryTypeId ||
@@ -358,16 +471,30 @@ public sealed class Plugin : IDalamudPlugin
             reason = "Duty Finder is unavailable.";
             return false;
         }
-        // Argument is ContentFinderCondition.RowId, NOT a territory, InstanceContent
-        // or ContentFinderCondition.Content ID. This opens the duty details only.
-        // No queue registration, party changes, or unrestricted-party settings are sent.
+        // Opening details only highlights the duty. When queued, stop here:
+        // never schedule a clear, checkbox toggle, join, or queue withdrawal.
+        var queued = IsDutyQueueActive();
         agent->OpenRegularDuty(destination.ContentFinderConditionId, false);
-        // Native method returns void: this means the open request was dispatched,
-        // not that the player owns/unlocked the duty or the UI was visually verified.
+        if (queued || IsDutyQueueActive()) return true;
+        var instance = Data.GetExcelSheet<InstanceContent>().GetRowOrDefault(row.Value.Content.RowId);
+        if (instance == null || !Unlocks.IsInstanceContentUnlocked(instance.Value))
+        {
+            reason = "Duty details opened, but this duty is not unlocked. Existing selections were kept.";
+            return false;
+        }
+        dutySelection.Start(destination.ContentFinderConditionId);
         return true;
     }
 
-    private bool TryOpenMapAndFlag(MapLocation point, out string reason)
+    private bool TryOpenSpawnArea(NavigationRequest request, MapLocation point, out string reason)
+    {
+        if (!TryValidateMapLocation(point, out reason)) return false;
+        var beast = monsters.GetValueOrDefault(request.BestiaryNumber);
+        return spawnAreas.Open(beast == null ? [point] : [point, .. beast.Locations.Where(p => !ReferenceEquals(p, point))], beast?.DisplayName ?? "Capture target",
+            configuration.SpawnAreaRadius, out reason);
+    }
+
+    private bool TryValidateMapLocation(MapLocation point, out string reason)
     {
         if (!CanNavigate(out reason))
             return false;
@@ -389,14 +516,7 @@ public sealed class Plugin : IDalamudPlugin
             return false;
         }
 
-        // X/Y are floats in displayed map units. The FLOAT overload performs the scale
-        // and offset conversion (and its normal 0.05 display-rounding adjustment).
-        // Do NOT cast to int: the int overload instead expects raw world units * 1000.
-        var payload = new MapLinkPayload(point.TerritoryTypeId, point.MapId, point.X, point.Y);
-        if (GameGui.OpenMapWithMapLink(payload))
-            return true; // This operation opens the map AND sets the active <flag>.
-        reason = "The game declined the map link.";
-        return false;
+        return true;
     }
 
     private void OnFinalize(AddonEvent _, AddonArgs args)
@@ -416,6 +536,23 @@ public sealed class Plugin : IDalamudPlugin
         if (words.Length == 1 && words[0] == "config")
         {
             OpenUi();
+            return;
+        }
+        if (words.Length == 1 && words[0] == "collection") { collectionWindow.Open(); return; }
+        if (words.Length == 1 && words[0] == "next")
+        {
+            var next = CollectionPlanner.Recommend(monsters.Values, acquisition, collectionSnapshot);
+            if (next == null) Chat.Print($"[Bestiary Nav] {(collectionSnapshot.Ready ? "No remaining target at your current level." : collectionSnapshot.Status)}");
+            else QueueBeast(next.BestiaryNumber);
+            return;
+        }
+        if (words.Length == 1 && words[0] == "diagnose")
+        {
+            foreach (var line in markers.Diagnose(Targets.Target))
+            {
+                Log.Information($"Marker diagnostic: {line}");
+                Chat.Print($"[Bestiary Nav] {line}");
+            }
             return;
         }
         if (words.Length >= 2 && words[0] is "beast" or "go")
@@ -492,6 +629,8 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         disposed = true;
+        dutySelection.Cancel();
+        spawnAreas.ClearOwned();
         travel.Dispose();
         pendingBestiaryOpen = false;
         pendingRequest = null;

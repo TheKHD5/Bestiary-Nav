@@ -1,5 +1,40 @@
 # Uncaptured beast markers
 
+## Dungeon label investigation (2026-09-11, local build)
+
+The user reported that Slime's label was absent before capture despite having
+opened the Bestiary. A subsequent read-only inspection in Copperbell Mines
+confirmed territory 1038, Ichorous Ire's BNpcName 554 and BNpcBase 14448,
+Combatant kind, targetability, and a distance of about 21 yalms. The runtime
+diagnostic confirmed an active draw callback and an on-screen projection.
+Slime had already been registered by this retest; that later state does not
+explain the original failure. A preview that bypasses only capture eligibility
+subsequently reproduced the invisible label on the same boss.
+
+The local build fixes a separate rendering edge case: when a boss's raised
+anchor leaves the viewport, it tries the middle and lower body before hiding
+the label. The background and arrow are clamped to the main viewport. It does
+not draw an indicator for an actor whose tested points are all out of view.
+Automated checks cover the large-boss fallback, all screen edges, a nonzero
+viewport origin, invalid geometry, and Slime's pre/post-registration eligibility.
+The first local preview also failed to appear despite a valid projection. The
+next local build explicitly uses the main viewport's foreground draw list and
+collects enemy identities, positions, levels, and enemy-list bounds during
+Framework.Update. Drawing consumes immutable snapshots and no longer accesses
+the object table or native addon rows. Snapshots are cleared on reset and expire
+after one second without an update. The user confirmed that `Preview #17`
+appeared on Ichorous Ire with this build. The layer and thread changes were
+tested together, so their individual contributions have not been isolated.
+All 511 automated checks pass (486 catalog/navigation/marker checks and 25
+native row checks). This live test verifies model-label visibility on the
+already-collected boss; a new dungeon capture and enemy-list combat test were
+not part of this confirmation. These changes remain local and unpublished.
+
+`/bnav diagnose` prints the selected enemy's marker eligibility and projection
+to chat and the plugin log, and shows a clearly named `Preview #<number>` for
+30 seconds on a matching target. Previewing a collected beast does not alter
+capture records or the nearby count. No diagnostic runs automatically.
+
 The nearby target count reports unique Bestiary entries: seven Lost Lambs count as one uncaptured target. Individual eligible enemies still receive model and enemy-list labels.
 
 From 0.4.5, enemy-list labels align vertically to text node 6 (the enemy name), beside the scaled row's right edge. The placement includes the ImGui viewport origin for windowed play, falls back to the left if the right side has insufficient room, and clamps the complete label background inside the viewport. The row lookup remains a guarded, read-only snapshot. The user's combat test reached both enemy-list rows without the earlier crash but exposed the off-screen positioning corrected here; the user confirmed the corrected placement in 0.4.6. The native regression suite now has 25 passing checks, including scaled widths, both horizontal edges, viewport offsets, vertical clipping and invalid geometry.
