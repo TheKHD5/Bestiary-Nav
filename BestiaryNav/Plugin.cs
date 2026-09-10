@@ -93,7 +93,7 @@ public sealed class Plugin : IDalamudPlugin
         travelPlans = new TravelPlanBuilder(Data, Aetherytes);
         settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel);
-        quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel);
+        quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi);
         windowSystem.AddWindow(settingsWindow);
         PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         PluginInterface.UiBuilder.Draw += markers.Draw;

@@ -7,7 +7,7 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 - **Spot uncaptured beasts:** labels above models and beside enemy-list rows; green at or below your level, red above it.
 - **Track nearby targets:** count each beast name once and clear its labels after capture.
 - **Take over anytime:** optionally cancel travel by moving manually.
-- **Simple controls:** `/bnav` opens Master's Bestiary; `/bnav config` opens settings with hover tips. `/bnav stop` cancels travel.
+- **Simple controls:** `/bnav` opens Master's Bestiary; the gear beside Auto Navigate or `/bnav config` opens settings. `/bnav stop` cancels travel.
 
 ## Installation
 

@@ -2,13 +2,15 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Interface;
+using Dalamud.Interface.Components;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace BestiaryNav;
 
 internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui gui,
-    IClientState client, ICondition conditions, bool bindingActive, Action<bool> setAutoTravel)
+    IClientState client, ICondition conditions, bool bindingActive, Action<bool> setAutoTravel, Action openSettings)
 {
     public unsafe void Draw()
     {
@@ -28,8 +30,10 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
         const string label = "Auto Navigate";
         var viewport = ImGui.GetMainViewport();
         var padding = new Vector2(8, 4);
-        var size = new Vector2(ImGui.CalcTextSize(label).X + ImGui.GetFrameHeight() +
-            ImGui.GetStyle().ItemInnerSpacing.X, ImGui.GetFrameHeight()) + padding * 2;
+        var frameHeight = ImGui.GetFrameHeight();
+        var size = new Vector2(ImGui.CalcTextSize(label).X + frameHeight +
+            ImGui.GetStyle().ItemInnerSpacing.X + ImGui.GetStyle().ItemSpacing.X + frameHeight,
+            frameHeight) + padding * 2;
         var min = viewport.Pos + new Vector2(4);
         var max = viewport.Pos + viewport.Size - size - new Vector2(4);
         if (max.X < min.X || max.Y < min.Y) return;
@@ -53,6 +57,10 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
                 if (!visible) return;
                 var enabled = configuration.AutoTravel;
                 if (ImGui.Checkbox(label, ref enabled)) setAutoTravel(enabled);
+                ImGui.SameLine();
+                if (ImGuiComponents.IconButton("OpenSettings", FontAwesomeIcon.Cog, new Vector2(frameHeight)))
+                    openSettings();
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Settings (/bnav config)");
             }
             finally { ImGui.End(); }
         }
