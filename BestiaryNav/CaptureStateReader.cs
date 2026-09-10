@@ -9,10 +9,12 @@ internal sealed unsafe class CaptureStateReader
 {
     private readonly nint statePointerAddress;
     public bool IsAvailable => statePointerAddress != 0;
+    public string UnavailableReason { get; }
 
-    public CaptureStateReader(ISigScanner scanner, IPluginLog log, bool versionVerified)
+    public CaptureStateReader(ISigScanner scanner, IPluginLog log, string? compatibilityIssue)
     {
-        if (!versionVerified)
+        UnavailableReason = compatibilityIssue ?? "Capture-state signature could not be verified. Update Bestiary Nav and check the plugin log.";
+        if (compatibilityIssue != null)
             return;
         try
         {

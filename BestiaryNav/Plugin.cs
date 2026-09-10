@@ -41,6 +41,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly BindingProfile binding;
     private readonly Dictionary<uint, MonsterEntry> monsters;
     private readonly bool bindingActive;
+    private readonly string? bindingIssue;
     private readonly Configuration configuration;
     private readonly WindowSystem windowSystem = new("BestiaryNav");
     private readonly SettingsWindow settingsWindow;
@@ -70,22 +71,27 @@ public sealed class Plugin : IDalamudPlugin
             ? repository.Version?.Trim() ?? "" : "";
         var dalamudVersion = typeof(IDalamudPlugin).Assembly.GetName().Version?.ToString() ?? "";
 
-        bindingActive = binding.Enabled && gameVersion == binding.VerifiedGameVersion &&
-            dalamudVersion == binding.VerifiedDalamudVersion &&
-            binding.AddonName == BestiarySelectionReader.AddonName;
+        bindingIssue = !binding.Enabled ? "Bestiary integration is disabled in this build." :
+            gameVersion != binding.VerifiedGameVersion
+                ? $"Unsupported FFXIV version {gameVersion}; this build supports {binding.VerifiedGameVersion}. Update Bestiary Nav." :
+            dalamudVersion != binding.VerifiedDalamudVersion
+                ? $"Unsupported Dalamud version {dalamudVersion}; this build supports {binding.VerifiedDalamudVersion}. Update Bestiary Nav." :
+            binding.AddonName != BestiarySelectionReader.AddonName ? "Invalid Bestiary addon profile. Update Bestiary Nav." : null;
+        bindingActive = bindingIssue == null;
         Log.Information($"Bestiary binding active: {bindingActive}; game: {gameVersion}; Dalamud: {dalamudVersion}.");
+        if (bindingIssue != null) Log.Warning(bindingIssue);
         configuration.MarkerRange = float.IsFinite(configuration.MarkerRange)
             ? Math.Clamp(configuration.MarkerRange, 10, 100) : 50;
         var captureTargets = ReadResource<CaptureTargetDatabase>("capture-targets.json");
-        captureState = new CaptureStateReader(SigScanner, Log,
-            bindingActive && captureTargets.GameVersion == gameVersion);
+        captureState = new CaptureStateReader(SigScanner, Log, bindingIssue ??
+            (captureTargets.GameVersion != gameVersion ? "Capture target data does not support this FFXIV version. Update Bestiary Nav." : null));
         Log.Information($"Capture-state binding available: {captureState.IsAvailable}.");
         markers = new UncapturedMarkers(configuration, captureState, captureTargets.BuildIndex(monsters),
             Objects, ClientState, Condition, GameGui);
         travelIpc = new TravelIpc(PluginInterface);
         travel = new TravelController(travelIpc);
         travelPlans = new TravelPlanBuilder(Data, Aetherytes);
-        settingsWindow = new SettingsWindow(configuration, bindingActive, SaveConfiguration, () => markers.Status,
+        settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel);
         windowSystem.AddWindow(settingsWindow);
@@ -290,7 +296,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         if (!bindingActive)
         {
-            Chat.PrintError("[Bestiary Nav] Update the plugin for this game version to open Master's Bestiary with /bnav.");
+            Chat.PrintError($"[Bestiary Nav] {bindingIssue}");
             return;
         }
         if (!CanNavigate(out var reason))

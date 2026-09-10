@@ -34,6 +34,22 @@ Sort/filter changes and non-left-button behavior remain additional manual regres
 
 ## Revalidation after patches
 
+### Dalamud 15.0.3.4 compatibility (2026-09-10)
+
+The game remains `2026.09.01.0000.0000`. Reviewed the upstream Dalamud
+[`15.0.3.3...15.0.3.4`](https://github.com/goatcorp/Dalamud/compare/15.0.3.3...15.0.3.4)
+changes and ClientStructs
+[`21898bf...694dbbf`](https://github.com/aers/FFXIVClientStructs/compare/21898bf815f0e56e02b7dc08f0a3e24822c759d0...694dbbf6c0bda544d18a8e2a7431e799c3662c16).
+The consumed Bestiary Atk node/event layouts and menu command interfaces are unchanged.
+The installed MainCommand sheet still names row 100 Master's Bestiary. Rebuilt 0.5.8
+against the current installed libraries; 467 functional checks and 25 native row checks pass.
+The current development and runtime ClientStructs DLLs have the same SHA-256:
+`70E7DE516890AE10ED128A4B191EA6DF726CE70860C43478B88364D308BD9A2D`.
+The profile now permits exactly Dalamud 15.0.3.4; other versions remain disabled.
+The user re-enabled the local 0.5.8 build and confirmed `/bnav`, entry navigation,
+and nearby uncaptured markers work again. The full sort/filter, page-two, and
+combat acceptance matrix above was not repeated for this compatibility update.
+
 Do not update version strings without checking the node and event semantics. Native pointer validation is structural and cannot make an incompatible FFXIVClientStructs layout safe.
 
 Live acceptance cases:

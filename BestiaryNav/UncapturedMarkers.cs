@@ -62,7 +62,7 @@ internal sealed class UncapturedMarkers
         if (!captureState.TryRead(out var current))
         {
             Reset();
-            Status = captureState.IsAvailable ? "Waiting for capture records to load." : "Capture markers need a compatible plugin update.";
+            Status = captureState.IsAvailable ? "Open Master's Bestiary once to load capture records." : captureState.UnavailableReason;
             return;
         }
         if (!loaded || current != captured || scannedTerritory != client.TerritoryType)

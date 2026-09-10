@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.5.7</Version>
+    <Version>0.5.8</Version>
     <Author>TheKHD5</Author>
     <Name>Bestiary Nav</Name>
     <RepoUrl>https://github.com/TheKHD5/Bestiary-Nav</RepoUrl>

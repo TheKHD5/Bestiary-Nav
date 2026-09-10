@@ -12,6 +12,18 @@ The feature reads capture state while the Bestiary is closed. Captured enemies, 
 
 ## Capture-state evidence
 
+For the 0.5.8 compatibility update on 2026-09-10, the existing capture signature
+matched exactly once in the installed executable, at static VA `141956D10`.
+Its call at +20 still resolves to getter `141975A00`, which loads the singleton
+at `142AFB670` and returns. The registration handler still requires state 3 at
++0x14; `1419760A0` still tests bit `(petId - 1)` for IDs 1 through 56.
+The new upstream XBMManager definition in ClientStructs `694dbbf` independently
+agrees with the bitset at +0, count at +0x10, and received state at +0x14.
+Capture targets and game-version data did not change. No capture-state offsets or
+signatures were changed by this update. The user confirmed nearby uncaptured
+markers work again after re-enabling the local 0.5.8 build. A new capture and
+enemy-list combat test were not separately reported for this update.
+
 Verified against the installed game `2026.09.01.0000.0000` and Dalamud `15.0.3.3`, on 2026-09-09. The read-only investigation followed the game's item-registration check for Cu Sith Gourd, Item 49805. Its ItemAction is 2915, action 50454, and Data[0] is bestiary number 1. The gourd action's registration handler obtains a capture-state singleton, checks its state at +0x14 equals 3, and tests bit `(number - 1)` in its first seven bytes. The native function bounds the number to 1–56.
 
 The inspected capture snapshot was `0x300102AFBD3`, with count 18 at +0x10 and load state 3 at +0x14. The set bits matched the captured numbers visible in both Bestiary pages: 1, 2, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 18, 20, 22, 29, 41 and 42. Automated checks cover that independent snapshot and the first/last number boundaries.

@@ -5,7 +5,7 @@ using Dalamud.Interface.Windowing;
 
 namespace BestiaryNav;
 
-internal sealed class SettingsWindow(Configuration configuration, bool bindingActive, Action save, Func<string> markerStatus,
+internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
@@ -25,7 +25,7 @@ internal sealed class SettingsWindow(Configuration configuration, bool bindingAc
             save();
         }
         Tip("Skip map and duty navigation during combat. Automatic travel always stops when combat starts.");
-        if (!bindingActive) ImGui.TextWrapped("Update required for Bestiary integration.");
+        if (bindingIssue != null) ImGui.TextWrapped(bindingIssue);
         ImGui.Separator();
         var autoTravel = configuration.AutoTravel;
         if (ImGui.Checkbox("Auto Navigate", ref autoTravel))
