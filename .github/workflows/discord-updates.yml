@@ -1,0 +1,36 @@
+name: Discord updates
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Preview the announcement without posting to Discord
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    if: github.repository == 'TheKHD5/Bestiary-Nav'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Test announcement formatting and delivery
+        run: node --test tools/discord-updates.test.mjs
+      - name: Post project update
+        run: node tools/discord-updates.mjs
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_UPDATES_CHANNEL_ID: ${{ vars.DISCORD_UPDATES_CHANNEL_ID }}
+          GITHUB_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}

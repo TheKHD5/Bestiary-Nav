@@ -35,4 +35,5 @@ Install **Lifestream** and **vnavmesh** separately to use Auto Navigate. Future 
 - [Repository index](pluginmaster.json): installer details, images, and update links.
 - [Release notes](releases/) and [publishing guide](RELEASING.md).
 - [Tools](tools/): location data, image preparation, and release packaging.
+- [Discord update bot](tools/DISCORD-UPDATES.md): automatic project announcements through GitHub Actions.
 - [MIT License](LICENSE).
