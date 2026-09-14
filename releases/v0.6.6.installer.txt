@@ -1,0 +1,4 @@
+- Rename Farming to Levelling (Experimental) in settings.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

@@ -98,10 +98,10 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             ImGui.TextWrapped(captureStatus());
             ImGui.EndTabItem();
         }
-        if (ImGui.BeginTabItem("Farming (Experimental)###Farming"))
+        if (ImGui.BeginTabItem("Levelling (Experimental)###Farming"))
         {
             var enabled = farming.Enabled;
-            if (ImGui.Checkbox("Farming mode", ref enabled)) setFarming(enabled);
+            if (ImGui.Checkbox("Levelling mode", ref enabled)) setFarming(enabled);
             Tip("BST only. Farm documented overworld spawn areas with vnavmesh, Lifestream and Rotation Solver. Captured beasts are valid targets; Capture is paused. Start with Rotation Solver off. /bnav stop cancels. Farming does not restart after reload. Normal teleport and consumable costs apply.");
             var minimum = configuration.Farming.MinimumAbove;
             var maximum = configuration.Farming.MaximumAbove;
