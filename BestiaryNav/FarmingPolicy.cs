@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 
 namespace BestiaryNav;
 
@@ -8,6 +9,7 @@ public sealed class FarmingOptions
 {
     public int MinimumAbove { get; set; } = 1;
     public int MaximumAbove { get; set; } = 5;
+    public string SelectedGroup { get; set; } = ""; // Empty = automatic destination and all eligible species.
     public bool SummonChocobo { get; set; }
     public bool UseFood { get; set; }
     public uint FoodId { get; set; } // Includes HQ offset, so the selected quality is preserved.
@@ -17,8 +19,9 @@ public sealed class FarmingOptions
     public int TargetLevel { get; set; } // 0 = no requested stop level.
     public void Normalize()
     {
-        MinimumAbove = Math.Clamp(MinimumAbove, 1, 5);
-        MaximumAbove = Math.Clamp(MaximumAbove, MinimumAbove, 5);
+        MinimumAbove = Math.Clamp(MinimumAbove, 1, 10);
+        MaximumAbove = Math.Clamp(MaximumAbove, MinimumAbove, 10);
+        SelectedGroup ??= "";
         TargetLevel = Math.Clamp(TargetLevel, 0, 100);
     }
 }
@@ -36,6 +39,8 @@ internal sealed class FarmingArea
     public int MaximumLevel { get; set; }
     public MapLocation Location { get; set; } = new();
     public string Source { get; set; } = "";
+    public string Key => string.Create(CultureInfo.InvariantCulture, $"{Name}|{Location.Area}|{Location.X:R}|{Location.Y:R}");
+    public string Label => $"{Name} · Lv. {MinimumLevel}–{MaximumLevel} · {Location.Area} (X:{Location.X:0.0}, Y:{Location.Y:0.0})";
 }
 
 internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maximum, int DepartureLevel = 0)
@@ -52,13 +57,21 @@ internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maxim
 
 internal static class FarmingPolicy
 {
+    public static bool InRange(FarmingArea area, int level, FarmingOptions options) =>
+        level > 0 && area.MinimumLevel > 0 && area.MaximumLevel >= area.MinimumLevel && area.MaximumLevel <= 100 &&
+        area.MinimumLevel <= level + options.MaximumAbove && area.MaximumLevel >= level + options.MinimumAbove;
+    public static IEnumerable<FarmingArea> Choices(IEnumerable<FarmingArea> areas, int level, FarmingOptions options) =>
+        areas.Where(a => InRange(a, level, options)).OrderBy(a => a.MinimumLevel).ThenBy(a => a.Location.Area).ThenBy(a => a.Name);
+    public static bool MatchesGroup(FarmingArea area, FarmingOptions options) =>
+        string.IsNullOrEmpty(options.SelectedGroup) || area.Key == options.SelectedGroup;
+    public static bool MatchesEnemy(FarmingArea area, FarmingOptions options, string? englishName) =>
+        string.IsNullOrEmpty(options.SelectedGroup) || string.Equals(area.Name, englishName, StringComparison.OrdinalIgnoreCase);
     public static bool ReachedGoal(int level, FarmingOptions options) => options.TargetLevel > 0 && level >= options.TargetLevel;
     public static bool MayPull(bool notorious, uint fateId, uint selectedFate, FarmingOptions options) =>
         (!notorious || !options.IgnoreNotoriousMonsters) && (fateId == 0 || (options.ParticipateInFates && fateId == selectedFate));
     public static FarmingSelection? Select(IEnumerable<FarmingArea> areas, int level, FarmingOptions options,
         uint territory, Func<FarmingArea, bool> reachable) => areas
-        .Where(a => a.MinimumLevel > 0 && a.MaximumLevel >= a.MinimumLevel && a.MaximumLevel <= 100 &&
-            a.MinimumLevel <= level + options.MaximumAbove && a.MaximumLevel >= level + options.MinimumAbove && reachable(a))
+        .Where(a => InRange(a, level, options) && MatchesGroup(a, options) && reachable(a))
         // The catalog chooses a destination; it must not narrow which enemy
         // species or levels can be pulled once inside that area's patrol circle.
         .Select(a => new FarmingSelection(a, level + options.MinimumAbove, level + options.MaximumAbove, Math.Min(a.MaximumLevel, level + options.MaximumAbove)))

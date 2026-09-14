@@ -468,6 +468,7 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Bestiary Nav {typeof(Plugin).Assembly.GetName().Version}");
         report.AppendLine($"FFXIV: {actualGameVersion}; Dalamud: {actualDalamudVersion}");
         report.AppendLine($"Compatibility: {bindingIssue ?? "verified"}");
+        report.AppendLine($"Player: job={player?.ClassJob.RowId}; level={player?.Level}; HP={player?.CurrentHp}/{player?.MaxHp}; dead={player?.IsDead}; combat={Condition[ConditionFlag.InCombat]}");
         report.AppendLine($"Wait for full HP before engaging: {configuration.WaitForFullHpBeforeEngaging}");
         report.AppendLine($"Travel dependencies: {(travelIpc.Available ? "connected" : "unavailable")}; phase: {travel.Phase}");
         report.AppendLine($"Travel: {travel.Status}");
@@ -475,7 +476,10 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Capture run: enabled={configuration.CaptureRun}; phase={captureRun.Phase}; {captureRun.Status}");
         report.AppendLine($"Farming: enabled={farming.Enabled}; phase={farming.Phase}; {farming.Status}");
         report.AppendLine($"Levelling target range: {farming.TargetRange}");
+        report.AppendLine($"Levelling group: {farming.SelectedGroupLabel}");
         report.AppendLine($"Farming supplies: {farming.SuppliesStatus}");
+        report.AppendLine($"Levelling last stop: {farming.LastStopReason}");
+        report.AppendLine($"Levelling revival: auto={configuration.Farming.AutoRespawn}; {farming.RespawnStatus}");
         report.AppendLine($"Levelling recovery: {farming.LastRecovery}");
         report.AppendLine($"Levelling rotation: {farming.RotationStatus}");
         report.AppendLine($"Capture before last stop: {captureRun.LastActiveStatus}");

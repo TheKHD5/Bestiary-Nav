@@ -28,9 +28,22 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     public string SuppliesStatus => supplies.Status;
     public string LastRecovery { get; private set; } = "No combat recovery needed.";
     public string RotationStatus => rotation.CombatStatus;
+    public string RespawnStatus => respawn.Status;
+    public string LastStopReason { get; private set; } = "No previous Levelling stop.";
     public string TargetRange => selection == null ? $"BST +{config.Farming.MinimumAbove}–{config.Farming.MaximumAbove}; no area selected" :
         $"Lv. {selection.Minimum}–{selection.Maximum}; {area?.Name}; catalog levels {selection.Area.MinimumLevel}–{selection.Area.MaximumLevel}";
     public IReadOnlyList<FarmingFood> FoodChoices() => supplies.FoodChoices();
+    public IReadOnlyList<FarmingArea> GroupChoices() => FarmingPolicy.Choices(database.Areas,
+        objects.LocalPlayer?.ClassJob.RowId == bst ? objects.LocalPlayer.Level : 0, config.Farming).ToArray();
+    public string SelectedGroupLabel => string.IsNullOrEmpty(config.Farming.SelectedGroup) ? "Automatic — all eligible enemies" :
+        database.Areas.FirstOrDefault(a => a.Key == config.Farming.SelectedGroup)?.Label ?? "Saved group unavailable — choose another";
+    private readonly Dictionary<uint, string> enemyNames = BuildEnemyNames(data, database);
+    private static Dictionary<uint, string> BuildEnemyNames(IDataManager data, FarmingDatabase database)
+    {
+        var names = database.Areas.Select(a => a.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return data.GetExcelSheet<BNpcName>(ClientLanguage.English)
+            .Where(n => names.Contains(n.Singular.ExtractText())).ToDictionary(n => n.RowId, n => n.Singular.ExtractText());
+    }
     private FarmingSelection? selection;
     private TravelPlan? area;
     private readonly SpawnSearchRoute search = new();
@@ -53,16 +66,33 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         try
         {
             config.Farming.Normalize();
-            if (!compatible() || objects.LocalPlayer is not { IsDead: false } p || p.ClassJob.RowId != bst ||
-                !client.IsLoggedIn || conditions[ConditionFlag.InCombat] || !uiAvailable())
-                throw new InvalidOperationException("Start farming as BST, out of combat, with compatible game data.");
-            rotation.Acquire(bst);
+            if (!compatible()) throw new InvalidOperationException("Levelling needs compatible game data.");
+            if (!client.IsLoggedIn || objects.LocalPlayer is not { } p)
+                throw new InvalidOperationException("Log in and wait for the player to load before starting Levelling.");
+            if (p.ClassJob.RowId != bst) throw new InvalidOperationException("Equip BST before starting Levelling.");
+            var recovering = FarmingRecoveryPolicy.CanStartRecovery(p.IsDead, p.CurrentHp, config.Farming.AutoRespawn);
+            if (FarmingRecoveryPolicy.Incapacitated(p.IsDead, p.CurrentHp) && !recovering)
+                throw new InvalidOperationException("Enable Auto respawn and resume, or return manually before starting Levelling.");
+            if (!recovering && conditions[ConditionFlag.InCombat])
+                throw new InvalidOperationException("Leave combat before starting Levelling.");
+            if (!recovering && !uiAvailable()) throw new InvalidOperationException("Show the game UI before starting Levelling.");
+            if (!recovering && !string.IsNullOrEmpty(config.Farming.SelectedGroup))
+            {
+                var group = database.Areas.FirstOrDefault(a => a.Key == config.Farming.SelectedGroup);
+                if (group == null || !FarmingPolicy.InRange(group, p.Level, config.Farming))
+                    throw new InvalidOperationException("The selected monster group is outside the current level range or unavailable. Choose another group or Automatic.");
+                if (!enemyNames.Values.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("The selected monster's game identity could not be verified. Choose another group or Automatic.");
+            }
             LastRecovery = "No combat recovery needed.";
-            if (FarmingPolicy.ReachedGoal(p.Level, config.Farming)) { Stop("Target BST level already reached."); return; }
+            if (!recovering && FarmingPolicy.ReachedGoal(p.Level, config.Farming)) { Stop("Target BST level already reached."); return; }
             unavailable.Clear(); emptyRanges.Clear(); selection = null; area = null;
             selectedFate = 0; completedFates.Clear();
             nextScan = nextVerify = nextAction = waitUntil = 0;
             lastUpdate = Environment.TickCount64;
+            respawn.Reset();
+            if (recovering) { BeginRecovery(lastUpdate); return; }
+            rotation.Acquire(bst);
             Phase = FarmingPhase.Choosing; Status = "Choosing a farming area…";
         }
         catch (Exception ex) { Stop(ex.Message); }
@@ -86,28 +116,42 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             var player = objects.LocalPlayer;
             if (!client.IsLoggedIn || player == null || player.ClassJob.RowId != bst)
             { Stop("Farming stopped: logged out or no longer BST."); return; }
+            // Death precedes ordinary rotation/event guards. The game's death
+            // prompt and RSR's automatic shutdown are expected recovery states.
+            if (FarmingRecoveryPolicy.Incapacitated(player.IsDead, player.CurrentHp))
+            {
+                if (Phase != FarmingPhase.Recovering) BeginRecovery(now);
+                if (state.Loading || !uiAvailable() || conditions[ConditionFlag.BoundByDuty] ||
+                    conditions[ConditionFlag.BoundByDuty56] || conditions[ConditionFlag.BoundByDuty95])
+                { Status = "Waiting for the overworld Return prompt…"; return; }
+                if (config.Farming.AutoRespawn)
+                {
+                    try { respawn.TryReturn(now); Status = respawn.Status; }
+                    catch (Exception ex) { Status = $"Revival is waiting: {ex.Message}"; }
+                }
+                else Status = "Waiting for manual revival; Levelling remains enabled.";
+                return;
+            }
+            if (Phase == FarmingPhase.Recovering)
+            {
+                if (state.Loading || !state.WorldReady || !uiAvailable() ||
+                    conditions[ConditionFlag.WatchingCutscene] || conditions[ConditionFlag.WatchingCutscene78] ||
+                    conditions[ConditionFlag.OccupiedInQuestEvent] || conditions[ConditionFlag.BoundByDuty] ||
+                    conditions[ConditionFlag.BoundByDuty56] || conditions[ConditionFlag.BoundByDuty95] ||
+                    PullHealthPolicy.ShouldWait(config.WaitForFullHpBeforeEngaging, player.CurrentHp, player.MaxHp, false, 70) ||
+                    conditions[ConditionFlag.InCombat])
+                { Status = "Recovering after revival…"; return; }
+                if (now < waitUntil) return;
+                try { rotation.Acquire(bst); }
+                catch (Exception ex) { waitUntil = now + 5000; Status = $"Revived; waiting to resume: {ex.Message}"; return; }
+                Phase = FarmingPhase.Choosing; waitUntil = now + 3000;
+                Status = "Revived; choosing a Levelling area…"; return;
+            }
             if (FarmingPolicy.ReachedGoal(player.Level, config.Farming)) { Stop($"Target BST level {config.Farming.TargetLevel} reached. Farming complete."); return; }
             if (state.Loading || !uiAvailable() || conditions[ConditionFlag.WatchingCutscene] || conditions[ConditionFlag.WatchingCutscene78] ||
                 conditions[ConditionFlag.OccupiedInQuestEvent] || conditions[ConditionFlag.BoundByDuty] ||
                 conditions[ConditionFlag.BoundByDuty56] || conditions[ConditionFlag.BoundByDuty95])
             { Stop("Farming stopped during an event, duty, or unexpected area transition."); return; }
-            if (player.IsDead)
-            {
-                if (Phase != FarmingPhase.Recovering)
-                {
-                    EndTarget(); rotation.Release(); Phase = FarmingPhase.Recovering;
-                    if (selection != null) unavailable[selection.Area] = now + 120000;
-                    selection = null; area = null; selectedFate = 0;
-                }
-                Status = config.Farming.AutoRespawn ? "Incapacitated: returning, then resuming farming…" : "Waiting for revival; farming remains enabled.";
-                if (config.Farming.AutoRespawn) respawn.TryReturn(now);
-                return;
-            }
-            if (Phase == FarmingPhase.Recovering)
-            {
-                if (player.CurrentHp < player.MaxHp * 0.7f || conditions[ConditionFlag.InCombat]) { Status = "Recovering after revival…"; return; }
-                rotation.Acquire(bst); Phase = FarmingPhase.Choosing; waitUntil = now + 3000; return;
-            }
             if (now >= nextVerify) { rotation.Verify(Phase != FarmingPhase.Traveling); nextVerify = now + 500; }
             var combat = conditions[ConditionFlag.InCombat];
             var actors = objects.OfType<IBattleNpc>().Where(n => n.BattleNpcKind == BattleNpcSubKind.Combatant).ToArray();
@@ -237,11 +281,12 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private bool Eligible(IBattleNpc npc, byte level) => selection != null && area != null && npc.IsTargetable &&
         !npc.IsDead && npc.CurrentHp > 0 && FarmingPolicy.MayPull(Notorious(npc), FateId(npc), selectedFate, config.Farming) &&
         (selectedFate == 0 || FateId(npc) == selectedFate) && selection.Eligible(npc.Level, level) &&
+        FarmingPolicy.MatchesEnemy(selection.Area, config.Farming, enemyNames.GetValueOrDefault(npc.NameId)) &&
         CaptureRunPolicy.InArea(npc.Position, area.MapPoint, area.SearchRadius, area.TargetFloor);
 
     private bool ChooseFate(byte level, Vector3 position, long now)
     {
-        if (!config.Farming.ParticipateInFates || conditions[ConditionFlag.InCombat]) return false;
+        if (!config.Farming.ParticipateInFates || !string.IsNullOrEmpty(config.Farming.SelectedGroup) || conditions[ConditionFlag.InCombat]) return false;
         var fate = fates.Where(f => f.State == FateState.Running && f.TimeRemaining > 60 &&
                 (f.IconId == 60721 || (f.IconId == 60722 && !config.Farming.IgnoreNotoriousMonsters)) &&
                 f.Level >= level + config.Farming.MinimumAbove && f.Level <= level + config.Farming.MaximumAbove &&
@@ -265,7 +310,10 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         });
         if (selection == null)
         {
-            if (unavailable.Values.Any(t => t > now)) { waitUntil = now + 10000; Status = "Waiting to retry farming areas…"; return; }
+            if (unavailable.Any(p => p.Value > now && FarmingPolicy.MatchesGroup(p.Key, config.Farming) && FarmingPolicy.InRange(p.Key, level, config.Farming)))
+            { waitUntil = now + 10000; Status = "Waiting to retry farming areas…"; return; }
+            if (!string.IsNullOrEmpty(config.Farming.SelectedGroup))
+            { Stop("The selected group has no reachable matching targets for the current range. Choose another group or Automatic."); return; }
             Stop($"No suitable reachable area remains for Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Empty patrols are skipped for this range; adjust it or restart to retry."); return;
         }
         area = plans.Build(selection.Area.Location, config.SpawnAreaRadius);
@@ -382,6 +430,19 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         return recoveryCombo.TryUse(target, player.Level);
     }
     private void StopMovement() { if (ownsTravel) travel.Stop(); ownsTravel = false; }
+    private void BeginRecovery(long now)
+    {
+        Phase = FarmingPhase.Recovering;
+        if (selection != null) unavailable[selection.Area] = now + 120000;
+        selection = null; area = null; selectedFate = 0; waitUntil = 0;
+        watchdog.Reset(); respawn.Reset();
+        FarmingRecoveryPolicy.Cleanup(StopMovement, rotation.Release, () =>
+        {
+            if (target != 0 && targets.Target?.GameObjectId == target) targets.Target = null;
+        }, ex => log.Warning(ex, "Levelling death cleanup failed; revival will still be attempted."));
+        target = 0; targetSelected = engaged = defending = ownsTravel = false;
+        Status = "Incapacitated; waiting to return and resume Levelling…";
+    }
     private void EndTarget()
     {
         rotation.SetRunning(false); StopMovement(); watchdog.Reset();
@@ -390,6 +451,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     }
     public void Stop(string reason = "Farming stopped.")
     {
+        if (Enabled) LastStopReason = reason;
         Phase = FarmingPhase.Idle; StopMovement();
         try { rotation.Release(); } catch (Exception ex) { log.Warning(ex, "Could not release farming rotation."); }
         if (target != 0 && targets.Target?.GameObjectId == target) targets.Target = null;

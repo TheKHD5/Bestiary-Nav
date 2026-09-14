@@ -108,9 +108,9 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             var minimum = configuration.Farming.MinimumAbove;
             var maximum = configuration.Farming.MaximumAbove;
             ImGui.SetNextItemWidth(150);
-            var changed = ImGui.SliderInt("Minimum levels above BST", ref minimum, 1, 5);
+            var changed = ImGui.SliderInt("Minimum levels above BST", ref minimum, 1, 10);
             ImGui.SetNextItemWidth(150);
-            changed |= ImGui.SliderInt("Maximum levels above BST", ref maximum, 1, 5);
+            changed |= ImGui.SliderInt("Maximum levels above BST", ref maximum, 1, 10);
             if (changed)
             {
                 configuration.Farming.MinimumAbove = minimum; configuration.Farming.MaximumAbove = maximum;
@@ -119,13 +119,16 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 save();
             }
             Tip("Offsets always use your current BST level. Setting both to +5 targets exactly five levels above you, including after level-ups. Relocate when the area no longer supports that range. A full patrol with no eligible enemies skips that area for this range until you restart. Changing the range stops the run. Duties are excluded; FATE participation is optional.");
+            DrawFarmingGroups();
             var goal = configuration.Farming.TargetLevel;
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputInt("Target BST level (0 = no limit)", ref goal)) { configuration.Farming.TargetLevel = Math.Clamp(goal, 0, 100); save(); }
             Tip("Stops farming as soon as your BST level reaches this value, before selecting another target or destination.");
             var fates = configuration.Farming.ParticipateInFates;
+            ImGui.BeginDisabled(!string.IsNullOrEmpty(configuration.Farming.SelectedGroup));
             if (ImGui.Checkbox("Participate in FATEs", ref fates)) { configuration.Farming.ParticipateInFates = fates; save(); }
-            Tip("Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. Does not start NPC conversations or hand in items.");
+            ImGui.EndDisabled();
+            Tip("Available with Automatic monster selection. Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. A specific monster group keeps its chosen location and does not detour to FATEs.");
             var ignore = configuration.Farming.IgnoreNotoriousMonsters;
             if (ImGui.Checkbox("Ignore Notorious Monsters", ref ignore)) { configuration.Farming.IgnoreNotoriousMonsters = ignore; save(); }
             Tip("Skip hunt marks and enemies with boss rank when choosing farming or FATE pulls. Self-defense against an enemy already attacking you still takes priority.");
@@ -321,6 +324,35 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             if (ImGui.Selectable(option.Label, channel == option.Id)) { channel = option.Id; changed = true; }
         ImGui.EndCombo();
         return changed;
+    }
+
+    private void DrawFarmingGroups()
+    {
+        ImGui.TextUnformatted("Monster group / area");
+        Tip("Choose Automatic to fight all eligible enemy types and change areas as you level. Choosing a group restricts new pulls to that monster at its listed location; defense still takes priority. The list includes all matching groups in the documented ARR catalog, up to level 49. It is not a complete list of every game enemy. Partial level-range overlaps are shown; only enemies within your min/max are pulled. Changing this choice stops the run. If your chosen group falls outside the range after levelling, choose another group or Automatic.");
+        var groups = farming.GroupChoices();
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.BeginCombo("##FarmingGroup", farming.SelectedGroupLabel, ImGuiComboFlags.HeightLarge))
+        {
+            if (ImGui.Selectable("Automatic — all eligible enemies", string.IsNullOrEmpty(configuration.Farming.SelectedGroup)))
+                SelectGroup("");
+            foreach (var group in groups)
+                if (ImGui.Selectable(group.Label + "###" + group.Key, configuration.Farming.SelectedGroup == group.Key))
+                    SelectGroup(group.Key);
+            if (groups.Count == 0) ImGui.TextDisabled("No documented groups match. Equip BST or adjust the range.");
+            ImGui.EndCombo();
+        }
+        if (!string.IsNullOrEmpty(configuration.Farming.SelectedGroup) &&
+            !System.Linq.Enumerable.Any(groups, g => g.Key == configuration.Farming.SelectedGroup))
+            ImGui.TextWrapped("Selected group is outside the current range or unavailable. Choose another group or Automatic.");
+    }
+
+    private void SelectGroup(string key)
+    {
+        if (configuration.Farming.SelectedGroup == key) return;
+        if (farming.Enabled) setFarming(false);
+        configuration.Farming.SelectedGroup = key;
+        save();
     }
 
     private void DrawHealthRecoverySetting()

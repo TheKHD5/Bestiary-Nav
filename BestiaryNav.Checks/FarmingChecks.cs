@@ -10,7 +10,8 @@ internal static class FarmingChecks
     {
         var options = new FarmingOptions { MinimumAbove = -3, MaximumAbove = 80, TargetLevel = -1 };
         options.Normalize();
-        check(options.MinimumAbove == 1 && options.MaximumAbove == 5 && options.TargetLevel == 0, "normalize farming settings");
+        check(options.MinimumAbove == 1 && options.MaximumAbove == 10 && options.TargetLevel == 0, "normalize farming settings to the expanded range");
+        options.MaximumAbove = 5;
         var low = new FarmingArea { MinimumLevel = 31, MaximumLevel = 35, Location = new() { TerritoryTypeId = 1 } };
         var high = new FarmingArea { MinimumLevel = 36, MaximumLevel = 40, Location = new() { TerritoryTypeId = 2 } };
         var chosen = FarmingPolicy.Select([low, high], 30, options, 1, _ => true)!;
@@ -24,11 +25,11 @@ internal static class FarmingChecks
         options.MinimumAbove = options.MaximumAbove = 3;
         chosen = FarmingPolicy.Select([low], 30, options, 1, _ => true)!;
         check(chosen.Minimum == 33 && chosen.Maximum == 33 && !chosen.AtLevel(33, options).SupportsRange, "exact offset clamps target levels and updates area suitability");
-        for (var min = 1; min <= 5; min++)
-        for (var max = min; max <= 5; max++)
+        for (var min = 1; min <= 10; min++)
+        for (var max = min; max <= 10; max++)
         {
             options.MinimumAbove = min; options.MaximumAbove = max;
-            chosen = FarmingPolicy.Select([low], 30, options, 1, _ => true)!;
+            chosen = FarmingPolicy.Select([low, high], 30, options, 1, _ => true)!;
             check(chosen.Minimum == 30 + min && chosen.Maximum == 30 + max, "every configured offset pair stays within its range");
         }
         options.TargetLevel = 40;
@@ -81,6 +82,27 @@ internal static class FarmingChecks
         emptyAreas.Clear();
         check(!emptyAreas.Contains(low, 30, exactFive), "manual restart permits a deliberate retry for respawns");
         var db = JsonSerializer.Deserialize<FarmingDatabase>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "farming-areas.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var specific = new FarmingOptions { MinimumAbove = 1, MaximumAbove = 10 };
+        var groupA = new FarmingArea { Name = "Mob A", MinimumLevel = 34, MaximumLevel = 38, Location = new() { Area = "Zone A", TerritoryTypeId = 1, X = 10, Y = 20 } };
+        var groupB = new FarmingArea { Name = "Mob A", MinimumLevel = 39, MaximumLevel = 40, Location = new() { Area = "Zone B", TerritoryTypeId = 2, X = 10, Y = 20 } };
+        check(groupA.Key != groupB.Key, "same monster name in different zones has a distinct saved choice");
+        check(FarmingPolicy.Choices([groupA, groupB], 30, specific).Count() == 2, "dropdown includes every matching documented group");
+        specific.SelectedGroup = groupB.Key;
+        check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, _ => true)?.Area == groupB, "manual group overrides current-zone preference");
+        check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, a => a != groupB) == null, "unreachable manual choice never silently falls back to another group");
+        check(FarmingPolicy.MatchesEnemy(groupB, specific, "mob a") && !FarmingPolicy.MatchesEnemy(groupB, specific, "Mob B") &&
+            !FarmingPolicy.MatchesEnemy(groupB, specific, null), "manual choice filters other species and unverified name IDs");
+        check(FarmingPolicy.Choices([groupA, groupB], 30, specific).Count() == 2, "selected group does not hide alternatives from dropdown");
+        specific.MinimumAbove = specific.MaximumAbove = 10;
+        check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, _ => true)?.Area == groupB, "exact +10 chooses level-40 group at BST 30");
+        check(FarmingPolicy.Select([groupA, groupB], 31, specific, 1, _ => true) == null, "outgrown manual group stops instead of changing the user's selection");
+        specific.SelectedGroup = "";
+        check(FarmingPolicy.MatchesEnemy(groupB, specific, "Different species"), "Automatic preserves all-species combat");
+        check(!FarmingPolicy.Choices(db.Areas, 0, specific).Any(), "no BST level does not produce misleading dropdown results");
+        check(db.Areas.Select(a => a.Key).Distinct().Count() == db.Areas.Count, "all shipped group IDs are distinct");
+        var saved = JsonSerializer.Deserialize<FarmingOptions>(JsonSerializer.Serialize(new FarmingOptions { MinimumAbove = 10, MaximumAbove = 10, SelectedGroup = groupB.Key }))!;
+        saved.Normalize();
+        check(saved.MinimumAbove == 10 && saved.MaximumAbove == 10 && saved.SelectedGroup == groupB.Key, "+10 offsets and chosen group survive configuration serialization");
         check(db.Areas.Count >= 40, "farming catalog includes original and additional overworld areas");
         foreach (var area in db.Areas)
             check(area.MinimumLevel > 0 && area.MaximumLevel >= area.MinimumLevel && area.MaximumLevel <= 100 &&

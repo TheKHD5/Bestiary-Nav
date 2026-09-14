@@ -110,6 +110,15 @@ internal static class RotationSolverChecks
         Reject(() => control.Restart(() => throw new InvalidOperationException("opener unavailable")), "recovery callback failure does not silently resume");
         check(backend.State.IsOff, "failed opener callback leaves solver paused");
         control.Release();
+        backend = new(off); control = new(backend); control.Acquire(); control.SetRunning(true);
+        backend.State = off; changes = backend.Changes.Count;
+        control.Release();
+        check(backend.State.IsOff && backend.Changes.Count == changes,
+            "death release tolerates RSR already turning itself off without combat verification");
+        control.Acquire(); control.SetRunning(true); backend.State = auto;
+        changes = backend.Changes.Count; control.Release();
+        check(backend.State == auto && backend.Changes.Count == changes,
+            "death release never overwrites another controller's replacement mode");
     }
 
     private sealed class FakeSolver(RotationSolverState initial) : IRotationSolverBackend

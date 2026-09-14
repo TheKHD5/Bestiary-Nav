@@ -12,6 +12,7 @@
     <Compile Include="..\BestiaryNav\CaptureCombatWatchdog.cs" Link="CaptureCombatWatchdog.cs" />
     <Compile Include="..\BestiaryNav\BasicComboPolicy.cs" Link="BasicComboPolicy.cs" />
     <Compile Include="..\BestiaryNav\PullHealthPolicy.cs" Link="PullHealthPolicy.cs" />
+    <Compile Include="..\BestiaryNav\FarmingRecoveryPolicy.cs" Link="FarmingRecoveryPolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureDefensePolicy.cs" Link="CaptureDefensePolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureAllController.cs" Link="CaptureAllController.cs" />
     <Compile Include="..\BestiaryNav\SpawnSearchRoute.cs" Link="SpawnSearchRoute.cs" />

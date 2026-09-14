@@ -1,0 +1,8 @@
+- Choose monster groups by level range and zone, or keep Automatic targeting.
+- Set Levelling offsets from +1 to +10 above BST.
+- Keep Levelling revival active when combat cleanup fails.
+- Allow restarting while incapacitated with Auto respawn enabled.
+- Show specific start restrictions and Return prompt status.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

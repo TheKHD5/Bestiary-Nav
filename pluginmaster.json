@@ -3,7 +3,7 @@
     "Author": "TheKHD5",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.6.8.0",
+    "AssemblyVersion": "0.6.9.0",
     "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
@@ -26,10 +26,10 @@
     ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.8/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.8/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.8/latest.zip",
-    "LastUpdate": 1789425091,
-    "Changelog": "- Optionally wait for full HP before new Capture and Levelling pulls.\n- Keep Levelling targets within your current level offsets and leave unsuitable areas.\n- Skip areas where a full patrol finds no matching enemies.\n- Recover stalled combos despite pet damage, preserving the next basic combo step.\n- Show target ranges and combat recovery details in diagnostics.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
+    "LastUpdate": 1789426415,
+    "Changelog": "- Choose monster groups by level range and zone, or keep Automatic targeting.\n- Set Levelling offsets from +1 to +10 above BST.\n- Keep Levelling revival active when combat cleanup fails.\n- Allow restarting while incapacitated with Auto respawn enabled.\n- Show specific start restrictions and Return prompt status.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
   }
 ]

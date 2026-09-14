@@ -143,6 +143,7 @@ AutoCaptureChecks.Run(Check);
 CaptureRunChecks.Run(Check);
 CaptureCombatChecks.Run(Check);
 PullHealthChecks.Run(Check);
+FarmingRecoveryChecks.Run(Check);
 CaptureDefenseChecks.Run(Check);
 FarmingChecks.Run(Check);
 CaptureAllChecks.Run(Check);
