@@ -380,7 +380,16 @@ public sealed class Plugin : IDalamudPlugin
                     {
                         var plan = travelPlans.Build(point, configuration.SpawnAreaRadius);
                         Log.Information($"Auto travel requested: territory={plan.TerritoryId}, point={plan.MapPoint}, aetheryte={plan.AetheryteId}.");
-                        if (startCaptureRun) captureRun.Start(request.BestiaryNumber, plan, true);
+                        if (startCaptureRun)
+                        {
+                            // Resume an interrupted local attempt where we are,
+                            // instead of mounting and returning to the circle center.
+                            var alreadyInArea = request.FromCaptureAll && Objects.LocalPlayer is { } nearbyPlayer &&
+                                ClientState.TerritoryType == plan.TerritoryId &&
+                                !Condition[ConditionFlag.Mounted] && !Condition[ConditionFlag.InFlight] &&
+                                CaptureRunPolicy.InArea(nearbyPlayer.Position, plan.MapPoint, plan.SearchRadius, plan.TargetFloor);
+                            captureRun.Start(request.BestiaryNumber, plan, !alreadyInArea);
+                        }
                         else travel.Start(plan, GetTravelPlayer(), Environment.TickCount64);
                     }
                     ReportTravelStatus();
@@ -439,7 +448,9 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Travel: {travel.Status}");
         report.AppendLine($"Auto Capture: enabled={configuration.AutoCapture}; HP limit={configuration.AutoCaptureMaxHpPercent}%; {autoCapture.Status}");
         report.AppendLine($"Capture run: enabled={configuration.CaptureRun}; phase={captureRun.Phase}; {captureRun.Status}");
-        report.AppendLine($"Capture all: enabled={captureAll.Enabled}; entry={captureAll.Current}; {captureAll.Status}");
+        report.AppendLine($"Capture before last stop: {captureRun.LastActiveStatus}");
+        report.AppendLine($"Capture recovery: {captureRun.LastRecovery}");
+        report.AppendLine($"Capture all: enabled={captureAll.Enabled}; entry={captureAll.Current}; selected={captureAll.Selected}; {captureAll.Status}");
         report.AppendLine($"Spawn-area radius: {configuration.SpawnAreaRadius:0} yalms");
         foreach (var line in markers.Diagnose(Targets.Target, false)) report.AppendLine(line);
         diagnosticReport = report.ToString();
@@ -507,6 +518,8 @@ public sealed class Plugin : IDalamudPlugin
         var now = Environment.TickCount64;
         if (now < nextCaptureAllUpdate) return;
         nextCaptureAllUpdate = now + 500;
+        if (!captureRun.Active && !travel.Active && pendingRequest == null && Condition[ConditionFlag.InCombat])
+            captureRun.TryDefendWhileWaiting(now, captureAll.Selected);
         var player = Objects.LocalPlayer;
         var movement = GetTravelPlayer();
         string? wait = !ClientState.IsLoggedIn || movement.Loading || !movement.WorldReady ? "Waiting for the game world…" :

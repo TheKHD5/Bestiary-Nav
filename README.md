@@ -8,9 +8,9 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 - **Make it yours:** choose Modern, Classic, or Compact styling, seven color palettes, and window opacity. Resize settings and collection windows from the corner.
 - **Control chat output:** choose which messages appear and their local chat channels, or mute them all.
 - **Auto Capture:** optionally cast Capture on your eligible BST main target in combat, with an HP threshold and no recast while your existing mark is active.
-- **Capture runs:** optionally travel to a selected entry, apply Capture, and fight with Rotation Solver Reborn's BST rotation (7.5.6.8+). Wait at least three seconds after each defeat, then retry in the same area if still uncaptured. Enable under **Capture**; stop with `/bnav stop`. Dungeon entry stays manual.
+- **Capture runs:** optionally travel to a selected entry, apply Capture, and fight with Rotation Solver Reborn's BST rotation (7.5.6.8+). Wait at least three seconds after each defeat, then retry in the same area if still uncaptured. Defend against enemies attacking you, then resume the saved destination or spawn-area patrol. Enable under **Capture**; stop with `/bnav stop`. Dungeon entry stays manual.
 - **Search the spawn area:** capture runs walk the configured circle when no eligible beast is nearby. Widen **Search radius** for larger habitats.
-- **Capture all available:** toggle a batch from the Bestiary toolbar or Capture settings. Collect eligible overworld beasts at your current BST level, retry failed entries with a delay, and stop when none remain. `/bnav stop` cancels the batch and retries.
+- **Capture all available:** toggle a batch from the Bestiary toolbar or Capture settings. Collect eligible overworld beasts at your current BST level, retry the selected entry until capture is confirmed, and stop when none remain. `/bnav stop` cancels the batch and retries.
 - **Location pop-up:** toggle navigation from Bestiary clicks, directly above the Bestiary. Turning it off also disables Auto Navigate and stops the current trip.
 - **Spot uncaptured beasts:** customize label size, colors, range, and model/enemy-list visibility. Duty labels identify capture/gourd encounters.
 - **Track nearby targets:** count each beast name once and clear its labels after capture.

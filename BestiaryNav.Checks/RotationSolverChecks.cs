@@ -94,6 +94,22 @@ internal static class RotationSolverChecks
         backend.IgnoreNextChange = true;
         Reject(() => control.SetRunning(false), "rejected pause is detected through readback");
         control.Release(); check(backend.State.IsOff, "cleanup retries Off when pause did not take effect");
+
+        backend = new(off); control = new(backend); control.Acquire(); control.SetRunning(true);
+        var openerCalls = 0;
+        control.Restart(() => { check(backend.State.IsOff, "solver paused while the recovery opener is issued"); openerCalls++; });
+        check(openerCalls == 1 && backend.State.IsCaptureMode && backend.Changes.Count == 3,
+            "stalled rotation refreshes through Off and resumes existing-target mode");
+        backend.State = auto;
+        Reject(() => control.Restart(() => openerCalls++), "recovery cannot overwrite a user's changed mode");
+        check(openerCalls == 1 && backend.State == auto, "manual takeover blocks recovery strike as well as mode changes");
+        control.Release();
+        backend = new(off); control = new(backend); control.Acquire();
+        Reject(() => control.Restart(() => openerCalls++), "no recovery during travel or capture-result pause");
+        control.SetRunning(true);
+        Reject(() => control.Restart(() => throw new InvalidOperationException("opener unavailable")), "recovery callback failure does not silently resume");
+        check(backend.State.IsOff, "failed opener callback leaves solver paused");
+        control.Release();
     }
 
     private sealed class FakeSolver(RotationSolverState initial) : IRotationSolverBackend

@@ -27,6 +27,28 @@ internal static class SpawnSearchChecks
             route.Reset(center, radius);
             check(route.Visited == 0 && route.Next(center) == center, "retry after defeat can start a fresh sweep");
         }
+        // Apkallu regression: no candidate is loaded at arrival, but moving
+        // deeper into the 73-yalm circle brings it into the scan range.
+        var patrol = new SpawnSearchRoute();
+        var habitat = Vector3.Zero;
+        var apkallu = new CaptureCandidate(24, 24, new(45, 0, 45), 30, true, true, false);
+        var visitedCount = 0;
+        for (var pass = 0; pass < 3; pass++)
+        {
+            patrol.Reset(habitat, 73);
+            var cursor = habitat;
+            var found = false;
+            while (patrol.Next(cursor) is { } point)
+            {
+                cursor = point; visitedCount++;
+                var loaded = Vector3.Distance(cursor, apkallu.Position) <= 25;
+                var match = CaptureRunPolicy.Closest(loaded ? [apkallu] : [], 24, 40, cursor, habitat, 73, null, new HashSet<ulong>());
+                if (match != null) found = true;
+                patrol.Complete();
+            }
+            check(found, "patrol reaches deeper Apkallu habitat on each repeated sweep");
+        }
+        check(visitedCount > 3, "arrival point alone is not treated as a complete habitat search");
         var reject = new SpawnSearchRoute();
         foreach (var radius in new[] { float.NaN, 0f, 201f })
         {

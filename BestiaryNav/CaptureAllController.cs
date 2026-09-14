@@ -13,18 +13,19 @@ internal sealed class CaptureAllController
     private long nextAttempt;
     public bool Enabled { get; private set; }
     public uint Current { get; private set; }
+    public uint Selected { get; private set; }
     public string Status { get; private set; } = "Capture all is off.";
     public int Failures(uint number) => retries.GetValueOrDefault(number).Failures;
 
     public void Start()
     {
-        retries.Clear(); Current = 0; settledAt = nextAttempt = 0;
+        retries.Clear(); Current = Selected = 0; settledAt = nextAttempt = 0;
         Enabled = true; Status = "Preparing to capture eligible overworld beasts…";
     }
 
     public void Stop(string reason = "Capture all stopped.")
     {
-        Enabled = false; Current = 0; Status = reason;
+        Enabled = false; Current = Selected = 0; Status = reason;
     }
 
     public uint? Update(long now, CollectionSnapshot state, IEnumerable<MonsterEntry> beasts,
@@ -60,14 +61,19 @@ internal sealed class CaptureAllController
             return null;
         }
         if (now < nextAttempt) { Status = "Waiting before the next capture attempt…"; return null; }
-        var next = CollectionPlanner.Recommend(eligible.Where(b => retries.GetValueOrDefault(b.BestiaryNumber).ReadyAt <= now), metadata, state);
+        // Keep the selected entry through failed attempts. A cooldown must not
+        // send the player to another beast while this one remains uncaptured.
+        var selected = eligible.FirstOrDefault(b => b.BestiaryNumber == Selected);
+        if (selected == null) Selected = 0; // captured, or no longer level-eligible
+        var choices = selected == null ? eligible : new[] { selected };
+        var next = CollectionPlanner.Recommend(choices.Where(b => retries.GetValueOrDefault(b.BestiaryNumber).ReadyAt <= now), metadata, state);
         if (next == null)
         {
-            var seconds = Math.Max(1, (eligible.Min(b => retries.GetValueOrDefault(b.BestiaryNumber).ReadyAt) - now + 999) / 1000);
-            Status = $"Retrying available beasts in {seconds}s. Last attempt: {attemptStatus}";
+            var seconds = Math.Max(1, (choices.Min(b => retries.GetValueOrDefault(b.BestiaryNumber).ReadyAt) - now + 999) / 1000);
+            Status = $"Retrying #{Selected} in {seconds}s. Last attempt: {attemptStatus}";
             return null;
         }
-        Current = next.BestiaryNumber;
+        Current = Selected = next.BestiaryNumber;
         nextAttempt = now + CaptureRetryGate.MinimumDelay;
         Status = $"Starting #{Current} {next.DisplayName}…";
         return Current;

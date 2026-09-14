@@ -70,6 +70,17 @@ internal sealed class RotationSolverControl(IRotationSolverBackend backend)
             backend.ChangeMode(RotationSolverMode.Off);
     }
 
+    public void Restart(Action opener)
+    {
+        // Never reclaim a mode that the user or another plugin changed.
+        Verify();
+        if (!running) throw new InvalidOperationException("Capture rotation is not running.");
+        SetRunning(false);
+        Verify();
+        opener();
+        SetRunning(true);
+    }
+
     private RotationSolverState Read()
     {
         if (!backend.Available) throw new InvalidOperationException("Rotation Solver is disabled or its IPC is unavailable.");

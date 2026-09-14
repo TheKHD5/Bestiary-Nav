@@ -1,0 +1,10 @@
+- Keep retrying the selected beast until capture is confirmed.
+- Resume nearby capture attempts without returning to the spawn-circle center.
+- Follow moving targets while waiting to apply Capture.
+- Defend against incidental attackers, then resume capture travel or patrol.
+- Recover stalled fights after 8 seconds without damage on the marked target.
+- Try other points inside the spawn circle when the center has no mapped route.
+- Patrol the circle after arrival; approach distant beasts before selecting them.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

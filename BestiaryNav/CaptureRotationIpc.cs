@@ -39,6 +39,7 @@ internal sealed class CaptureRotationIpc : IRotationSolverBackend, IDisposable
 
     public void Verify(bool requireRotation = true) => control.Verify(requireRotation);
     public void SetRunning(bool value) => control.SetRunning(value);
+    public void Restart(Action opener) => control.Restart(opener);
     public void Release() { try { control.Release(); } finally { reader = null; } }
     public void Dispose() => Release();
 

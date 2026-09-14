@@ -141,6 +141,8 @@ ChatChecks.Run(Check);
 AppearanceChecks.Run(Check);
 AutoCaptureChecks.Run(Check);
 CaptureRunChecks.Run(Check);
+CaptureCombatChecks.Run(Check);
+CaptureDefenseChecks.Run(Check);
 CaptureAllChecks.Run(Check);
 RotationSolverChecks.Run(Check);
 SpawnSearchChecks.Run(Check);

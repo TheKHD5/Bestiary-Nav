@@ -9,6 +9,7 @@ internal static class TravelChecks
 {
     public static void Run(Action<bool, string> check)
     {
+        CheckAreaFallback(check);
         var player = new TravelPlayer(134, Vector3.Zero, true, false, false, null);
         var target = new TravelPlan(134, new(100, 0, 100), 8, 0, "Lamb habitat");
         FakeTravel ipc = new();
@@ -308,6 +309,48 @@ internal static class TravelChecks
         check(!controller.Active && ipc.Moves == 0, "taking flight during underground route cancels it");
     }
 
+    private static void CheckAreaFallback(Action<bool, string> check)
+    {
+        var player = new TravelPlayer(137, Vector3.Zero, true, false, false, null);
+        var plan = new TravelPlan(137, new(1000, 0, 1000), 0, 0, "Apkallu circle", 123,
+            AllowMount: false, AllowFlight: false, AllowAreaFallback: true);
+        var ipc = new FakeTravel { Available = true, MeshReady = true };
+        ipc.FloorProjection = p => p == plan.MapPoint ? null : p with { Y = 20 };
+        using var controller = new TravelController(ipc);
+        controller.Start(plan, player, 0); controller.Update(player, 1000);
+        check(controller.Active && ipc.Moves == 0, "unmapped circle center tries another point instead of ending travel");
+        controller.Update(player, 1100);
+        check(controller.Phase == TravelPhase.FindingPath && ipc.RequestedCenter != plan.MapPoint,
+            "fallback projects a different point inside the same circle");
+        var endpoint = ipc.RequestedCenter with { Y = 20 };
+        check(CaptureRunPolicy.InArea(endpoint, plan.MapPoint, plan.SearchRadius, null), "alternate arrival remains inside spawn circle");
+        ipc.Completion.SetResult([player.Position, endpoint]); controller.Update(player, 1200);
+        check(controller.Phase == TravelPhase.Moving && ipc.Moves == 1, "validated alternate route continues after teleport arrival");
+        controller.Update(player with { Position = endpoint }, 1300);
+        check(controller.Arrived, "alternate ground point completes arrival");
+
+        ipc.FloorProjection = p => null;
+        controller.Start(plan, player, 0);
+        for (var now = 1000; now <= 30000 && controller.Active; now += 100) controller.Update(player, now);
+        check(!controller.Active && controller.NoRoute, "wholly unmapped area has a bounded sweep then reports failure");
+
+        ipc.FloorProjection = p => p;
+        ipc.Completion = new();
+        controller.Start(plan, player, 0); controller.Update(player, 1000);
+        ipc.Completion.SetResult([]); controller.Update(player, 1100);
+        check(controller.Active && controller.Phase == TravelPhase.WaitingForMesh,
+            "disconnected center path also falls back to another candidate");
+        ipc.Completion = new(); controller.Update(player, 1200);
+        endpoint = ipc.RequestedCenter;
+        ipc.Completion.SetResult([player.Position, endpoint]); controller.Update(player, 1300);
+        check(controller.Phase == TravelPhase.Moving, "alternate point needs its own complete path before moving");
+        controller.Stop();
+        ipc.FloorProjection = p => p with { Y = 100 };
+        controller.Start(plan with { TargetFloor = new() { MinimumY = 25, MaximumY = 27 } }, player, 0);
+        for (var now = 1000; now <= 30000 && controller.Active; now += 100) controller.Update(player, now);
+        check(controller.NoRoute, "fallback never substitutes surface terrain for a specified underground floor");
+    }
+
     private sealed class FakeTravel : ITravelBackend
     {
         public bool Available { get; set; }
@@ -327,7 +370,8 @@ internal static class TravelChecks
         public Vector3 RequestedCenter;
         public bool Mount() { Mounts++; return MountAccepted; }
         public TravelFloor? RequestedFloor;
-        public Vector3? GroundPoint(Vector3 point, float radius, TravelFloor? targetFloor) { RequestedCenter = point; RequestedFloor = targetFloor; return Ground; }
+        public Func<Vector3, Vector3?>? FloorProjection;
+        public Vector3? GroundPoint(Vector3 point, float radius, TravelFloor? targetFloor) { RequestedCenter = point; RequestedFloor = targetFloor; return FloorProjection != null ? FloorProjection(point) : Ground; }
         public Task<List<Vector3>> FindPath(Vector3 start, Vector3 end, bool fly, CancellationToken token) { FindFlying = fly; Token = token; return Completion.Task; }
         public void Move(List<Vector3> path, bool fly) { Moves++; MoveFlying = fly; OwnPathRunning = true; }
         public void StopOwnedMovement() { if (OwnPathRunning) { Stops++; OwnPathRunning = false; } }

@@ -31,15 +31,16 @@ internal static class CaptureAllChecks
         check(Tick(103001) == 2, "late capture record advances to another beast");
         check(all.Failures(1) == 0, "confirmed capture is not recorded as failure");
         check(Tick(103002) == null, "synchronous failed Start also settles");
-        check(Tick(106002) == 3 && all.Failures(2) == 1, "failed entry deferred while other eligible entry runs");
-        Tick(106003);
-        state = state with { Captured = 5 };
-        check(Tick(109003) == null && all.Enabled && all.Current == 0, "cooling down entries are not mistaken for completion");
+        check(Tick(106002) == null && all.Failures(2) == 1 && all.Selected == 2, "failed entry remains selected instead of traveling to another beast");
+        check(Tick(109003) == null && all.Enabled && all.Current == 0 && all.Selected == 2, "cooldown keeps the same uncaptured entry");
         check(Tick(121001) == null, "failed entry waits full retry delay");
         check(Tick(121002) == 2, "failed entry retries after fifteen seconds");
         Tick(121003);
+        state = state with { Captured = 3 };
+        check(Tick(124003) == 3, "only confirmed capture permits advancement to next eligible entry");
+        Tick(124004);
         state = state with { Captured = 7 };
-        check(Tick(124003) == null && !all.Enabled, "stop when only duties quests or above-level beasts remain");
+        check(Tick(127004) == null && !all.Enabled, "stop when only duties quests or above-level beasts remain");
         state = state with { Level = 20 };
         check(Tick(200000) == null, "completed batch does not silently restart after leveling");
         all.Start();
@@ -79,5 +80,19 @@ internal static class CaptureAllChecks
         check(Tick(clock + 10001) == null && !all.Enabled, "current level rechecked before retry");
         all.Start(); state = state with { Level = 0 };
         check(Tick(++clock) == null && all.Enabled, "temporary level zero does not mark collection complete");
+
+        beasts = [Beast(28), Beast(29)];
+        metadata[28] = new() { BestiaryNumber = 28, MinimumLevel = 31 };
+        metadata[29] = new() { BestiaryNumber = 29, MinimumLevel = 32 };
+        state = state with { Captured = 0, Level = 40 };
+        all.Start();
+        check(Tick(1) == 28, "Sandworm regression starts entry 28");
+        Tick(2, busy: true);
+        Tick(3);
+        check(Tick(3003) == null && all.Selected == 28, "manual defeat without capture does not abandon Sandworm");
+        check(Tick(18003) == 28, "Sandworm retry stays on entry despite other available entries");
+        Tick(18004);
+        state = state with { Captured = 1UL << 27 };
+        check(Tick(21004) == 29, "Sandworm capture bit unlocks next entry");
     }
 }

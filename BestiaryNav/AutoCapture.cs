@@ -25,14 +25,17 @@ internal sealed class AutoCapture
     private readonly IPluginLog log;
     private readonly uint bst;
     private readonly bool compatible;
+    private readonly bool recoveryStrikeCompatible;
     private readonly AutoCapturePolicy policy = new();
     private readonly CaptureMarkTracker marks = new();
     private long nextScan;
     private uint territory, playerId;
     public string Status { get; private set; } = "Auto Capture is off.";
+    public string RecoveryStatus { get; private set; } = "No recovery strike requested.";
     public bool Compatible => compatible;
     public bool RunActive { get; set; }
     public ulong RunTarget { get; set; }
+    public ulong DefenseTarget { get; set; }
     public void ObserveDefeat(uint entityId) => marks.Observe(entityId, false, null, Environment.TickCount64);
 
     public AutoCapture(Configuration config, CaptureStateReader captures,
@@ -47,6 +50,54 @@ internal sealed class AutoCapture
         var buff = data.GetExcelSheet<Lumina.Excel.Sheets.Status>(ClientLanguage.English).GetRowOrDefault(CapturingInterest);
         compatible = bindingActive && bst != 0 && action is { IsPlayerAction: true } && action.Value.Name.ExtractText() == "Capture" &&
             debuff?.Name.ExtractText() == "Interest Captured" && buff?.Name.ExtractText() == "Capturing Interest";
+        var strike = data.GetExcelSheet<Lumina.Excel.Sheets.Action>(ClientLanguage.English).GetRowOrDefault(44879);
+        recoveryStrikeCompatible = compatible && strike is { IsPlayerAction: true, CastType: 1 } &&
+            strike.Value.Name.ExtractText() == "Smash Axe";
+    }
+
+    // A single, game-validated opener can establish combat if the solver has no
+    // usable next action. Capture recovery requires our mark; defense is limited
+    // to the run's owned attacker actively targeting the player.
+    public bool TryRecoveryStrike(ulong target) => TryStrike(target, false);
+    public bool TryDefenseStrike(ulong target) => TryStrike(target, true);
+    private unsafe bool TryStrike(ulong target, bool defense)
+    {
+        RecoveryStatus = "Recovery strike blocked: target, capture mark, or player readiness changed.";
+        if (!recoveryStrikeCompatible || !config.CaptureRun || !config.MapTrackingOnClick || !RunActive ||
+            target == 0 || (defense ? DefenseTarget : RunTarget) != target ||
+            objects.LocalPlayer is not { } player || targets.Target is not IBattleNpc npc ||
+            npc.GameObjectId != target || player.ClassJob.RowId != bst || player.IsDead || player.IsCasting ||
+            !client.IsLoggedIn || conditions[ConditionFlag.BetweenAreas] || conditions[ConditionFlag.BetweenAreas51] ||
+            conditions[ConditionFlag.Mounted] || conditions[ConditionFlag.InFlight] ||
+            conditions[ConditionFlag.MountOrOrnamentTransition] ||
+            conditions[ConditionFlag.WatchingCutscene] || conditions[ConditionFlag.WatchingCutscene78] ||
+            conditions[ConditionFlag.OccupiedInQuestEvent] || npc.IsDead || npc.CurrentHp == 0 || !npc.IsTargetable ||
+            npc.BattleNpcKind != BattleNpcSubKind.Combatant) return false;
+        if (defense)
+        {
+            if (!conditions[ConditionFlag.InCombat] || !CaptureDefensePolicy.AttackingPlayer(
+                new(npc.GameObjectId, npc.TargetObjectId, npc.Position, true, true,
+                    (npc.StatusFlags & StatusFlags.InCombat) != 0), player.GameObjectId)) return false;
+        }
+        else
+        {
+            if (npc.Level == 0 || npc.Level > player.Level ||
+                !catalog.TryGetValue((client.TerritoryType, npc.NameId), out var entry) ||
+                !captures.TryRead(out var records) || !CaptureRules.IsUncaptured(records, entry)) return false;
+            var marked = false;
+            foreach (var status in npc.StatusList)
+                if (CaptureMarkTracker.IsOwnMark(status.StatusId, status.SourceId, player.EntityId)) marked = true;
+            if (!marked) return false;
+        }
+        var actions = ActionManager.Instance();
+        if (actions == null || actions->ActionQueued || actions->AnimationLock > 0 || targets.Target?.GameObjectId != target)
+        { RecoveryStatus = "Recovery strike waiting for the current action lock or queue."; return false; }
+        var actionStatus = actions->GetActionStatus(ActionType.Action, 44879, target);
+        if (actionStatus != 0)
+        { RecoveryStatus = $"Smash Axe unavailable (game action status {actionStatus})."; return false; }
+        var used = actions->UseAction(ActionType.Action, 44879, target);
+        RecoveryStatus = used ? "Smash Axe opener accepted." : "The game rejected the Smash Axe opener.";
+        return used;
     }
 
     public void Reset()
