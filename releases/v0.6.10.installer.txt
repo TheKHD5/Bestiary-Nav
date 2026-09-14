@@ -1,0 +1,6 @@
+- Defend your summoned chocobo during Levelling.
+- Respond to companion attacks while patrolling or waiting for HP.
+- Keep fighting when an enemy switches aggro between you and your chocobo.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

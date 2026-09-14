@@ -29,6 +29,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     public string LastRecovery { get; private set; } = "No combat recovery needed.";
     public string RotationStatus => rotation.CombatStatus;
     public string RespawnStatus => respawn.Status;
+    public ulong CompanionId => companionId;
     public string LastStopReason { get; private set; } = "No previous Levelling stop.";
     public string TargetRange => selection == null ? $"BST +{config.Farming.MinimumAbove}–{config.Farming.MaximumAbove}; no area selected" :
         $"Lv. {selection.Minimum}–{selection.Maximum}; {area?.Name}; catalog levels {selection.Area.MinimumLevel}–{selection.Area.MaximumLevel}";
@@ -51,6 +52,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private readonly Dictionary<FarmingArea, long> unavailable = [];
     private readonly FarmingEmptyAreas emptyRanges = new();
     private ulong target;
+    private ulong companionId;
     private bool ownsTravel, targetSelected, engaged, defending;
     private long nextScan, nextVerify, nextAction, waitUntil, targetDeadline, areaDeadline;
     private long lastUpdate;
@@ -155,6 +157,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (now >= nextVerify) { rotation.Verify(Phase != FarmingPhase.Traveling); nextVerify = now + 500; }
             var combat = conditions[ConditionFlag.InCombat];
             var actors = objects.OfType<IBattleNpc>().Where(n => n.BattleNpcKind == BattleNpcSubKind.Combatant).ToArray();
+            companionId = supplies.CompanionId;
             if (selection != null && (selection.Minimum != player.Level + config.Farming.MinimumAbove || selection.Maximum != player.Level + config.Farming.MaximumAbove))
             {
                 selection = selection.AtLevel(player.Level, config.Farming);
@@ -169,14 +172,24 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             {
                 EndTarget(); waitUntil = now + 3000; Phase = FarmingPhase.Preparing;
             }
-            if (target == 0 && combat)
+            if (target != 0 && targetSelected && targets.Target != null && targets.Target.GameObjectId != target)
+            { Stop("Farming stopped because you changed the main target."); return; }
+            // Companion aggro can precede the player's combat flag. Interrupt
+            // a new pull, patrol or HP wait, but finish an already engaged fight.
+            if (target == 0 || (!engaged && !defending))
             {
                 var id = CaptureDefensePolicy.Select(actors.Select(n => new CaptureAggressor(n.GameObjectId, n.TargetObjectId,
                     n.Position, !n.IsDead && n.CurrentHp > 0, n.IsTargetable, (n.StatusFlags & StatusFlags.InCombat) != 0)),
-                    player.GameObjectId, player.Position);
-                npc = actors.FirstOrDefault(n => n.GameObjectId == id);
-                if (npc == null) { rotation.SetRunning(false); StopMovement(); Status = "Waiting for an attacker to become visible…"; return; }
-                Pick(npc, true, now);
+                    player.GameObjectId, player.Position, preferred: target, companion: companionId);
+                var attacker = actors.FirstOrDefault(n => n.GameObjectId == id);
+                if (attacker != null)
+                {
+                    if (target != 0) EndTarget();
+                    npc = attacker;
+                    Pick(npc, true, now);
+                }
+                else if (target == 0 && combat)
+                { rotation.SetRunning(false); StopMovement(); Status = "Waiting for an attacker to become visible…"; return; }
             }
             if (target != 0 && npc != null)
             {
@@ -365,11 +378,13 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private unsafe void Fight(IBattleNpc npc, IPlayerCharacter player, long now)
     {
         if (now >= targetDeadline) { Stop("Farming fight timed out; take over or restart farming."); return; }
+        if (defending && !engaged && !AttackingUs(npc, player.GameObjectId))
+        { EndTarget(); Phase = FarmingPhase.Preparing; return; }
         if (!engaged && !defending && !Eligible(npc, player.Level))
         { EndTarget(); Phase = FarmingPhase.Preparing; return; }
         if (!npc.IsTargetable) { rotation.SetRunning(false); StopMovement(); return; }
         var inCombat = (npc.StatusFlags & StatusFlags.InCombat) != 0;
-        if (!engaged && inCombat && npc.TargetObjectId != player.GameObjectId && !defending && selectedFate == 0)
+        if (!engaged && inCombat && !AttackingUs(npc, player.GameObjectId) && !defending && selectedFate == 0)
         { EndTarget(); Phase = FarmingPhase.Preparing; return; }
         if (targetSelected && targets.Target != null && targets.Target.GameObjectId != target)
         { Stop("Farming stopped because you changed the main target."); return; }
@@ -389,7 +404,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             rotation.SetRunning(false); watchdog.Pause(now);
             if (player.IsCasting) { StopMovement(); return; }
             var state = travelPlayer();
-            if (state.BlockReason == "Travel stopped in combat." && (engaged || npc.TargetObjectId == player.GameObjectId)) state = state with { BlockReason = null };
+            if (state.BlockReason == "Travel stopped in combat." && (engaged || AttackingUs(npc, player.GameObjectId))) state = state with { BlockReason = null };
             if (!ownsTravel)
             {
                 if (now < nextAction) return;
@@ -413,7 +428,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         // Explicit single-target farming opener; capture marks are not needed.
         if (!engaged && !player.IsCasting) engaged = TryStrike(npc, player);
         rotation.SetRunning(true);
-        if (inCombat && npc.TargetObjectId == player.GameObjectId) engaged = true;
+        if (inCombat && AttackingUs(npc, player.GameObjectId)) engaged = true;
         if (watchdog.Check(target, npc.CurrentHp, now, !player.IsCasting, rotation.LastSkillStamp))
         {
             rotation.Restart(() => TryStrike(npc, player));
@@ -422,11 +437,16 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         }
         Status = $"{(defending ? "Defending against" : "Farming")} {npc.Name}, Lv. {npc.Level} with Rotation Solver…";
     }
+    private bool AttackingUs(IBattleNpc npc, ulong player) => CaptureDefensePolicy.AttackingPlayerOrCompanion(
+        new(npc.GameObjectId, npc.TargetObjectId, npc.Position, !npc.IsDead && npc.CurrentHp > 0,
+            npc.IsTargetable, (npc.StatusFlags & StatusFlags.InCombat) != 0), player, companionId);
+
     private unsafe bool TryStrike(IBattleNpc npc, IPlayerCharacter player)
     {
         if (!Enabled || !compatible() || targets.Target?.GameObjectId != target || npc.GameObjectId != target ||
             npc.IsDead || !npc.IsTargetable || player.IsDead || player.IsCasting || player.ClassJob.RowId != bst ||
-            (!defending && !engaged && !Eligible(npc, player.Level))) return false;
+            (!defending && !engaged && !Eligible(npc, player.Level)) ||
+            (defending && !engaged && !AttackingUs(npc, player.GameObjectId))) return false;
         return recoveryCombo.TryUse(target, player.Level);
     }
     private void StopMovement() { if (ownsTravel) travel.Stop(); ownsTravel = false; }
@@ -455,7 +475,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         Phase = FarmingPhase.Idle; StopMovement();
         try { rotation.Release(); } catch (Exception ex) { log.Warning(ex, "Could not release farming rotation."); }
         if (target != 0 && targets.Target?.GameObjectId == target) targets.Target = null;
-        target = 0; selection = null; area = null; Status = reason;
+        target = companionId = 0; selection = null; area = null; Status = reason;
     }
     public void Dispose() { Stop(); rotation.Dispose(); }
 }

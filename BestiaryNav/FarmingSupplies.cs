@@ -26,6 +26,10 @@ internal sealed class FarmingSupplies(IDataManager data, IGameInventory inventor
         .FirstOrDefault(s => s.Name.ExtractText() == "Well Fed").RowId;
     private long nextUse, settleUntil;
     public string Status { get; private set; } = "Optional supplies are off.";
+    // Resolve only the local player's live companion, not arbitrary friendly
+    // NPCs, mount names, or another player's chocobo. Use the full object ID.
+    public ulong CompanionId => buddies.CompanionBuddy is { CurrentHP: > 0 } buddy &&
+        buddy.GameObject is IBattleChara { IsDead: false, CurrentHp: > 0 } companion ? companion.GameObjectId : 0;
     private List<GameInventoryItem> Items()
     {
         List<GameInventoryItem> result = [];

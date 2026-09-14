@@ -3,7 +3,7 @@
     "Author": "TheKHD5",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.6.9.0",
+    "AssemblyVersion": "0.6.10.0",
     "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
@@ -26,10 +26,10 @@
     ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.9/latest.zip",
-    "LastUpdate": 1789426415,
-    "Changelog": "- Choose monster groups by level range and zone, or keep Automatic targeting.\n- Set Levelling offsets from +1 to +10 above BST.\n- Keep Levelling revival active when combat cleanup fails.\n- Allow restarting while incapacitated with Auto respawn enabled.\n- Show specific start restrictions and Return prompt status.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.10/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.10/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.10/latest.zip",
+    "LastUpdate": 1789427726,
+    "Changelog": "- Defend your summoned chocobo during Levelling.\n- Respond to companion attacks while patrolling or waiting for HP.\n- Keep fighting when an enemy switches aggro between you and your chocobo.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
   }
 ]
