@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.6.4</Version>
+    <Version>0.6.5</Version>
     <InstallerChangelogFile>$(MSBuildProjectDirectory)/../releases/v$(Version).installer.txt</InstallerChangelogFile>
     <Changelog Condition="Exists('$(InstallerChangelogFile)')">$([System.IO.File]::ReadAllText('$(InstallerChangelogFile)').Trim())</Changelog>
     <Author>TheKHD5</Author>
@@ -20,5 +20,6 @@
     <EmbeddedResource Include="binding.json" LogicalName="BestiaryNav.binding.json" />
     <EmbeddedResource Include="capture-targets.json" LogicalName="BestiaryNav.capture-targets.json" />
     <EmbeddedResource Include="collection.json" LogicalName="BestiaryNav.collection.json" />
+    <EmbeddedResource Include="farming-areas.json" LogicalName="BestiaryNav.farming-areas.json" />
   </ItemGroup>
 </Project>

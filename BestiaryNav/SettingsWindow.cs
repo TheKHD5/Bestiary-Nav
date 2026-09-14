@@ -9,7 +9,7 @@ namespace BestiaryNav;
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
     Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus,
-    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll)
+    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
@@ -96,6 +96,61 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             if (ImGui.SliderInt("Target HP at or below (%)", ref hp, 1, 100)) { configuration.AutoCaptureMaxHpPercent = hp; save(); }
             Tip("Applies to standalone Auto Capture. 100% casts as soon as eligible. Lower values wait for weaker targets and improve the capture chance. Capture runs always apply Capture before damage combos. The plugin never refreshes your active mark merely because HP has fallen.");
             ImGui.TextWrapped(captureStatus());
+            ImGui.EndTabItem();
+        }
+        if (ImGui.BeginTabItem("Farming (Experimental)###Farming"))
+        {
+            var enabled = farming.Enabled;
+            if (ImGui.Checkbox("Farming mode", ref enabled)) setFarming(enabled);
+            Tip("BST only. Farm documented overworld spawn areas with vnavmesh, Lifestream and Rotation Solver. Captured beasts are valid targets; Capture is paused. Start with Rotation Solver off. /bnav stop cancels. Farming does not restart after reload. Normal teleport and consumable costs apply.");
+            var minimum = configuration.Farming.MinimumAbove;
+            var maximum = configuration.Farming.MaximumAbove;
+            ImGui.SetNextItemWidth(150);
+            var changed = ImGui.SliderInt("Minimum levels above BST", ref minimum, 1, 5);
+            ImGui.SetNextItemWidth(150);
+            changed |= ImGui.SliderInt("Maximum levels above BST", ref maximum, 1, 5);
+            if (changed)
+            {
+                configuration.Farming.MinimumAbove = minimum; configuration.Farming.MaximumAbove = maximum;
+                configuration.Farming.Normalize();
+                if (farming.Enabled) setFarming(false);
+                save();
+            }
+            Tip("Choose the level range for a new area (+1 to +5). Stay with that target band as BST levels up, then relocate when BST reaches its highest target level. Changing the range stops the current run. Missing data or locked destinations stop with a status message; duties are excluded; FATE participation is optional.");
+            var goal = configuration.Farming.TargetLevel;
+            ImGui.SetNextItemWidth(150);
+            if (ImGui.InputInt("Target BST level (0 = no limit)", ref goal)) { configuration.Farming.TargetLevel = Math.Clamp(goal, 0, 100); save(); }
+            Tip("Stops farming as soon as your BST level reaches this value, before selecting another target or destination.");
+            var fates = configuration.Farming.ParticipateInFates;
+            if (ImGui.Checkbox("Participate in FATEs", ref fates)) { configuration.Farming.ParticipateInFates = fates; save(); }
+            Tip("Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. Does not start NPC conversations or hand in items.");
+            var ignore = configuration.Farming.IgnoreNotoriousMonsters;
+            if (ImGui.Checkbox("Ignore Notorious Monsters", ref ignore)) { configuration.Farming.IgnoreNotoriousMonsters = ignore; save(); }
+            Tip("Skip hunt marks and enemies with boss rank when choosing farming or FATE pulls. Self-defense against an enemy already attacking you still takes priority.");
+            var respawn = configuration.Farming.AutoRespawn;
+            if (ImGui.Checkbox("Auto respawn and resume", ref respawn)) { configuration.Farming.AutoRespawn = respawn; save(); }
+            Tip("Use the game's revive confirmation when incapacitated, wait for loading and HP recovery, then choose an area and resume. If off, farming waits for you to revive manually. Never accepts unrelated dialogs.");
+            var chocobo = configuration.Farming.SummonChocobo;
+            if (ImGui.Checkbox("Summon companion chocobo", ref chocobo)) { configuration.Farming.SummonChocobo = chocobo; save(); }
+            Tip("Uses Gysahl Greens from your inventory when no companion is summoned. Requires the companion unlock and an allowed area. Missing supplies do not stop farming.");
+            var food = configuration.Farming.UseFood;
+            if (ImGui.Checkbox("Refresh food EXP buff", ref food)) { configuration.Farming.UseFood = food; save(); }
+            var choices = farming.FoodChoices();
+            var selectedName = "Select food from inventory";
+            foreach (var choice in choices) if (choice.Id == configuration.Farming.FoodId) selectedName = choice.Name;
+            if (ImGui.BeginCombo("Food", selectedName))
+            {
+                if (choices.Count == 0) ImGui.TextDisabled("No usable food found in your inventory bags.");
+                foreach (var choice in choices)
+                    if (ImGui.Selectable($"{choice.Name} ×{choice.Count}##{choice.Id}", configuration.Farming.FoodId == choice.Id))
+                    { configuration.Farming.FoodId = choice.Id; save(); }
+                ImGui.EndCombo();
+            }
+            Tip("Only uses the selected food and quality from the four inventory bags. Waits for Well Fed to expire; refreshes between fights while stationary and dismounted. Existing food buffs are preserved. No purchases or HQ substitutions.");
+            ImGui.Separator();
+            ImGui.TextWrapped(farming.Status);
+            ImGui.TextWrapped(farming.SuppliesStatus);
+            if (farming.Enabled && ImGui.Button("Stop farming")) setFarming(false);
             ImGui.EndTabItem();
         }
         if (ImGui.BeginTabItem("Labels"))

@@ -33,6 +33,7 @@ internal sealed class AutoCapture
     public string Status { get; private set; } = "Auto Capture is off.";
     public string RecoveryStatus { get; private set; } = "No recovery strike requested.";
     public bool Compatible => compatible;
+    public bool Suspended { get; set; }
     public bool RunActive { get; set; }
     public ulong RunTarget { get; set; }
     public ulong DefenseTarget { get; set; }
@@ -108,6 +109,7 @@ internal sealed class AutoCapture
 
     public unsafe void Update()
     {
+        if (Suspended) { Status = "Auto Capture paused during farming."; return; }
         if (!config.AutoCapture && !RunActive) { Reset(); Status = "Auto Capture is off."; return; }
         if (!compatible) { Reset(); Status = "Auto Capture needs compatible game and action data."; return; }
         if (!client.IsLoggedIn || objects.LocalPlayer is not { } player ||

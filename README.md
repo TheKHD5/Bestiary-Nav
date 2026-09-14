@@ -10,6 +10,7 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 - **Auto Capture:** optionally cast Capture on your eligible BST main target in combat, with an HP threshold and no recast while your existing mark is active.
 - **Capture runs:** optionally travel to a selected entry, apply Capture, and fight with Rotation Solver Reborn's BST rotation (7.5.6.8+). Wait at least three seconds after each defeat, then retry in the same area if still uncaptured. Defend against enemies attacking you, then resume the saved destination or spawn-area patrol. Enable under **Capture**; stop with `/bnav stop`. Dungeon entry stays manual.
 - **Search the spawn area:** capture runs walk the configured circle when no eligible beast is nearby. Widen **Search radius** for larger habitats.
+- **Farming mode (Experimental):** use Rotation Solver to farm a chosen level range, patrol spawn areas, move on as BST levels up, and stop at a target level. Optional chocobo, food refresh, combat FATEs, Notorious Monster filtering, and auto respawn. The initial area catalog covers ARR targets up to level 49; live FATEs supplement it.
 - **Capture all available:** toggle a batch from the Bestiary toolbar or Capture settings. Collect eligible overworld beasts at your current BST level, retry the selected entry until capture is confirmed, and stop when none remain. `/bnav stop` cancels the batch and retries.
 - **Location pop-up:** toggle navigation from Bestiary clicks, directly above the Bestiary. Turning it off also disables Auto Navigate and stops the current trip.
 - **Spot uncaptured beasts:** customize label size, colors, range, and model/enemy-list visibility. Duty labels identify capture/gourd encounters.
@@ -35,6 +36,7 @@ Install **Lifestream** and **vnavmesh** separately to use Auto Navigate. Future 
 
 - [Plugin source](BestiaryNav/): Bestiary integration, collection planner, settings, labels, map circles, travel, Auto Capture, and Rotation Solver capture runs.
 - [Collection data](BestiaryNav/collection.json): acquisition levels and gourd information for all 50 beasts.
+- [Farming areas](BestiaryNav/farming-areas.json): sourced enemy levels and spawn coordinates for farming.
 - [Spawn-area notes](BestiaryNav/SPAWN-AREAS.md): circle coordinates, radius, and validation details.
 - [Acquisition locations](BestiaryNav/LOCATIONS.md): map, duty, and quest destinations for all 50 beasts.
 - [Installer images](assets/): icon, in-game previews, and original image sources.

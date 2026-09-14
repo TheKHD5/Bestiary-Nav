@@ -143,6 +143,7 @@ AutoCaptureChecks.Run(Check);
 CaptureRunChecks.Run(Check);
 CaptureCombatChecks.Run(Check);
 CaptureDefenseChecks.Run(Check);
+FarmingChecks.Run(Check);
 CaptureAllChecks.Run(Check);
 RotationSolverChecks.Run(Check);
 SpawnSearchChecks.Run(Check);

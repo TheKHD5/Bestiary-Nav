@@ -42,6 +42,9 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ITargetManager Targets { get; private set; } = null!;
     [PluginService] internal static IUnlockState Unlocks { get; private set; } = null!;
     [PluginService] internal static IAetheryteList Aetherytes { get; private set; } = null!;
+    [PluginService] internal static IGameInventory Inventory { get; private set; } = null!;
+    [PluginService] internal static IBuddyList Buddies { get; private set; } = null!;
+    [PluginService] internal static IFateTable Fates { get; private set; } = null!;
 
     private const string Command = "/bnav";
     private readonly BindingProfile binding;
@@ -56,6 +59,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly AutoCapture autoCapture;
     private readonly CaptureRun captureRun;
     private readonly CaptureAllController captureAll = new();
+    private readonly FarmingRun farming;
     private readonly uint beastmasterJob;
     private readonly CaptureStateReader captureState;
     private readonly TravelIpc travelIpc;
@@ -116,6 +120,8 @@ public sealed class Plugin : IDalamudPlugin
         configuration.ChatOutput.Normalize();
         configuration.Appearance ??= new();
         configuration.Appearance.Normalize();
+        configuration.Farming ??= new();
+        configuration.Farming.Normalize();
         configuration.AutoCaptureMaxHpPercent = Math.Clamp(configuration.AutoCaptureMaxHpPercent, 1, 100);
         if (!configuration.MapTrackingOnClick) configuration.AutoTravel = false;
         configuration.Favorites.RemoveWhere(n => !monsters.ContainsKey(n));
@@ -138,6 +144,24 @@ public sealed class Plugin : IDalamudPlugin
         captureRun = new CaptureRun(configuration, captureState, captureTargets.BuildIndex(monsters), Objects, Targets,
             ClientState, Condition, Log, autoCapture, new CaptureRotationIpc(PluginInterface), travel, GetTravelPlayer, beastmasterJobId,
             () => !GameGui.GameUiHidden);
+        var farmData = ReadResource<FarmingDatabase>("farming-areas.json");
+        var englishNames = Data.GetExcelSheet<BNpcName>(Dalamud.Game.ClientLanguage.English)
+            .GroupBy(n => n.Singular.ExtractText(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Select(n => n.RowId).Where(id => id != 0).ToHashSet(), StringComparer.OrdinalIgnoreCase);
+        foreach (var farmArea in farmData.Areas)
+        {
+            if (englishNames.TryGetValue(farmArea.Name, out var ids)) farmArea.NameIds = ids;
+            if (farmArea.Location.TerritoryTypeId == 0)
+            {
+                var territory = Data.GetExcelSheet<TerritoryType>(Dalamud.Game.ClientLanguage.English)
+                    .FirstOrDefault(t => t.PlaceName.Value.Name.ExtractText() == farmArea.Location.Area && t.ContentFinderCondition.RowId == 0 && t.Map.RowId != 0);
+                farmArea.Location.TerritoryTypeId = territory.RowId;
+                farmArea.Location.MapId = territory.Map.RowId;
+            }
+        }
+        farming = new FarmingRun(configuration, farmData, Objects, Targets, ClientState, Condition, Log,
+            new CaptureRotationIpc(PluginInterface), travel, travelPlans, GetTravelPlayer, () => bindingActive,
+            () => !GameGui.GameUiHidden, beastmasterJobId, new FarmingSupplies(Data, Inventory, Buddies), Data, Fates, new FarmingRespawn(GameGui));
         spawnAreas = new SpawnAreaMap(Data, bindingActive);
         dutySelection = new DutySelection(GameGui, CanEditDutySelection, message => PrintMessage(ChatMessageKind.Warnings, message));
         collectionWindow = new CollectionWindow(monsters, acquisition, configuration, () => collectionSnapshot,
@@ -145,7 +169,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(collectionWindow);
         settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup,
-            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll);
+            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
             collectionWindow.Open, travel, StopTravel, SetLocationPopup, captureRun,
             () => CollectionPlanner.Recommend(monsters.Values, acquisition, collectionSnapshot),
@@ -279,6 +303,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private bool QueueBeast(uint bestiaryNumber, bool autoTravel = false, bool fromBestiaryClick = false, bool fromCaptureAll = false)
     {
+        if (farming.Enabled) farming.Stop("Farming stopped for your selected Bestiary entry.");
         // Clear an earlier request even if the new selection has no known location.
         pendingRequest = null;
         pendingAutoTravel = false;
@@ -309,7 +334,10 @@ public sealed class Plugin : IDalamudPlugin
         if (captureAll.Enabled && configuration.CancelTravelOnManualMovement && GetTravelPlayer().ManualMovement)
             StopTravel("Capture all canceled because you moved manually.");
         if (pendingRequest != null && captureRun.Active) captureRun.Stop("Stopped for the newly selected destination.");
+        if (pendingRequest != null && farming.Enabled) farming.Stop("Stopped for the newly selected destination.");
         captureRun.Update();
+        farming.Update();
+        autoCapture.Suspended = farming.Enabled;
         autoCapture.Update();
         UpdateCollection();
         UpdateCaptureAll();
@@ -320,7 +348,7 @@ public sealed class Plugin : IDalamudPlugin
             pendingClearSpawnAreas = false;
             spawnAreas.ClearOwned();
         }
-        if (travel.Active && !captureRun.Active)
+        if (travel.Active && !captureRun.Active && !farming.Enabled)
         {
             travel.Update(GetTravelPlayer(), Environment.TickCount64, configuration.CancelTravelOnManualMovement);
             ReportTravelStatus();
@@ -448,6 +476,8 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Travel: {travel.Status}");
         report.AppendLine($"Auto Capture: enabled={configuration.AutoCapture}; HP limit={configuration.AutoCaptureMaxHpPercent}%; {autoCapture.Status}");
         report.AppendLine($"Capture run: enabled={configuration.CaptureRun}; phase={captureRun.Phase}; {captureRun.Status}");
+        report.AppendLine($"Farming: enabled={farming.Enabled}; phase={farming.Phase}; {farming.Status}");
+        report.AppendLine($"Farming supplies: {farming.SuppliesStatus}");
         report.AppendLine($"Capture before last stop: {captureRun.LastActiveStatus}");
         report.AppendLine($"Capture recovery: {captureRun.LastRecovery}");
         report.AppendLine($"Capture all: enabled={captureAll.Enabled}; entry={captureAll.Current}; selected={captureAll.Selected}; {captureAll.Status}");
@@ -498,8 +528,16 @@ public sealed class Plugin : IDalamudPlugin
             Condition[ConditionFlag.InFlight], Condition[ConditionFlag.MountOrOrnamentTransition], worldReady);
     }
 
+    private void SetFarming(bool enabled)
+    {
+        if (!enabled) { farming.Stop(); return; }
+        StopTravel("Stopped previous automation to start farming.");
+        farming.Start();
+    }
+
     private void SetCaptureAll(bool enabled)
     {
+        if (enabled && farming.Enabled) farming.Stop("Farming stopped to start Capture all.");
         StopTravel();
         if (!enabled) return;
         configuration.CaptureRun = true;
@@ -538,6 +576,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void StopTravel(string reason)
     {
+        farming.Stop(reason);
         captureAll.Stop(reason);
         captureRun.Stop(reason);
         var wasActive = travel.Active;
@@ -781,6 +820,7 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         disposed = true;
+        farming.Dispose();
         captureRun.Dispose();
         dutySelection.Cancel();
         spawnAreas.ClearOwned();

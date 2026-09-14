@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BestiaryNav\FarmingPolicy.cs" Link="FarmingPolicy.cs" />
+    <Content Include="..\BestiaryNav\farming-areas.json" Link="farming-areas.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\BestiaryNav\AutoCapturePolicy.cs" Link="AutoCapturePolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureRunPolicy.cs" Link="CaptureRunPolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureCombatWatchdog.cs" Link="CaptureCombatWatchdog.cs" />

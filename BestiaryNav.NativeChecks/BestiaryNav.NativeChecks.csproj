@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\BestiaryNav\NativeSnapshot.cs" Link="NativeSnapshot.cs" />
+    <Compile Include="..\BestiaryNav\FarmingReviveReader.cs" Link="FarmingReviveReader.cs" />
     <Compile Include="..\BestiaryNav\EnemyListRows.cs" Link="EnemyListRows.cs" />
     <Compile Include="..\BestiaryNav\EnemyLabelLayout.cs" Link="EnemyLabelLayout.cs" />
     <Compile Include="..\BestiaryNav\DutySelectionReader.cs" Link="DutySelectionReader.cs" />

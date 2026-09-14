@@ -1,0 +1,8 @@
+- Add Experimental BST farming with +1 to +5 target levels and area patrols.
+- Move to stronger areas as you level; stop at your chosen target level.
+- Optionally summon your chocobo and refresh selected inventory food.
+- Add combat FATE participation and an Ignore Notorious Monsters toggle.
+- Automatically return after incapacitation and resume farming.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

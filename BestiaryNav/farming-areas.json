@@ -1,0 +1,703 @@
+{
+  "source": "Existing acquisition snapshots plus location-specific enemy tables researched 2026-09-14. Travel IDs and NPC names are resolved and validated against local game sheets.",
+  "areas": [
+    {
+      "bestiaryNumber": 2,
+      "name": "Ground Squirrel",
+      "minimumLevel": 1,
+      "maximumLevel": 2,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 24,
+        "y": 16,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:24, Y:16); level 1+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Ground_Squirrel"
+    },
+    {
+      "bestiaryNumber": 3,
+      "name": "Lost Lamb",
+      "minimumLevel": 3,
+      "maximumLevel": 6,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 24,
+        "y": 25,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:24, Y:25); level 3+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Lost_Lamb"
+    },
+    {
+      "bestiaryNumber": 4,
+      "name": "Pugil",
+      "minimumLevel": 4,
+      "maximumLevel": 6,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 21.7,
+        "y": 22.3,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:21.7, Y:22.3); level 4+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Enemy)?oldid=1532583",
+        "precision": "reported-to-1-decimal"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Pugil_(Enemy)"
+    },
+    {
+      "bestiaryNumber": 5,
+      "name": "Opo-opo",
+      "minimumLevel": 5,
+      "maximumLevel": 9,
+      "location": {
+        "territoryTypeId": 154,
+        "mapId": 7,
+        "x": 27,
+        "y": 24,
+        "area": "North Shroud",
+        "note": "North Shroud (X:27, Y:24); level 5+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Opo-opo_(Mob)"
+    },
+    {
+      "bestiaryNumber": 6,
+      "name": "Wild Dodo",
+      "minimumLevel": 4,
+      "maximumLevel": 4,
+      "location": {
+        "territoryTypeId": 135,
+        "mapId": 16,
+        "x": 29,
+        "y": 21,
+        "area": "Lower La Noscea",
+        "note": "Lower La Noscea (X:29, Y:21); level 4+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Wild_Dodo"
+    },
+    {
+      "bestiaryNumber": 7,
+      "name": "Rusty Coblyn",
+      "minimumLevel": 6,
+      "maximumLevel": 8,
+      "location": {
+        "territoryTypeId": 140,
+        "mapId": 20,
+        "x": 21,
+        "y": 26,
+        "area": "Western Thanalan",
+        "note": "Western Thanalan (X:21, Y:26); level 6+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Rusty_Coblyn"
+    },
+    {
+      "bestiaryNumber": 9,
+      "name": "Megalocrab",
+      "minimumLevel": 10,
+      "maximumLevel": 13,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 16,
+        "y": 14,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:16, Y:14); level 10+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Megalocrab_(Enemy)"
+    },
+    {
+      "bestiaryNumber": 10,
+      "name": "Huge Hornet",
+      "minimumLevel": 1,
+      "maximumLevel": 4,
+      "location": {
+        "territoryTypeId": 141,
+        "mapId": 21,
+        "x": 20,
+        "y": 27,
+        "area": "Central Thanalan",
+        "note": "Central Thanalan (X:20, Y:27); level 1+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Huge_Hornet"
+    },
+    {
+      "bestiaryNumber": 11,
+      "name": "Nesting Buzzard",
+      "minimumLevel": 6,
+      "maximumLevel": 6,
+      "location": {
+        "territoryTypeId": 140,
+        "mapId": 20,
+        "x": 21,
+        "y": 25,
+        "area": "Western Thanalan",
+        "note": "Western Thanalan (X:21, Y:25); level 6+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Nesting_Buzzard"
+    },
+    {
+      "bestiaryNumber": 12,
+      "name": "Tiny Mandragora",
+      "minimumLevel": 5,
+      "maximumLevel": 7,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 23,
+        "y": 18,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:23, Y:18); level 5+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Tiny_Mandragora"
+    },
+    {
+      "bestiaryNumber": 13,
+      "name": "Geshunpest",
+      "minimumLevel": 14,
+      "maximumLevel": 14,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 19,
+        "y": 28,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:19, Y:28); level 14+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Geshunpest_(Enemy)"
+    },
+    {
+      "bestiaryNumber": 14,
+      "name": "Puk Hatchling",
+      "minimumLevel": 4,
+      "maximumLevel": 15,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 23,
+        "y": 19,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:23, Y:19); level 4+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Puk_Hatchling"
+    },
+    {
+      "bestiaryNumber": 15,
+      "name": "Thickshell",
+      "minimumLevel": 13,
+      "maximumLevel": 13,
+      "location": {
+        "territoryTypeId": 140,
+        "mapId": 20,
+        "x": 15,
+        "y": 15,
+        "area": "Western Thanalan",
+        "note": "Western Thanalan (X:15, Y:15); level 13+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Thickshell"
+    },
+    {
+      "bestiaryNumber": 16,
+      "name": "Killer Mantis",
+      "minimumLevel": 16,
+      "maximumLevel": 16,
+      "location": {
+        "territoryTypeId": 138,
+        "mapId": 18,
+        "x": 22,
+        "y": 23,
+        "area": "Western La Noscea",
+        "note": "Western La Noscea (X:22, Y:23); level 16+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Killer_Mantis"
+    },
+    {
+      "bestiaryNumber": 19,
+      "name": "Cave Bat",
+      "minimumLevel": 7,
+      "maximumLevel": 7,
+      "location": {
+        "territoryTypeId": 135,
+        "mapId": 16,
+        "x": 27,
+        "y": 15.9,
+        "area": "Lower La Noscea",
+        "note": "Lower La Noscea (X:27, Y:15.9); level 7+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Cave_Bat?oldid=1533393",
+        "precision": "reported-to-1-decimal"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Cave_Bat"
+    },
+    {
+      "bestiaryNumber": 20,
+      "name": "Roselet",
+      "minimumLevel": 10,
+      "maximumLevel": 10,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 23,
+        "y": 26,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:23, Y:26); level 10+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Roselet"
+    },
+    {
+      "bestiaryNumber": 21,
+      "name": "Rothlyt Pelican",
+      "minimumLevel": 16,
+      "maximumLevel": 17,
+      "location": {
+        "territoryTypeId": 138,
+        "mapId": 18,
+        "x": 23,
+        "y": 24,
+        "area": "Western La Noscea",
+        "note": "Western La Noscea (X:23, Y:24); level 16+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Rothlyt_Pelican"
+    },
+    {
+      "bestiaryNumber": 22,
+      "name": "Cactuar",
+      "minimumLevel": 3,
+      "maximumLevel": 4,
+      "location": {
+        "territoryTypeId": 140,
+        "mapId": 20,
+        "x": 28,
+        "y": 24,
+        "area": "Western Thanalan",
+        "note": "Western Thanalan (X:28, Y:24); level 3+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Cactuar_(Enemy)"
+    },
+    {
+      "bestiaryNumber": 23,
+      "name": "Sandstone Golem",
+      "minimumLevel": 29,
+      "maximumLevel": 29,
+      "location": {
+        "territoryTypeId": 146,
+        "mapId": 23,
+        "x": 24,
+        "y": 12,
+        "area": "Southern Thanalan",
+        "note": "Southern Thanalan (X:24, Y:12); level 29+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Sandstone_Golem"
+    },
+    {
+      "bestiaryNumber": 24,
+      "name": "Apkallu",
+      "minimumLevel": 30,
+      "maximumLevel": 30,
+      "location": {
+        "territoryTypeId": 137,
+        "mapId": 17,
+        "x": 27,
+        "y": 35,
+        "area": "Eastern La Noscea",
+        "note": "Eastern La Noscea (X:27, Y:35); level 30+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Apkallu_(Mob)"
+    },
+    {
+      "bestiaryNumber": 25,
+      "name": "Giant Tortoise",
+      "minimumLevel": 12,
+      "maximumLevel": 12,
+      "location": {
+        "territoryTypeId": 141,
+        "mapId": 21,
+        "x": 24,
+        "y": 30,
+        "area": "Central Thanalan",
+        "note": "Central Thanalan (X:24, Y:30); level 12+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Giant_Tortoise"
+    },
+    {
+      "bestiaryNumber": 26,
+      "name": "Wounded Aurochs",
+      "minimumLevel": 8,
+      "maximumLevel": 8,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "x": 18,
+        "y": 17,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:18, Y:17); level 8+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Wounded_Aurochs"
+    },
+    {
+      "bestiaryNumber": 27,
+      "name": "Scaphite",
+      "minimumLevel": 14,
+      "maximumLevel": 14,
+      "location": {
+        "territoryTypeId": 140,
+        "mapId": 20,
+        "x": 17,
+        "y": 14,
+        "area": "Western Thanalan",
+        "note": "Western Thanalan (X:17, Y:14); level 14+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Scaphite"
+    },
+    {
+      "bestiaryNumber": 28,
+      "name": "Sandworm",
+      "minimumLevel": 31,
+      "maximumLevel": 32,
+      "location": {
+        "territoryTypeId": 146,
+        "mapId": 23,
+        "x": 16,
+        "y": 34,
+        "area": "Southern Thanalan",
+        "note": "Southern Thanalan (X:16, Y:34); level 31+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Sandworm"
+    },
+    {
+      "bestiaryNumber": 29,
+      "name": "Spriggan Graverobber",
+      "minimumLevel": 7,
+      "maximumLevel": 7,
+      "location": {
+        "territoryTypeId": 141,
+        "mapId": 21,
+        "x": 17,
+        "y": 23,
+        "area": "Central Thanalan",
+        "note": "Central Thanalan (X:17, Y:23); level 7+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Spriggan_Graverobber"
+    },
+    {
+      "bestiaryNumber": 30,
+      "name": "Mossless Goobbue",
+      "minimumLevel": 12,
+      "maximumLevel": 17,
+      "location": {
+        "territoryTypeId": 135,
+        "mapId": 16,
+        "x": 25,
+        "y": 26,
+        "area": "Lower La Noscea",
+        "note": "Lower La Noscea (X:25, Y:26); level 12+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Mossless_Goobbue"
+    },
+    {
+      "bestiaryNumber": 31,
+      "name": "Rivertoad",
+      "minimumLevel": 4,
+      "maximumLevel": 4,
+      "location": {
+        "territoryTypeId": 135,
+        "mapId": 16,
+        "x": 25,
+        "y": 23,
+        "area": "Lower La Noscea",
+        "note": "Lower La Noscea (X:25, Y:23); level 4+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Rivertoad"
+    },
+    {
+      "bestiaryNumber": 32,
+      "name": "Colibri",
+      "minimumLevel": 33,
+      "maximumLevel": 33,
+      "location": {
+        "territoryTypeId": 137,
+        "mapId": 17,
+        "x": 30,
+        "y": 25,
+        "area": "Eastern La Noscea",
+        "note": "Eastern La Noscea (X:30, Y:25); level 33+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Colibri_(Mob)"
+    },
+    {
+      "bestiaryNumber": 33,
+      "name": "Master Coeurl",
+      "minimumLevel": 24,
+      "maximumLevel": 24,
+      "location": {
+        "territoryTypeId": 139,
+        "mapId": 19,
+        "x": 9,
+        "y": 21,
+        "area": "Upper La Noscea",
+        "note": "Upper La Noscea (X:9, Y:21); level 24+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Master_Coeurl"
+    },
+    {
+      "bestiaryNumber": 34,
+      "name": "Anole",
+      "minimumLevel": 9,
+      "maximumLevel": 9,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 31,
+        "y": 21,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:31, Y:21); level 9+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Anole"
+    },
+    {
+      "bestiaryNumber": 35,
+      "name": "Sundrake",
+      "minimumLevel": 32,
+      "maximumLevel": 32,
+      "location": {
+        "territoryTypeId": 146,
+        "mapId": 23,
+        "x": 25,
+        "y": 38,
+        "area": "Southern Thanalan",
+        "note": "Southern Thanalan (X:25, Y:38); level 32+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Sundrake"
+    },
+    {
+      "bestiaryNumber": 36,
+      "name": "Treant Sapling",
+      "minimumLevel": 12,
+      "maximumLevel": 12,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 27,
+        "y": 15,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:27, Y:15); level 12+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Treant_Sapling"
+    },
+    {
+      "bestiaryNumber": 39,
+      "name": "Stroper",
+      "minimumLevel": 31,
+      "maximumLevel": 31,
+      "location": {
+        "territoryTypeId": 148,
+        "mapId": 4,
+        "x": 14,
+        "y": 23,
+        "area": "Central Shroud",
+        "note": "Central Shroud (X:14, Y:23); level 31+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Stroper"
+    },
+    {
+      "bestiaryNumber": 40,
+      "name": "Bogy",
+      "minimumLevel": 7,
+      "maximumLevel": 7,
+      "location": {
+        "territoryTypeId": 134,
+        "mapId": 15,
+        "travelFloor": {
+          "minimumY": 25,
+          "maximumY": 27
+        },
+        "x": 20,
+        "y": 19,
+        "area": "Middle La Noscea",
+        "note": "Middle La Noscea (X:20, Y:19), underground; level 7+. Follow the tunnel on the ground.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Bogy"
+    },
+    {
+      "bestiaryNumber": 42,
+      "name": "Lake Cobra",
+      "minimumLevel": 45,
+      "maximumLevel": 45,
+      "location": {
+        "territoryTypeId": 156,
+        "mapId": 25,
+        "x": 25,
+        "y": 13,
+        "area": "Mor Dhona",
+        "note": "Mor Dhona (X:25, Y:13); level 45+.",
+        "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
+        "precision": "reported-to-whole-map-unit"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Lake_Cobra"
+    },
+    {
+      "name": "Wild Boar",
+      "minimumLevel": 20,
+      "maximumLevel": 21,
+      "location": {
+        "x": 18.1,
+        "y": 24.7,
+        "area": "East Shroud"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Wild_Boar"
+    },
+    {
+      "name": "Yarzon Scavenger",
+      "minimumLevel": 22,
+      "maximumLevel": 22,
+      "location": {
+        "x": 15,
+        "y": 7,
+        "area": "Western Thanalan"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Yarzon_Scavenger"
+    },
+    {
+      "name": "Antelope Stag",
+      "minimumLevel": 25,
+      "maximumLevel": 25,
+      "location": {
+        "x": 23.7,
+        "y": 20.2,
+        "area": "South Shroud"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Antelope_Stag"
+    },
+    {
+      "name": "Yarzon Scavenger",
+      "minimumLevel": 26,
+      "maximumLevel": 26,
+      "location": {
+        "x": 21,
+        "y": 30,
+        "area": "North Shroud"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Yarzon_Scavenger"
+    },
+    {
+      "name": "Ornery Karakul",
+      "minimumLevel": 35,
+      "maximumLevel": 39,
+      "location": {
+        "x": 26.5,
+        "y": 20.1,
+        "area": "Coerthas Central Highlands"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Ornery_Karakul"
+    },
+    {
+      "name": "Snowstorm Goobbue",
+      "minimumLevel": 39,
+      "maximumLevel": 39,
+      "location": {
+        "x": 19.7,
+        "y": 18.2,
+        "area": "Coerthas Central Highlands"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Snowstorm_Goobbue"
+    },
+    {
+      "name": "Golden Fleece",
+      "minimumLevel": 40,
+      "maximumLevel": 42,
+      "location": {
+        "x": 30,
+        "y": 24,
+        "area": "Eastern Thanalan"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Golden_Fleece"
+    },
+    {
+      "name": "Wild Hog",
+      "minimumLevel": 45,
+      "maximumLevel": 46,
+      "location": {
+        "x": 29.5,
+        "y": 23.6,
+        "area": "South Shroud"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Wild_Hog"
+    },
+    {
+      "name": "Basilisk",
+      "minimumLevel": 49,
+      "maximumLevel": 49,
+      "location": {
+        "x": 20,
+        "y": 26,
+        "area": "Northern Thanalan"
+      },
+      "source": "https://ffxiv.consolegameswiki.com/wiki/Basilisk"
+    }
+  ]
+}

@@ -24,6 +24,30 @@ unsafe
     }
     try
     {
+        var reviveDialog = Allocate<FFXIVClientStructs.FFXIV.Client.UI.AddonSelectYesno>();
+        reviveDialog->Id = 700;
+        var reviveButton = Allocate<AtkComponentButton>();
+        var reviveNode = Allocate<AtkComponentNode>();
+        var reviveEvent = Allocate<AtkEvent>();
+        reviveDialog->YesButton = reviveButton;
+        reviveButton->OwnerNode = reviveNode;
+        reviveNode->NodeFlags = NodeFlags.Enabled | NodeFlags.Visible;
+        reviveNode->AtkEventManager.Event = reviveEvent;
+        Check(FarmingReviveReader.TryEvent((nint)reviveDialog, 700, out var click) && click == (nint)reviveEvent, "revive event comes from the owning agent's actual button");
+        Check(!FarmingReviveReader.TryEvent((nint)reviveDialog, 701, out _), "unrelated confirmation dialog is never accepted");
+        Check(!FarmingReviveReader.TryEvent((nint)reviveDialog, 0, out _), "no owner addon means no automatic confirmation");
+        Check(!FarmingReviveReader.TryEvent(0x12345678, 700, out _), "unreadable dialog pointer rejected safely");
+        reviveNode->NodeFlags = NodeFlags.Visible;
+        Check(!FarmingReviveReader.TryEvent((nint)reviveDialog, 700, out _), "disabled revive button is not forced");
+        reviveNode->NodeFlags = NodeFlags.Enabled;
+        Check(!FarmingReviveReader.TryEvent((nint)reviveDialog, 700, out _), "hidden revive button is skipped");
+        reviveNode->NodeFlags = NodeFlags.Visible | NodeFlags.Enabled;
+        reviveNode->AtkEventManager.Event = (AtkEvent*)0x12345678;
+        Check(!FarmingReviveReader.TryEvent((nint)reviveDialog, 700, out _), "unreadable button event rejected safely");
+        reviveNode->AtkEventManager.Event = reviveEvent;
+        reviveDialog->YesButton = null;
+        reviveDialog->AtkComponentHoldButton278 = (AtkComponentHoldButton*)reviveButton;
+        Check(FarmingReviveReader.TryEvent((nint)reviveDialog, 700, out _), "hold-to-confirm affirmative button is supported");
         var finder = Allocate<AgentContentsFinder>();
         var entries = Allocate<Pointer<Contents>>(3);
         finder->ContentList.First = entries;

@@ -3,7 +3,7 @@
     "Author": "TheKHD5",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.6.4.0",
+    "AssemblyVersion": "0.6.5.0",
     "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
@@ -26,10 +26,10 @@
     ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.4/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.4/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.4/latest.zip",
-    "LastUpdate": 1789408785,
-    "Changelog": "- Keep retrying the selected beast until capture is confirmed.\n- Resume nearby capture attempts without returning to the spawn-circle center.\n- Follow moving targets while waiting to apply Capture.\n- Defend against incidental attackers, then resume capture travel or patrol.\n- Recover stalled fights after 8 seconds without damage on the marked target.\n- Try other points inside the spawn circle when the center has no mapped route.\n- Patrol the circle after arrival; approach distant beasts before selecting them.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.5/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.5/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.5/latest.zip",
+    "LastUpdate": 1789410703,
+    "Changelog": "- Add Experimental BST farming with +1 to +5 target levels and area patrols.\n- Move to stronger areas as you level; stop at your chosen target level.\n- Optionally summon your chocobo and refresh selected inventory food.\n- Add combat FATE participation and an Ignore Notorious Monsters toggle.\n- Automatically return after incapacitation and resume farming.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
   }
 ]
