@@ -1,6 +1,6 @@
 # Bestiary Nav update bot
 
-A Discord bot posts a single announcement in the community's Updates channel whenever commits are pushed to `main`. A push matching a published stable release tag uses the release notes and update instructions. Other pushes show up to ten commit summaries and a comparison link. Local commits, tags alone, development branches, and pull requests do not post.
+A Discord bot posts a single announcement in the community's Updates channel whenever commits are pushed to `main`. Release announcements show up to five short feature bullets from the installer changelog, a GitHub details link, and `/xlplugins`. If the short changelog is unavailable, the bot uses only the first feature bullets in the release notes. Validation sections are excluded. Other pushes show up to three short commit subjects and one comparison link. Local commits, tags alone, development branches, and pull requests do not post.
 
 GitHub Actions runs the bot only when needed. There is no separate hosting bill or always-running process. The bot may appear offline between announcements; it uses Discord's HTTP API, not a persistent Gateway connection. No message-content or member intents are required, and announcements never ping users or roles.
 

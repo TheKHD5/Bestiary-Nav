@@ -139,6 +139,7 @@ Check(index[40].Locations[0].TravelFloor is { MinimumY: 25, MaximumY: 27 }, "Gho
 Check(index[31].Locations[0].TravelFloor == null, "Gigantoad keeps ordinary surface and flight navigation");
 ChatChecks.Run(Check);
 AppearanceChecks.Run(Check);
+AutoCaptureChecks.Run(Check);
 ModelLabelChecks.Run(Check);
 CollectionChecks.Run(Check, Reject, index);
 Check(MapCoordinates.MarkerToWorld(1255, 100, 0) == 231 && MapCoordinates.MarkerToWorld(767, 100, 0) == -257, "Summerford map marker converts to world X/Z");

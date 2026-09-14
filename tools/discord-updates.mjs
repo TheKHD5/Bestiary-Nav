@@ -10,7 +10,22 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const clip = (value, max) => String(value ?? '').slice(0, max);
 const escape = value => String(value ?? '').replace(/[\\`*_~|<>\[\]()]/g, '\\$&');
 
-export function announcement(event, { eventName = 'push', sha, runId = 'local', release } = {}) {
+function shortReleaseNotes(summary) {
+  const bullets = [];
+  for (const line of String(summary ?? '').split(/\r?\n/)) {
+    const plain = line.replace(/^[\s#>*•-]+/, '').replace(/[*_`]/g, '').trim();
+    // Never copy validation sections or their subsequent details into Discord.
+    if (/^(?:local\s+)?validation\b|^local data\s*:/i.test(plain)) break;
+    const match = line.match(/^[-*•]\s+(.+)/);
+    if (!match) continue;
+    const text = match[1].replace(/[*_`]/g, '').trim();
+    bullets.push(`• ${escape(text.length > 110 ? text.slice(0, 107).trimEnd() + '…' : text)}`);
+    if (bullets.length === 5) break;
+  }
+  return bullets.join('\n');
+}
+
+export function announcement(event, { eventName = 'push', sha, runId = 'local', release, releaseSummary } = {}) {
   if (event.repository?.full_name !== REPOSITORY) throw new Error('Unexpected repository.');
   if (eventName !== 'push' && eventName !== 'workflow_dispatch') return null;
   if (event.ref !== 'refs/heads/main' || event.deleted) return null;
@@ -20,20 +35,19 @@ export function announcement(event, { eventName = 'push', sha, runId = 'local', 
   const url = before ? `${REPO_URL}/compare/${before}...${after}` : `${REPO_URL}/commit/${after}`;
   const commits = Array.isArray(event.commits) && event.commits.length ? event.commits :
     event.head_commit ? [event.head_commit] : [];
-  const lines = commits.slice(-10).map(commit => {
-    const subject = escape(clip(String(commit.message ?? 'Project update').split(/\r?\n/)[0], 160));
-    const id = SHA.test(commit.id ?? '') ? commit.id : after;
-    return `• ${subject} ([${id.slice(0, 7)}](${REPO_URL}/commit/${id}))`;
+  const lines = commits.slice(-3).map(commit => {
+    const subject = escape(clip(String(commit.message ?? 'Project update').split(/\r?\n/)[0], 110));
+    return `• ${subject}`;
   });
-  if (commits.length > 10) lines.unshift(`…and ${commits.length - 10} earlier commits in this push.`);
   let title = 'Bestiary Nav — project update';
-  let description = lines.length ? lines.join('\n') : 'New project changes have been pushed to GitHub.';
+  let description = (lines.length ? lines.join('\n') : 'New project changes have been pushed to GitHub.') +
+    `\n\n[Full details on GitHub repo](${url})`;
   let targetUrl = url;
   if (release && !release.draft && !release.prerelease && /^v\d+\.\d+\.\d+(?:\.\d+)?$/.test(release.tag_name)) {
     title = `Bestiary Nav ${release.tag_name} is available`;
-    description = clip(release.body || 'A new version is available in the Dalamud Plugin Installer.', 3400) +
-      '\n\n**Update:** Open `/xlplugins` and check for updates.';
     targetUrl = `${REPO_URL}/releases/tag/${release.tag_name}`;
+    description = (shortReleaseNotes(releaseSummary) || shortReleaseNotes(release.body) || 'New features and fixes are available.') +
+      `\n\n[Full details on GitHub repo](${targetUrl})\nUpdate: \`/xlplugins\``;
   } else if (eventName === 'workflow_dispatch') {
     title = 'Bestiary Nav — update bot connected';
     description = 'The update bot is connected. Future project updates pushed to `main` will be announced in this channel.';
@@ -119,7 +133,8 @@ async function main() {
   if (!announcement(event, { eventName, sha })) { console.log('No main-branch update to announce.'); return; }
   const index = JSON.parse(await readFile(new URL('../pluginmaster.json', import.meta.url), 'utf8'));
   const release = eventName === 'push' ? await releaseForCommit(event.after, index, process.env.GITHUB_TOKEN) : undefined;
-  const payload = announcement(event, { eventName, sha, runId: process.env.GITHUB_RUN_ID, release });
+  const payload = announcement(event, { eventName, sha, runId: process.env.GITHUB_RUN_ID, release,
+    releaseSummary: release ? index?.[0]?.Changelog : undefined });
   if (process.env.DRY_RUN === 'true') { console.log(JSON.stringify(payload, null, 2)); return; }
   const id = await sendAnnouncement(payload, { token: process.env.DISCORD_BOT_TOKEN, channelId: process.env.DISCORD_UPDATES_CHANNEL_ID });
   console.log(`Discord announcement delivered (message ${id}).`);

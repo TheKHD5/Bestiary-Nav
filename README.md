@@ -7,6 +7,7 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 - **Auto Navigate:** teleport, mount, and fly to spawn areas where available with Lifestream and vnavmesh. Underground Ghost/Bogy uses a ground route; land before starting it.
 - **Make it yours:** choose Modern, Classic, or Compact styling, seven color palettes, and window opacity. Resize settings and collection windows from the corner.
 - **Control chat output:** choose which messages appear and their local chat channels, or mute them all.
+- **Auto Capture:** optionally cast Capture on your eligible BST main target in combat, with an HP threshold and no recast while your existing mark is active.
 - **Location pop-up:** toggle navigation from Bestiary clicks, directly above the Bestiary. Turning it off also disables Auto Navigate and stops the current trip.
 - **Spot uncaptured beasts:** customize label size, colors, range, and model/enemy-list visibility. Duty labels identify capture/gourd encounters.
 - **Track nearby targets:** count each beast name once and clear its labels after capture.

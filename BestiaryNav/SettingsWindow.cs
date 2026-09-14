@@ -8,7 +8,7 @@ namespace BestiaryNav;
 
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
-    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification)
+    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
@@ -66,6 +66,18 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 ImGui.TextWrapped(travel.Status);
                 if (ImGui.Button("Stop travel")) stopTravel();
             }
+            ImGui.EndTabItem();
+        }
+        if (ImGui.BeginTabItem("Capture"))
+        {
+            var autoCapture = configuration.AutoCapture;
+            if (ImGui.Checkbox("Auto Capture main target", ref autoCapture)) { configuration.AutoCapture = autoCapture; save(); }
+            Tip("Only while equipped as BST and in combat with a living, uncaptured main target at or below your level. Uses Capture when the game allows it. Waits while any beast has your Interest Captured effect, then retries if the main target remains eligible. Does not switch targets or start combat.");
+            var hp = configuration.AutoCaptureMaxHpPercent;
+            ImGui.SetNextItemWidth(190 * ImGuiHelpers.GlobalScale);
+            if (ImGui.SliderInt("Target HP at or below (%)", ref hp, 1, 100)) { configuration.AutoCaptureMaxHpPercent = hp; save(); }
+            Tip("100% casts as soon as eligible. Lower values wait for weaker targets and improve the capture chance. The plugin never refreshes your active mark merely because HP has fallen.");
+            ImGui.TextWrapped(captureStatus());
             ImGui.EndTabItem();
         }
         if (ImGui.BeginTabItem("Labels"))

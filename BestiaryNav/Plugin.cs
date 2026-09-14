@@ -53,6 +53,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly SettingsWindow settingsWindow;
     private readonly BestiaryQuickToggle quickToggle;
     private readonly UncapturedMarkers markers;
+    private readonly AutoCapture autoCapture;
     private readonly CaptureStateReader captureState;
     private readonly TravelIpc travelIpc;
     private readonly TravelController travel;
@@ -111,6 +112,7 @@ public sealed class Plugin : IDalamudPlugin
         configuration.ChatOutput.Normalize();
         configuration.Appearance ??= new();
         configuration.Appearance.Normalize();
+        configuration.AutoCaptureMaxHpPercent = Math.Clamp(configuration.AutoCaptureMaxHpPercent, 1, 100);
         if (!configuration.MapTrackingOnClick) configuration.AutoTravel = false;
         configuration.Favorites.RemoveWhere(n => !monsters.ContainsKey(n));
         var captureTargets = ReadResource<CaptureTargetDatabase>("capture-targets.json");
@@ -123,6 +125,8 @@ public sealed class Plugin : IDalamudPlugin
             .FirstOrDefault(row => row.Abbreviation.ExtractText() == "BST").RowId;
         markers = new UncapturedMarkers(configuration, captureState, captureTargets.BuildIndex(monsters), monsters,
             Objects, ClientState, Condition, GameGui, beastmasterJobId);
+        autoCapture = new AutoCapture(configuration, captureState, captureTargets.BuildIndex(monsters), Objects,
+            Targets, ClientState, Condition, Log, Data, beastmasterJobId, bindingActive);
         travelIpc = new TravelIpc(PluginInterface, TryMountForTravel);
         travel = new TravelController(travelIpc);
         travelPlans = new TravelPlanBuilder(Data, Aetherytes);
@@ -133,7 +137,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(collectionWindow);
         settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup,
-            () => lastNotification);
+            () => lastNotification, () => autoCapture.Status);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
             collectionWindow.Open, travel, StopTravel, SetLocationPopup);
         windowSystem.AddWindow(settingsWindow);
@@ -284,6 +288,7 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         markers.Update();
+        autoCapture.Update();
         UpdateCollection();
         if (pendingRequest != null) dutySelection.Cancel();
         else dutySelection.Update();
@@ -367,6 +372,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogout(int type, int code)
     {
+        autoCapture.Reset();
         collectionSnapshot = CollectionSnapshot.Empty;
         nextCollectionUpdate = 0;
         pendingBestiaryOpen = false;
@@ -397,6 +403,7 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Compatibility: {bindingIssue ?? "verified"}");
         report.AppendLine($"Travel dependencies: {(travelIpc.Available ? "connected" : "unavailable")}; phase: {travel.Phase}");
         report.AppendLine($"Travel: {travel.Status}");
+        report.AppendLine($"Auto Capture: enabled={configuration.AutoCapture}; HP limit={configuration.AutoCaptureMaxHpPercent}%; {autoCapture.Status}");
         report.AppendLine($"Spawn-area radius: {configuration.SpawnAreaRadius:0} yalms");
         foreach (var line in markers.Diagnose(Targets.Target, false)) report.AppendLine(line);
         diagnosticReport = report.ToString();

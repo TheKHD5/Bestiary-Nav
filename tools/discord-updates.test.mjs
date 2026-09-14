@@ -44,7 +44,8 @@ test('large pushes stay inside Discord embed limits', () => {
   const embed = announcement(source).embeds[0];
   assert.ok(embed.description.length <= 4096);
   assert.ok(embed.title.length + embed.description.length + embed.footer.text.length <= 6000);
-  assert.match(embed.description, /90 earlier commits/);
+  assert.equal(embed.description.split('\n').filter(line => line.startsWith('• ')).length, 3);
+  assert.ok(embed.description.length < 1000);
 });
 
 test('push retry nonce is stable; different pushes and manual tests are distinct', () => {
@@ -63,6 +64,36 @@ test('release notes are bounded and ordinary updates do not claim a release', ()
   assert.match(result.embeds[0].description, /\/xlplugins/);
   assert.match(announcement(event()).embeds[0].title, /project update/);
   assert.match(announcement(event(), { release: { tag_name: 'v0.6.0', draft: true } }).embeds[0].title, /project update/);
+});
+
+test('release announcements prefer short installer bullets over full validation notes', () => {
+  const release = { tag_name: 'v0.6.2', body: '- Very long full details\n\nLocal Validation: 817 checks\nValidation limits: live checks pending' };
+  const embed = announcement(event(), { release, releaseSummary:
+    '- Auto Capture for eligible BST targets.\n- Configurable HP threshold.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav' }).embeds[0];
+  assert.match(embed.description, /Auto Capture/);
+  assert.match(embed.description, /Configurable HP/);
+  assert.match(embed.description, /Full details on GitHub repo/);
+  assert.doesNotMatch(embed.description, /Validation|validation|817|Very long/);
+  assert.ok(embed.description.length < 450);
+});
+
+test('fallback release notes exclude validation headings, paragraphs, and section bullets', () => {
+  for (const heading of ['Local validation:', '**Validation limits:**', '## Local Validation', '- Validation:']) {
+    const embed = announcement(event(), { release: { tag_name: 'v0.6.2',
+      body: `# Release\n- New feature.\n\n${heading}\n- Private test details.\nAnother validation paragraph.` } }).embeds[0];
+    assert.match(embed.description, /New feature/);
+    assert.doesNotMatch(embed.description, /validation|Private|paragraph/i);
+  }
+});
+
+test('release summaries cap both bullet count and individual length', () => {
+  const result = announcement(event(), { release: { tag_name: 'v0.6.2', body:
+    Array.from({ length: 30 }, (_, i) => `- Feature ${i}: ${'detail '.repeat(200)}`).join('\n') } });
+  const text = result.embeds[0].description;
+  assert.equal(text.split('\n').filter(line => line.startsWith('• ')).length, 5);
+  assert.ok(text.length < 800);
+  assert.doesNotMatch(text, /Feature 5:/);
+  assert.deepEqual(result.allowed_mentions, { parse: [] });
 });
 
 test('a manual connection test does not claim new changes were pushed', () => {

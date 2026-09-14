@@ -1,0 +1,7 @@
+- Optional Auto Capture for eligible BST main targets.
+- Waits for your existing capture mark to expire.
+- Adjustable target HP limit before casting.
+- Shorter Discord update summaries.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

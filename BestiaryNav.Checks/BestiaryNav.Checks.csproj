@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BestiaryNav\AutoCapturePolicy.cs" Link="AutoCapturePolicy.cs" />
     <Compile Include="..\BestiaryNav\Appearance.cs" Link="Appearance.cs" />
     <Compile Include="..\BestiaryNav\ChatPreferences.cs" Link="ChatPreferences.cs" />
     <Compile Include="..\BestiaryNav\LocationData.cs" Link="LocationData.cs" />
