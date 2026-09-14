@@ -1,0 +1,8 @@
+- Travel to spawn areas with mounts and flight.
+- Underground routing for Ghost/Bogy (#40).
+- Custom chat messages and channel selection.
+- Three UI styles and seven color palettes.
+- Resizable windows and separated title-bar controls.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

@@ -14,6 +14,15 @@ if (!$SkipBuild) {
 $taskVersion = [string]$taskProjectXml.Project.PropertyGroup.Version
 if ($taskVersion -notmatch '^\d+\.\d+\.\d+(\.\d+)?$') { throw 'Use a numeric release version.' }
 $taskTag = "v$taskVersion"
+$taskChangelogPath = Join-Path $taskRepoRoot "releases/$taskTag.installer.txt"
+if (!(Test-Path -LiteralPath $taskChangelogPath)) { throw "Missing short installer changelog: $taskChangelogPath" }
+$taskChangelog = (Get-Content -LiteralPath $taskChangelogPath -Raw).Trim().Replace("`r`n", "`n")
+$taskBulletLines = @($taskChangelog -split "`n" | Where-Object { $_.StartsWith('- ') })
+if ($taskBulletLines.Count -lt 1 -or $taskBulletLines.Count -gt 7 -or
+    @($taskBulletLines | Where-Object { $_.Length -gt 100 }).Count -gt 0 -or
+    !$taskChangelog.EndsWith("Full details on GitHub repo:`nhttps://github.com/TheKHD5/Bestiary-Nav")) {
+    throw 'Installer changelog needs 1-7 short bullets (100 characters max each), followed by the GitHub details footer.'
+}
 $taskImageTag = [string]$taskProjectXml.Project.PropertyGroup.InstallerImageTag
 if ($taskImageTag -notmatch '^v\d+\.\d+\.\d+(\.\d+)?$') { throw 'Pin installer images to a numeric release tag.' }
 $taskExpectedAssembly = if ($taskVersion.Split('.').Count -eq 3) { "$taskVersion.0" } else { $taskVersion }
@@ -22,6 +31,9 @@ $taskManifestPath = Join-Path $taskBuild 'BestiaryNav.json'
 $taskDllPath = Join-Path $taskBuild 'BestiaryNav.dll'
 $taskZipPath = Join-Path $taskBuild 'BestiaryNav/latest.zip'
 $taskManifest = Get-Content -LiteralPath $taskManifestPath -Raw | ConvertFrom-Json -AsHashtable
+if ([string]::IsNullOrWhiteSpace($taskManifest.Changelog) -or $taskManifest.Changelog.Trim().Replace("`r`n", "`n") -ne $taskChangelog) {
+    throw 'Built manifest does not contain the current installer changelog. Rebuild before packaging.'
+}
 $taskDllVersion = [Reflection.AssemblyName]::GetAssemblyName($taskDllPath).Version.ToString()
 if ($taskManifest.InternalName -ne 'BestiaryNav' -or $taskManifest.AssemblyVersion -ne $taskExpectedAssembly -or
     $taskDllVersion -ne $taskExpectedAssembly -or $taskManifest.DalamudApiLevel -lt 1) {
@@ -59,7 +71,7 @@ try {
     $taskReader = [IO.StreamReader]::new($taskManifestEntry.Open())
     try { $taskPackedManifest = $taskReader.ReadToEnd() | ConvertFrom-Json -AsHashtable }
     finally { $taskReader.Dispose() }
-    foreach ($taskKey in @('Author', 'InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline', 'IconUrl')) {
+    foreach ($taskKey in @('Author', 'InternalName', 'AssemblyVersion', 'DalamudApiLevel', 'RepoUrl', 'Description', 'Punchline', 'IconUrl', 'Changelog')) {
         if ($taskPackedManifest[$taskKey] -ne $taskManifest[$taskKey]) { throw "ZIP manifest mismatch: $taskKey" }
     }
     if (($taskPackedManifest.ImageUrls | ConvertTo-Json -Compress) -ne ($taskManifest.ImageUrls | ConvertTo-Json -Compress)) {
@@ -94,7 +106,7 @@ $taskEntry.DownloadLinkInstall = $taskDownload
 $taskEntry.DownloadLinkUpdate = $taskDownload
 $taskEntry.DownloadLinkTesting = $taskDownload
 $taskEntry.LastUpdate = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-$taskEntry.Changelog = "Release $taskVersion. See GitHub releases for details."
+$taskEntry.Changelog = $taskChangelog
 $taskIndexJson = ConvertTo-Json -InputObject @($taskEntry) -Depth 10
 [IO.File]::WriteAllText((Join-Path $taskRepoRoot 'pluginmaster.json'), $taskIndexJson + "`n")
 Write-Output "Prepared $taskTag ($taskExpectedAssembly): $taskReleaseDir"

@@ -2,16 +2,18 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using Dalamud.Interface.Utility;
 
 namespace BestiaryNav;
 
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
-    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup)
+    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
     {
+        using var spacing = new UiContentSpacingScope(configuration.Appearance);
         if (ImGui.Button("Collection")) openCollection();
         ImGui.SameLine();
         if (ImGui.Button("Copy diagnostics")) ImGui.SetClipboardText(diagnostics());
@@ -49,7 +51,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             var autoTravel = configuration.AutoTravel;
             if (ImGui.Checkbox("Auto Navigate", ref autoTravel))
                 setAutoTravel(autoTravel);
-            Tip("Travel when clicking an outdoor entry: teleport to an unlocked aetheryte, then walk to its capture area. Turning this on also enables Location pop-up. Normal teleport costs apply. Duties open in Duty Finder.\n\n" +
+            Tip("Travel to the selected spawn-circle center: teleport if needed, summon a mount, and fly when the game allows it. Underground destinations use ground routes through their entrances; land before starting one. Turning this on also enables Location pop-up. Normal teleport costs apply. Duties open in Duty Finder.\n\n" +
                 (travelAvailable() ? "Lifestream and vnavmesh connected." : "Requires Lifestream and vnavmesh installed and enabled."));
             var cancelOnMovement = configuration.CancelTravelOnManualMovement;
             if (ImGui.Checkbox("Cancel travel on manual movement", ref cancelOnMovement))
@@ -105,7 +107,132 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             if (showMarkers) ImGui.TextWrapped(markerStatus());
             ImGui.EndTabItem();
         }
+        if (ImGui.BeginTabItem("Chat"))
+        {
+            DrawChatSettings();
+            ImGui.EndTabItem();
+        }
+        if (ImGui.BeginTabItem("Appearance"))
+        {
+            DrawAppearance();
+            ImGui.EndTabItem();
+        }
         ImGui.EndTabBar();
+    }
+
+    private void DrawAppearance()
+    {
+        var appearance = configuration.Appearance;
+        var enabled = appearance.Enabled;
+        if (ImGui.Checkbox("Use custom theme", ref enabled)) { appearance.Enabled = enabled; save(); }
+        Tip("Applies to Bestiary Nav settings, collection, and the anchored toolbar. Changes appear immediately and save automatically. Turn off to use your Dalamud style. Capture-label colors stay independent in Labels.");
+        ImGui.BeginDisabled(!enabled);
+        ImGui.TextDisabled("STYLE");
+        foreach (var style in ThemeCatalog.Styles)
+        {
+            if (style != ThemeCatalog.Styles[0]) ImGui.SameLine();
+            if (ImGui.RadioButton(style.ToString(), appearance.Style == style)) { appearance.Style = style; save(); }
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip(ThemeCatalog.Description(style));
+        }
+        ImGui.Spacing();
+        ImGui.TextDisabled("COLOR PALETTE");
+        var paletteColumns = ImGui.GetContentRegionAvail().X < 460 * ImGuiHelpers.GlobalScale ? 1 : 2;
+        if (ImGui.BeginTable("Palettes", paletteColumns, ImGuiTableFlags.SizingStretchSame))
+        {
+            foreach (var palette in ThemeCatalog.Palettes)
+            {
+                ImGui.TableNextColumn();
+                ImGui.PushID((int)palette);
+                var selected = appearance.Palette == palette;
+                var colors = ThemeCatalog.Palette(palette);
+                if (ImGui.Selectable(palette.ToString(), selected, ImGuiSelectableFlags.None, new Vector2(100 * ImGuiHelpers.GlobalScale, 0)))
+                { appearance.Palette = palette; save(); }
+                ImGui.SameLine();
+                PaletteSwatch("Background", colors.Background, palette);
+                ImGui.SameLine();
+                PaletteSwatch("Controls", colors.Surface, palette);
+                ImGui.SameLine();
+                PaletteSwatch("Accent", colors.Accent, palette);
+                ImGui.PopID();
+            }
+            ImGui.EndTable();
+        }
+        ImGui.Spacing();
+        var opacity = appearance.Opacity;
+        ImGui.SetNextItemWidth(190 * ImGuiHelpers.GlobalScale);
+        if (ImGui.SliderFloat("Window opacity", ref opacity, .8f, 1, "%.2f")) { appearance.Opacity = opacity; save(); }
+        Tip("Adjusts the window and toolbar backgrounds. Text and controls remain fully visible.");
+        ImGui.EndDisabled();
+        if (ImGui.Button("Reset appearance")) { configuration.Appearance = new(); save(); }
+        Tip("Restores Modern, Midnight, and 97% opacity. Navigation, labels, and chat preferences are preserved.");
+    }
+
+    private void PaletteSwatch(string label, Vector4 color, UiPalette palette)
+    {
+        if (ImGui.ColorButton(label, color, ImGuiColorEditFlags.NoTooltip | ImGuiColorEditFlags.NoDragDrop,
+                new Vector2(16 * ImGuiHelpers.GlobalScale)))
+        { configuration.Appearance.Palette = palette; save(); }
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"{palette} · {label}");
+    }
+
+    private void DrawChatSettings()
+    {
+        var chat = configuration.ChatOutput;
+        var enabled = chat.PrintInChat;
+        if (ImGui.Checkbox("Print in chat", ref enabled)) { chat.PrintInChat = enabled; save(); }
+        Tip("Turn off every Bestiary Nav chat message, including command replies and diagnostics. Logging and Copy diagnostics remain available.");
+        ImGui.BeginDisabled(!enabled);
+        var channel = chat.DefaultChannel;
+        if (ChannelCombo("Default channel", ref channel, false)) { chat.DefaultChannel = channel; save(); }
+        Tip("Messages appear only in your own chat log, even when Party or Free Company is selected. Configure which chat tabs display that channel in the game's Chat Log Settings.");
+        var narrow = ImGui.GetContentRegionAvail().X < 520 * ImGuiHelpers.GlobalScale;
+        if (ImGui.BeginTable("ChatTypes", narrow ? 1 : 2, ImGuiTableFlags.SizingFixedFit))
+        {
+            ImGui.TableSetupColumn("Messages", narrow ? ImGuiTableColumnFlags.WidthStretch : ImGuiTableColumnFlags.WidthFixed,
+                narrow ? 0 : 280 * ImGuiHelpers.GlobalScale);
+            if (!narrow) ImGui.TableSetupColumn("Channel", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableHeadersRow();
+            ChatRow(ChatMessageKind.Locations, "Locations and duties", "Beast name, capture target, location notes, and duty guidance when selecting an entry.");
+            ChatRow(ChatMessageKind.QuestGuidance, "Quest guidance", "Acquisition instructions for beasts with no map or duty destination.");
+            ChatRow(ChatMessageKind.TravelProgress, "Travel progress", "Teleporting, loading the mesh, mounting, finding a route, and starting movement. Prints only when the status changes.");
+            ChatRow(ChatMessageKind.TravelResults, "Travel results and problems", "Arrival, cancellation, interrupted travel, missing dependencies, and route failures. Travel status remains available in settings diagnostics.");
+            ChatRow(ChatMessageKind.Warnings, "Navigation warnings", "Map, duty selection, Bestiary availability, and compatibility errors.");
+            ChatRow(ChatMessageKind.Commands, "Command replies and help", "Command usage, unknown beast names, and /bnav next results.");
+            ChatRow(ChatMessageKind.Diagnostics, "Diagnostic output", "Detailed output requested with /bnav diagnose or /bnav probe. Does not enable background chat spam.");
+            ImGui.EndTable();
+        }
+        ImGui.EndDisabled();
+        if (ImGui.CollapsingHeader("Latest message")) ImGui.TextWrapped(lastNotification());
+    }
+
+    private void ChatRow(ChatMessageKind kind, string label, string tip)
+    {
+        var rule = configuration.ChatOutput.Rules[kind];
+        ImGui.PushID((int)kind);
+        ImGui.TableNextRow();
+        ImGui.TableNextColumn();
+        var enabled = rule.Enabled;
+        if (ImGui.Checkbox(label, ref enabled)) { rule.Enabled = enabled; save(); }
+        Tip(tip);
+        if (ImGui.TableGetColumnCount() == 1) ImGui.TableNextRow();
+        ImGui.TableNextColumn();
+        ImGui.BeginDisabled(!enabled);
+        var channel = rule.Channel;
+        if (ChannelCombo("##Channel", ref channel, true)) { rule.Channel = channel; save(); }
+        ImGui.EndDisabled();
+        ImGui.PopID();
+    }
+
+    private static bool ChannelCombo(string label, ref string channel, bool inherit)
+    {
+        ImGui.SetNextItemWidth(190 * ImGuiHelpers.GlobalScale);
+        if (!ImGui.BeginCombo(label, ChatPreferences.ChannelLabel(channel))) return false;
+        var changed = false;
+        if (inherit && ImGui.Selectable("Default channel", channel.Length == 0)) { channel = ""; changed = true; }
+        foreach (var option in ChatPreferences.Channels)
+            if (ImGui.Selectable(option.Label, channel == option.Id)) { channel = option.Id; changed = true; }
+        ImGui.EndCombo();
+        return changed;
     }
 
     private static void Tip(string text)
@@ -122,8 +249,11 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
 
     public void Open()
     {
-        Flags = ImGuiWindowFlags.AlwaysAutoResize;
-        SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(440, 0), MaximumSize = new Vector2(600, float.MaxValue) };
+        Flags = ImGuiWindowFlags.HorizontalScrollbar;
+        Size = new Vector2(600, 500) * ImGuiHelpers.GlobalScale;
+        SizeCondition = ImGuiCond.FirstUseEver;
+        SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(380, 180) * ImGuiHelpers.GlobalScale,
+            MaximumSize = new Vector2(float.MaxValue) };
         IsOpen = true;
     }
 }

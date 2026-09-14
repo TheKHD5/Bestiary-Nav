@@ -1079,10 +1079,11 @@
         {
           "territoryTypeId": 134,
           "mapId": 15,
+          "travelFloor": { "minimumY": 25, "maximumY": 27 },
           "x": 20,
           "y": 19,
           "area": "Middle La Noscea",
-          "note": "Middle La Noscea (X:20, Y:19); level 7+.",
+          "note": "Middle La Noscea (X:20, Y:19), underground; level 7+. Follow the tunnel on the ground.",
           "source": "https://ffxiv.consolegameswiki.com/wiki/Master%27s_Bestiary",
           "precision": "reported-to-whole-map-unit"
         }

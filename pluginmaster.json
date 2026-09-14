@@ -3,7 +3,7 @@
     "Author": "TheKHD5",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.6.0.0",
+    "AssemblyVersion": "0.6.1.0",
     "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
@@ -26,10 +26,10 @@
     ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.0/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.0/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.0/latest.zip",
-    "LastUpdate": 1789076795,
-    "Changelog": "Release 0.6.0. See GitHub releases for details."
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.1/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.1/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.1/latest.zip",
+    "LastUpdate": 1789395190,
+    "Changelog": "- Travel to spawn areas with mounts and flight.\n- Underground routing for Ghost/Bogy (#40).\n- Custom chat messages and channel selection.\n- Three UI styles and seven color palettes.\n- Resizable windows and separated title-bar controls.\n\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
   }
 ]

@@ -7,14 +7,15 @@ namespace BestiaryNav;
 
 internal sealed class TravelPlanBuilder(IDataManager data, IAetheryteList unlocked)
 {
-    public TravelPlan Build(MapLocation target)
+    public TravelPlan Build(MapLocation target, float radius)
     {
         var map = data.GetExcelSheet<Map>().GetRowOrDefault(target.MapId);
         if (map == null || map.Value.TerritoryType.RowId != target.TerritoryTypeId ||
             !MapCoordinates.IsOnMap(target.X, map.Value.SizeFactor) || !MapCoordinates.IsOnMap(target.Y, map.Value.SizeFactor))
             throw new InvalidOperationException("Invalid map destination for automatic travel.");
-        var world = new Vector3(MapCoordinates.MapToWorld(target.X, map.Value.SizeFactor, map.Value.OffsetX), 0,
-            MapCoordinates.MapToWorld(target.Y, map.Value.SizeFactor, map.Value.OffsetY));
+        // Exactly the rounded world X/Z used by the native spawn-circle marker.
+        var center = SpawnAreaCoordinates.Convert(target, map.Value.SizeFactor, map.Value.OffsetX, map.Value.OffsetY, radius);
+        var world = center.WorldPoint;
         uint nearest = 0;
         byte subIndex = 0;
         var bestDistance = float.PositiveInfinity;
@@ -38,6 +39,6 @@ internal sealed class TravelPlanBuilder(IDataManager data, IAetheryteList unlock
                 bestDistance = distance;
             }
         }
-        return new(target.TerritoryTypeId, world, nearest, subIndex, $"{target.Area} ({target.X:F1}, {target.Y:F1})");
+        return new(target.TerritoryTypeId, world, nearest, subIndex, $"{target.Area} ({target.X:F1}, {target.Y:F1})", center.Radius, target.TravelFloor);
     }
 }

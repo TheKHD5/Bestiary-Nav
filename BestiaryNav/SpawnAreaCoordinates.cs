@@ -1,8 +1,12 @@
 using System;
+using System.Numerics;
 
 namespace BestiaryNav;
 
-public readonly record struct SpawnAreaCenter(int X, int Y, int Radius);
+public readonly record struct SpawnAreaCenter(int X, int Y, int Radius)
+{
+    public Vector3 WorldPoint => new(X, 0, Y);
+}
 
 public static class SpawnAreaCoordinates
 {

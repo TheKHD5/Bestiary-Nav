@@ -1,0 +1,8 @@
+- Spawn-area circles on the map.
+- Collection progress, favorites, and suggestions.
+- Custom labels and Beastmaster-only filtering.
+- Quick navigation and travel controls.
+- Duty selection that preserves active queues.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

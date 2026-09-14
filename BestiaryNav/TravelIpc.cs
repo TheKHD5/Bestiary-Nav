@@ -9,6 +9,7 @@ namespace BestiaryNav;
 
 internal sealed class TravelIpc : ITravelBackend
 {
+    private readonly Func<bool> mount;
     private readonly Func<bool> available, busy, movementBusy, ready, running, simplePending;
     private readonly Func<uint, byte, bool> teleport;
     private readonly Func<Vector3, bool, float, Vector3?> floor;
@@ -18,8 +19,9 @@ internal sealed class TravelIpc : ITravelBackend
     private readonly Func<List<Vector3>> waypoints;
     private Vector3? ownedDestination;
 
-    public TravelIpc(IDalamudPluginInterface pi)
+    public TravelIpc(IDalamudPluginInterface pi, Func<bool> mount)
     {
+        this.mount = mount;
         var navReady = pi.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
         var navFinding = pi.GetIpcSubscriber<bool>("vnavmesh.Nav.PathfindInProgress");
         var navSimple = pi.GetIpcSubscriber<bool>("vnavmesh.SimpleMove.PathfindInProgress");
@@ -58,12 +60,13 @@ internal sealed class TravelIpc : ITravelBackend
     public bool Teleport(uint aetheryteId, byte subIndex) => teleport(aetheryteId, subIndex);
     // The catalog is 2D. Resolve altitude on the destination mesh, not from the
     // source zone's player Y or a made-up ground height.
-    public Vector3? GroundPoint(Vector3 point) => floor(new(point.X, 1024, point.Z), false, 5);
-    public Task<List<Vector3>> FindPath(Vector3 start, Vector3 end, CancellationToken cancellation) => find(start, end, false, cancellation);
-    public void Move(List<Vector3> path)
+    public bool Mount() => mount();
+    public Vector3? GroundPoint(Vector3 point, float radius, TravelFloor? targetFloor) => TravelGroundResolver.Resolve(point, radius, floor, targetFloor);
+    public Task<List<Vector3>> FindPath(Vector3 start, Vector3 end, bool fly, CancellationToken cancellation) => find(start, end, fly, cancellation);
+    public void Move(List<Vector3> path, bool fly)
     {
         ownedDestination = path[^1];
-        move(path, false);
+        move(path, fly);
     }
 
     public void StopOwnedMovement()

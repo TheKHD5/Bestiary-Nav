@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BestiaryNav\Appearance.cs" Link="Appearance.cs" />
+    <Compile Include="..\BestiaryNav\ChatPreferences.cs" Link="ChatPreferences.cs" />
     <Compile Include="..\BestiaryNav\LocationData.cs" Link="LocationData.cs" />
     <Compile Include="..\BestiaryNav\BestiaryEntryLabel.cs" Link="BestiaryEntryLabel.cs" />
     <Compile Include="..\BestiaryNav\CaptureTargets.cs" Link="CaptureTargets.cs" />
@@ -13,6 +15,7 @@
     <Compile Include="..\BestiaryNav\CollectionPlanner.cs" Link="CollectionPlanner.cs" />
     <Content Include="..\BestiaryNav\collection.json" Link="collection.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\BestiaryNav\TravelController.cs" Link="TravelController.cs" />
+    <Compile Include="..\BestiaryNav\TravelGroundResolver.cs" Link="TravelGroundResolver.cs" />
     <Content Include="..\BestiaryNav\capture-targets.json" Link="capture-targets.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\BestiaryNav\locations.json" Link="locations.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\BestiaryNav\sources\*.json" Link="sources\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

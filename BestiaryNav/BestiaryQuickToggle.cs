@@ -28,6 +28,7 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
         if (!float.IsFinite(root.ScreenX) || !float.IsFinite(root.ScreenY) || !float.IsFinite(width) || width <= 0)
             return;
 
+        using var theme = new UiThemeScope(configuration.Appearance);
         const string label = "Auto Navigate";
         const string trackingLabel = "Location pop-up";
         var viewport = ImGui.GetMainViewport();
@@ -51,7 +52,7 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
         position = Vector2.Clamp(position, min, max);
         ImGui.SetNextWindowPos(position, ImGuiCond.Always);
         ImGui.SetNextWindowSize(size, ImGuiCond.Always);
-        ImGui.SetNextWindowBgAlpha(0.9f);
+        ImGui.SetNextWindowBgAlpha(configuration.Appearance.Enabled ? configuration.Appearance.Opacity : 0.9f);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, padding);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, Vector2.Zero);
         try

@@ -19,6 +19,7 @@ internal static class TravelChecks
             ipc.Available = true; ipc.Busy = false; ipc.MovementBusy = false; ipc.MeshReady = true;
             ipc.TeleportAccepted = true; ipc.Ground = target.MapPoint; ipc.Completion = new();
             ipc.Moves = ipc.Teleports = ipc.Stops = 0;
+            ipc.Mounts = 0; ipc.MountAccepted = ipc.FindFlying = ipc.MoveFlying = false;
         }
         void BeginPath()
         {
@@ -121,6 +122,128 @@ internal static class TravelChecks
         check(!controller.Active && ipc.Moves == 0, "foreign movement starting during path search respected");
         check(!TravelController.ValidPath([new(float.NaN, 0, 0)], Vector3.Zero, target.MapPoint), "nonfinite path rejected");
         check(!TravelController.ValidPath([], Vector3.Zero, target.MapPoint), "empty path rejected");
+
+        Reset(); ipc.MountAccepted = true; BeginPath();
+        check(controller.Phase == TravelPhase.Mounting && ipc.Mounts == 1 && ipc.Moves == 0,
+            "mount roulette requested once before pathfinding");
+        controller.Update(player with { Casting = true, MountTransition = true }, 2000);
+        check(controller.Phase == TravelPhase.Mounting, "owned mount cast does not cancel travel");
+        var mounted = player with { Mounted = true, CanFly = true };
+        controller.Update(mounted, 4000);
+        check(controller.Phase == TravelPhase.FindingPath && ipc.FindFlying, "flight checked after mounting in destination territory");
+        ipc.Completion.SetResult([player.Position, target.MapPoint]); controller.Update(mounted, 4100);
+        check(ipc.Moves == 1 && ipc.MoveFlying && controller.CompactStatus == "Flying…", "flight mode passed to movement as well as pathfinding");
+        controller.Update(mounted with { InFlight = true, CanFly = false, Position = new(50, 20, 50) }, 5000);
+        check(controller.Active, "already airborne does not require a fresh takeoff permission");
+        controller.Update(player, 5100);
+        check(!controller.Active && ipc.Stops == 1, "dismount stops the owned flying route");
+
+        Reset(); controller.Start(target, mounted, 0); controller.Update(mounted, 1000);
+        check(ipc.Mounts == 0 && ipc.FindFlying, "already mounted player is never dismounted by roulette");
+        ipc.Completion.SetException(new InvalidOperationException("No flying volume"));
+        var groundCompletion = new TaskCompletionSource<List<Vector3>>();
+        ipc.Completion = groundCompletion; controller.Update(mounted, 1100);
+        check(controller.Active && !ipc.FindFlying, "unavailable flying route falls back to ground while still on land");
+        groundCompletion.SetResult([player.Position, target.MapPoint]); controller.Update(mounted, 1200);
+        check(ipc.Moves == 1 && !ipc.MoveFlying, "fallback uses ground movement");
+
+        Reset(); var airborne = mounted with { InFlight = true };
+        controller.Start(target, airborne, 0); controller.Update(airborne, 1000);
+        ipc.Completion.SetResult([]); controller.Update(airborne, 1100);
+        check(!controller.Active && ipc.Moves == 0, "failed airborne route never starts ground movement in midair");
+
+        Reset(); var noFlight = mounted with { CanFly = false };
+        controller.Start(target, noFlight, 0); controller.Update(noFlight, 1000);
+        ipc.Completion.SetResult([player.Position, target.MapPoint]); controller.Update(noFlight, 1100);
+        check(!ipc.FindFlying && !ipc.MoveFlying && ipc.Moves == 1, "locked flight uses a mounted ground route");
+
+        Reset(); ipc.MountAccepted = true; BeginPath(); controller.Update(player, 6000);
+        check(controller.Phase == TravelPhase.FindingPath && !ipc.FindFlying && ipc.Mounts == 1,
+            "failed mount falls back without repeatedly summoning mounts");
+        Reset(); ipc.MountAccepted = true; BeginPath();
+        controller.Update(player with { Casting = true }, 16001);
+        check(!controller.Active && ipc.Moves == 0, "mount timeout cannot start movement during casting");
+        Reset(); ipc.MountAccepted = true; BeginPath();
+        controller.Update(player with { ManualMovement = true, Casting = true }, 1001, true);
+        controller.Update(mounted, 5000, true);
+        check(!controller.Active && ipc.Moves == 0, "manual cancellation during mounting prevents later movement");
+        Reset(); ipc.MountAccepted = true; BeginPath();
+        controller.Update(player with { BlockReason = "Combat" }, 1001);
+        check(!controller.Active && ipc.Moves == 0, "combat cancels the mount wait");
+        Reset(); controller.Start(target, mounted, 0); controller.Update(mounted, 1000);
+        ipc.Completion.SetResult([player.Position, target.MapPoint]); controller.Update(noFlight, 1100);
+        check(!controller.Active && ipc.Moves == 0, "lost flight availability before path completion prevents takeoff");
+
+        var center = SpawnAreaCoordinates.Convert(new MapLocation { X = 24, Y = 12 }, 100, 0, 0, 60);
+        check(center.WorldPoint == new Vector3(center.X, 0, center.Y), "travel X/Z equals native spawn-circle center exactly");
+        Reset(); controller.Start(target with { MapPoint = center.WorldPoint }, player, 0); controller.Update(player, 1000);
+        check(ipc.RequestedCenter == center.WorldPoint, "floor query receives selected circle center without a map flag");
+        var queries = new List<(Vector3 Origin, bool Include, float Extent)>();
+        Vector3? Floor(Vector3 origin, bool include, float extent)
+        {
+            queries.Add((origin, include, extent));
+            return extent < 5 ? null : new Vector3(origin.X, 72, origin.Z);
+        }
+        var resolved = TravelGroundResolver.Resolve(center.WorldPoint, 60, Floor);
+        check(resolved == new Vector3(center.X, 72, center.Y) && queries.Count == 2,
+            "center altitude resolution expands a narrow lookup only when needed");
+        check(queries.TrueForAll(q => q.Include && q.Origin == new Vector3(center.X, 1024, center.Y)),
+            "floor lookup includes mesh polygons filtered by optional reachability classification");
+        check(TravelGroundResolver.Resolve(Vector3.Zero, 10, (_, _, _) => new Vector3(11, 0, 0)) == null,
+            "ground snapping never leaves a small spawn circle");
+        check(TravelGroundResolver.Resolve(Vector3.Zero, 60, (_, _, _) => new Vector3(21, 0, 0)) == null,
+            "ground snapping stays within twenty yalms of the center");
+        check(TravelGroundResolver.Resolve(Vector3.Zero, 60, (_, _, _) => new Vector3(0, float.NaN, 0)) == null,
+            "invalid floor altitude is rejected");
+
+        var caveFloor = new TravelFloor { MinimumY = 25, MaximumY = 27 };
+        var caveCenter = new Vector3(-75, 0, -125);
+        var cavePoint = new Vector3(-71, 26.75f, -129);
+        queries.Clear();
+        resolved = TravelGroundResolver.Resolve(caveCenter, 60, (origin, include, extent) =>
+        {
+            queries.Add((origin, include, extent));
+            return extent < 5 ? null : cavePoint;
+        }, caveFloor);
+        check(resolved == cavePoint && queries.Count == 3 && queries.TrueForAll(q => q.Origin.Y == 27),
+            "Ghost resolves verified underground floor, expanding to contain the diagonal snap");
+        check(TravelGroundResolver.Resolve(caveCenter, 60, (_, _, _) => new Vector3(-75, 45.51f, -125), caveFloor) == null,
+            "stacked floor projection never falls back to surface above Ghost");
+        check(TravelGroundResolver.Resolve(caveCenter, 60, (_, _, _) => new Vector3(-75, 20, -125), caveFloor) == null,
+            "stacked floor projection rejects unrelated deeper terrain");
+        check(TravelGroundResolver.Resolve(caveCenter, 60, (_, _, _) => null, caveFloor) == null,
+            "missing underground mesh does not invent a destination");
+        check(TravelGroundResolver.Resolve(caveCenter, 60, (_, _, _) => cavePoint,
+            new TravelFloor { MinimumY = 30, MaximumY = 20 }) == null, "reversed floor bounds rejected");
+        check(!new TravelFloor { MinimumY = float.NaN, MaximumY = 27 }.IsValid &&
+            !new TravelFloor { MinimumY = 25, MaximumY = float.PositiveInfinity }.IsValid,
+            "nonfinite floor data rejected");
+        var underground = target with { MapPoint = caveCenter, TargetFloor = caveFloor };
+        var onRoof = player with { Position = new(-75, 45.51f, -125), Mounted = true, CanFly = true };
+        Reset(); ipc.Ground = cavePoint;
+        controller.Start(underground, onRoof, 0); controller.Update(onRoof, 1000);
+        check(controller.Active && ipc.RequestedFloor == caveFloor && !ipc.FindFlying,
+            "Ghost's floor metadata reaches backend and forces ground path despite flight unlock");
+        ipc.Completion.SetResult([onRoof.Position, new(-60.25f, 39, -60.5f), cavePoint]);
+        controller.Update(onRoof, 1100);
+        check(ipc.Moves == 1 && !ipc.MoveFlying, "underground movement uses ground route through entrance");
+        controller.Update(onRoof, 1200);
+        check(controller.Active, "same map X/Z on the roof does not count as underground arrival");
+        controller.Update(onRoof with { Position = cavePoint }, 1300);
+        check(!controller.Active && controller.Status.StartsWith("Arrived"), "arrival requires underground altitude");
+        Reset(); ipc.Ground = onRoof.Position;
+        controller.Start(underground, onRoof, 0); controller.Update(onRoof, 1000);
+        check(!controller.Active && ipc.Moves == 0, "controller rejects backend returning roof for underground plan");
+        Reset(); controller.Start(underground, onRoof with { InFlight = true }, 0);
+        check(!controller.Active && ipc.Mounts == 0 && ipc.Moves == 0 && controller.Status.StartsWith("Land"),
+            "airborne start cannot initiate a ground path through the cave roof");
+        Reset(); ipc.Ground = cavePoint; ipc.MountAccepted = true;
+        controller.Start(underground, player, 0); controller.Update(player, 1000);
+        controller.Update(onRoof, 1100);
+        check(ipc.Mounts == 1 && !ipc.FindFlying && controller.Phase == TravelPhase.FindingPath,
+            "mounting preserves underground ground-only route");
+        controller.Update(onRoof with { InFlight = true }, 1200);
+        check(!controller.Active && ipc.Moves == 0, "taking flight during underground route cancels it");
     }
 
     private sealed class FakeTravel : ITravelBackend
@@ -136,9 +259,15 @@ internal static class TravelChecks
         public CancellationToken Token;
         public TaskCompletionSource<List<Vector3>> Completion = new();
         public bool Teleport(uint id, byte sub) { Teleports++; return TeleportAccepted; }
-        public Vector3? GroundPoint(Vector3 point) => Ground;
-        public Task<List<Vector3>> FindPath(Vector3 start, Vector3 end, CancellationToken token) { Token = token; return Completion.Task; }
-        public void Move(List<Vector3> path) { Moves++; OwnPathRunning = true; }
+        public bool MountAccepted;
+        public int Mounts;
+        public bool FindFlying, MoveFlying;
+        public Vector3 RequestedCenter;
+        public bool Mount() { Mounts++; return MountAccepted; }
+        public TravelFloor? RequestedFloor;
+        public Vector3? GroundPoint(Vector3 point, float radius, TravelFloor? targetFloor) { RequestedCenter = point; RequestedFloor = targetFloor; return Ground; }
+        public Task<List<Vector3>> FindPath(Vector3 start, Vector3 end, bool fly, CancellationToken token) { FindFlying = fly; Token = token; return Completion.Task; }
+        public void Move(List<Vector3> path, bool fly) { Moves++; MoveFlying = fly; OwnPathRunning = true; }
         public void StopOwnedMovement() { if (OwnPathRunning) { Stops++; OwnPathRunning = false; } }
     }
 }

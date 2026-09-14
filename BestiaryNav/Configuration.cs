@@ -9,6 +9,8 @@ namespace BestiaryNav;
 public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 1;
+    public ChatPreferences ChatOutput { get; set; } = new();
+    public Appearance Appearance { get; set; } = new();
     public bool EnableClickNavigation { get; set; } = true;
     // Keep the original serialized name so the saved toggle survives the UI rename.
     public bool MapTrackingOnClick { get; set; } = true;

@@ -33,7 +33,7 @@ public sealed class LocationDatabase
             }
             foreach (var point in entry.Locations)
                 if (point == null || point.TerritoryTypeId == 0 || point.MapId == 0 ||
-                    !float.IsFinite(point.X) || !float.IsFinite(point.Y))
+                    !float.IsFinite(point.X) || !float.IsFinite(point.Y) || point.TravelFloor is { IsValid: false })
                     throw new InvalidOperationException($"Invalid location for Bestiary #{entry.BestiaryNumber}.");
         }
         return index;
@@ -79,6 +79,9 @@ public sealed record NavigationRequest(MapLocation? Location, DutyDestination? D
 
 public sealed class MapLocation
 {
+    // Optional verified world-height band for a stacked underground destination.
+    // Such locations use ground paths to enter through the connected tunnel.
+    public TravelFloor? TravelFloor { get; set; }
     public uint TerritoryTypeId { get; set; }
     public uint MapId { get; set; }
     // Human-readable map coordinates, not world coordinates or payload raw integers.
@@ -88,6 +91,15 @@ public sealed class MapLocation
     public string Area { get; set; } = "";
     public string Source { get; set; } = "";
     public string Precision { get; set; } = "reported-map-coordinate";
+}
+
+public sealed class TravelFloor
+{
+    public float MinimumY { get; set; }
+    public float MaximumY { get; set; }
+    public bool IsValid => float.IsFinite(MinimumY) && float.IsFinite(MaximumY) &&
+        MinimumY >= -1024 && MaximumY <= 1024 && MaximumY >= MinimumY && MaximumY - MinimumY <= 10;
+    public bool Contains(float y) => IsValid && float.IsFinite(y) && y >= MinimumY && y <= MaximumY;
 }
 
 public static class MapCoordinates

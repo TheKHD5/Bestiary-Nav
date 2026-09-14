@@ -6,6 +6,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility;
 
 namespace BestiaryNav;
 
@@ -20,6 +21,7 @@ internal sealed class CollectionWindow(IReadOnlyDictionary<uint, MonsterEntry> c
 
     public override void Draw()
     {
+        using var spacing = new UiContentSpacingScope(config.Appearance);
         var state = snapshot();
         if (!state.Ready)
         {
@@ -62,7 +64,10 @@ internal sealed class CollectionWindow(IReadOnlyDictionary<uint, MonsterEntry> c
             {
                 ImGui.PushID((int)beast.BestiaryNumber);
                 var favorite = config.Favorites.Contains(beast.BestiaryNumber);
-                ImGui.PushStyleColor(ImGuiCol.Text, favorite ? new Vector4(1, .8f, .2f, 1) : new Vector4(.5f, .5f, .5f, 1));
+                var palette = ThemeCatalog.Palette(config.Appearance.Palette);
+                ImGui.PushStyleColor(ImGuiCol.Text, config.Appearance.Enabled
+                    ? favorite ? palette.Accent : palette.Muted
+                    : favorite ? new Vector4(1, .8f, .2f, 1) : new Vector4(.5f, .5f, .5f, 1));
                 var toggleFavorite = ImGuiComponents.IconButton("Favorite", FontAwesomeIcon.Star);
                 ImGui.PopStyleColor();
                 if (toggleFavorite)
@@ -102,9 +107,11 @@ internal sealed class CollectionWindow(IReadOnlyDictionary<uint, MonsterEntry> c
 
     public void Open()
     {
-        Size = new Vector2(650, 560);
+        Flags = ImGuiWindowFlags.HorizontalScrollbar;
+        Size = new Vector2(650, 560) * ImGuiHelpers.GlobalScale;
         SizeCondition = ImGuiCond.FirstUseEver;
-        SizeConstraints = new WindowSizeConstraints { MinimumSize = new(460, 300), MaximumSize = new(1000, 1000) };
+        SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(380, 180) * ImGuiHelpers.GlobalScale,
+            MaximumSize = new Vector2(float.MaxValue) };
         IsOpen = true;
     }
 }

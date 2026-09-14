@@ -4,7 +4,9 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 
 - **Click to find:** highlight an approximate spawn area on the game map, clear and check the target duty in Duty Finder, or show quest guidance. While queued, only highlight the duty. Joining stays manual.
 - **Plan your collection:** see progress by area and duty, save favorites, and use **Where next?** for a level-based suggestion.
-- **Auto Navigate:** optionally teleport and walk to outdoor capture areas with Lifestream and vnavmesh.
+- **Auto Navigate:** teleport, mount, and fly to spawn areas where available with Lifestream and vnavmesh. Underground Ghost/Bogy uses a ground route; land before starting it.
+- **Make it yours:** choose Modern, Classic, or Compact styling, seven color palettes, and window opacity. Resize settings and collection windows from the corner.
+- **Control chat output:** choose which messages appear and their local chat channels, or mute them all.
 - **Location pop-up:** toggle navigation from Bestiary clicks, directly above the Bestiary. Turning it off also disables Auto Navigate and stops the current trip.
 - **Spot uncaptured beasts:** customize label size, colors, range, and model/enemy-list visibility. Duty labels identify capture/gourd encounters.
 - **Track nearby targets:** count each beast name once and clear its labels after capture.
