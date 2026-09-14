@@ -142,6 +142,7 @@ AppearanceChecks.Run(Check);
 AutoCaptureChecks.Run(Check);
 CaptureRunChecks.Run(Check);
 CaptureCombatChecks.Run(Check);
+PullHealthChecks.Run(Check);
 CaptureDefenseChecks.Run(Check);
 FarmingChecks.Run(Check);
 CaptureAllChecks.Run(Check);

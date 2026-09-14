@@ -1,0 +1,8 @@
+- Optionally wait for full HP before new Capture and Levelling pulls.
+- Keep Levelling targets within your current level offsets and leave unsuitable areas.
+- Skip areas where a full patrol finds no matching enemies.
+- Recover stalled combos despite pet damage, preserving the next basic combo step.
+- Show target ranges and combat recovery details in diagnostics.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

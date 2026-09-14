@@ -14,6 +14,7 @@ public sealed class Configuration : IPluginConfiguration
     public FarmingOptions Farming { get; set; } = new();
     public bool AutoCapture { get; set; }
     public bool CaptureRun { get; set; }
+    public bool WaitForFullHpBeforeEngaging { get; set; }
     public int AutoCaptureMaxHpPercent { get; set; } = 100;
     public bool EnableClickNavigation { get; set; } = true;
     // Keep the original serialized name so the saved toggle survives the UI rename.

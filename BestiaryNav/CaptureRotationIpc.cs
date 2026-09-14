@@ -40,6 +40,23 @@ internal sealed class CaptureRotationIpc : IRotationSolverBackend, IDisposable
     public void Verify(bool requireRotation = true) => control.Verify(requireRotation);
     public void SetRunning(bool value) => control.SetRunning(value);
     public void Restart(Action opener) => control.Restart(opener);
+    public long LastSkillStamp => (reader ?? throw new InvalidOperationException("Rotation Solver status is unavailable.")).LastSkillStamp();
+    public string CombatStatus
+    {
+        get
+        {
+            if (reader == null) return "No combat session owned.";
+            try
+            {
+                var state = reader.Read();
+                var stamp = reader.LastSkillStamp();
+                var age = stamp == 0 ? "no spell/weaponskill recorded" :
+                    $"last spell/weaponskill {Math.Max(0, (DateTime.Now.Ticks - stamp) / (double)TimeSpan.TicksPerSecond):0.0}s ago";
+                return $"active={state.Active}, manual={state.Manual}, henched={state.Henched}; {age}";
+            }
+            catch (Exception ex) { return $"Rotation status unavailable: {ex.Message}"; }
+        }
+    }
     public void Release() { try { control.Release(); } finally { reader = null; } }
     public void Dispose() => Release();
 
@@ -58,6 +75,8 @@ internal sealed class CaptureRotationIpc : IRotationSolverBackend, IDisposable
         private readonly Func<Version?> installedVersion;
         private readonly Func<bool> state, manual, henched, targetOnly, autoDuty, pvp;
         private readonly PropertyInfo rotation, config, teaching, autoOn;
+        private readonly PropertyInfo records, recordTime, recordAction;
+        private long nextSkillRead, skillStamp;
         private const BindingFlags Static = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         private Assembly CurrentAssembly()
@@ -78,6 +97,13 @@ internal sealed class CaptureRotationIpc : IRotationSolverBackend, IDisposable
             state = Getter(center, "State"); manual = Getter(center, "IsManual"); henched = Getter(center, "IsHenched");
             targetOnly = Getter(center, "IsTargetOnly"); autoDuty = Getter(center, "IsAutoDuty"); pvp = Getter(center, "IsPvPStateEnabled");
             rotation = Property(center, "CurrentRotation", Static);
+            records = Property(center, "RecordActions", Static);
+            var recordType = records.PropertyType.GetElementType() ??
+                throw new InvalidOperationException("Rotation Solver's action records changed. Update Bestiary Nav.");
+            recordTime = Property(recordType, "UsedTime", BindingFlags.Public | BindingFlags.Instance);
+            recordAction = Property(recordType, "Action", BindingFlags.Public | BindingFlags.Instance);
+            if (recordTime.PropertyType != typeof(DateTime) || recordAction.PropertyType != typeof(Lumina.Excel.Sheets.Action))
+                throw new InvalidOperationException("Rotation Solver's action record format changed. Update Bestiary Nav.");
             config = Property(assembly.GetType("RotationSolver.Basic.Service", true)!, "Config", Static);
             teaching = Property(config.PropertyType, "TeachingMode", BindingFlags.Public | BindingFlags.Instance);
             autoOn = Property(config.PropertyType, "AutoOnYes", BindingFlags.Public | BindingFlags.Instance);
@@ -96,6 +122,24 @@ internal sealed class CaptureRotationIpc : IRotationSolverBackend, IDisposable
             var settings = config.GetValue(null) ?? throw new InvalidOperationException("Rotation Solver settings are not loaded.");
             return new(state(), manual(), henched(), targetOnly(), autoDuty(), pvp(), isBst,
                 Boolean(teaching.GetValue(settings)), Boolean(autoOn.GetValue(settings)));
+        }
+
+        public long LastSkillStamp()
+        {
+            var now = Environment.TickCount64;
+            if (now < nextSkillRead) return skillStamp;
+            if (CurrentAssembly() != assembly) throw new InvalidOperationException("Rotation Solver was reloaded. Combat stopped.");
+            if (records.GetValue(null) is not Array actions)
+                throw new InvalidOperationException("Rotation Solver's action history is unavailable.");
+            long latest = 0;
+            foreach (var record in actions)
+            {
+                if (record == null || recordAction.GetValue(record) is not Lumina.Excel.Sheets.Action action ||
+                    action.ActionCategory.RowId is not (2 or 3)) continue;
+                if (recordTime.GetValue(record) is DateTime time) latest = Math.Max(latest, time.Ticks);
+            }
+            nextSkillRead = now + 250;
+            return skillStamp = latest;
         }
 
         private static PropertyInfo Property(Type type, string name, BindingFlags flags) => type.GetProperty(name, flags) ??

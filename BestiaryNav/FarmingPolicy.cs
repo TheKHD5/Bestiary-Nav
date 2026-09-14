@@ -40,9 +40,11 @@ internal sealed class FarmingArea
 
 internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maximum, int DepartureLevel = 0)
 {
-    // Lock the chosen band until it is outleveled. Reapplying the minimum offset
-    // at each level-up would leave an area before its highest target is reached.
-    public bool Complete(int playerLevel) => playerLevel >= (DepartureLevel > 0 ? DepartureLevel : Maximum);
+    // Offsets always refer to the current BST level, not the level at departure.
+    public FarmingSelection AtLevel(int playerLevel, FarmingOptions options) =>
+        this with { Minimum = playerLevel + options.MinimumAbove, Maximum = playerLevel + options.MaximumAbove };
+    public bool SupportsRange => (Area.MinimumLevel <= Maximum && Area.MaximumLevel >= Minimum) ||
+        (DepartureLevel >= Minimum && DepartureLevel <= Maximum);
     public bool Eligible(int mobLevel, int playerLevel) => mobLevel > playerLevel && mobLevel >= Minimum && mobLevel <= Maximum;
     public FarmingSelection Observe(int mobLevel, int playerLevel) => Eligible(mobLevel, playerLevel) && mobLevel > (DepartureLevel > 0 ? DepartureLevel : Maximum)
         ? this with { DepartureLevel = mobLevel } : this;
@@ -62,4 +64,14 @@ internal static class FarmingPolicy
         .Select(a => new FarmingSelection(a, level + options.MinimumAbove, level + options.MaximumAbove, Math.Min(a.MaximumLevel, level + options.MaximumAbove)))
         .OrderBy(a => a.Area.Location.TerritoryTypeId == territory ? 0 : 1)
         .ThenByDescending(a => a.DepartureLevel).ThenBy(a => a.Area.MinimumLevel).FirstOrDefault();
+}
+
+// An empty completed sweep is evidence about this area at this level band,
+// not a reason to repeatedly select the same area every retry interval.
+internal sealed class FarmingEmptyAreas
+{
+    private readonly HashSet<(FarmingArea Area, int Minimum, int Maximum)> entries = [];
+    public void Clear() => entries.Clear();
+    public void Reject(FarmingSelection selection) => entries.Add((selection.Area, selection.Minimum, selection.Maximum));
+    public bool Contains(FarmingArea area, int level, FarmingOptions options) => entries.Contains((area, level + options.MinimumAbove, level + options.MaximumAbove));
 }

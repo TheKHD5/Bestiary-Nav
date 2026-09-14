@@ -85,8 +85,9 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             }
             Tip("BST only. Clicking an uncaptured Bestiary entry travels to its spawn area, selects the closest eligible beast, applies Capture, then starts Rotation Solver's BST rotation. Waits at least 3 seconds after defeat and rechecks capture records before trying another beast in that same area. Stops after capture, target changes, or /bnav stop. Location pop-up must be on.\n\nRequires Rotation Solver Reborn (7.5.6.8+ with its BST rotation selected), vnavmesh, and Lifestream. Start with Rotation Solver off; disable its Teaching Mode and Auto On settings. Bestiary Nav turns it on for the marked capture target or an enemy actively attacking you, and off between attempts. Incidental combat interrupts travel or patrol temporarily; the saved destination resumes once combat clears. Changing its mode yourself stops the run. Duties must be entered manually; select the entry again near its beast inside. Runs expire after 30 minutes.");
             if (run || captureRun.Active) ImGui.TextWrapped(captureRun.Status);
-            Tip("If a selected, marked target takes no damage for 8 seconds while in range, Bestiary Nav refreshes its Rotation Solver mode and attempts a Smash Axe opener. Capture recovery requires your mark. During incidental defense, the recovery hit can also be used on the selected enemy actively attacking you. Copy diagnostics includes the last recovery result.");
+            Tip("If no player spell/weaponskill is recorded for 6 seconds, or the target takes no damage for 8 seconds while in range, Bestiary Nav refreshes Rotation Solver and attempts the next valid basic combo step. Capture recovery requires your mark. During defense, recovery can also act on the selected enemy actively attacking you. Copy diagnostics includes the last recovery result.");
             if ((captureRun.Active || captureAll.Enabled) && ImGui.Button("Stop capture run")) stopTravel();
+            DrawHealthRecoverySetting();
             ImGui.Separator();
             var autoCapture = configuration.AutoCapture;
             if (ImGui.Checkbox("Auto Capture main target", ref autoCapture)) { configuration.AutoCapture = autoCapture; save(); }
@@ -103,6 +104,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             var enabled = farming.Enabled;
             if (ImGui.Checkbox("Levelling mode", ref enabled)) setFarming(enabled);
             Tip("BST only. Travel to documented overworld spawn areas with vnavmesh and Lifestream, then use Rotation Solver against the nearest eligible enemy of any type inside the patrol circle and selected level range. Captured beasts are valid targets; Capture is paused. Start with Rotation Solver off. /bnav stop cancels. Levelling does not restart after reload. Normal teleport and consumable costs apply.");
+            DrawHealthRecoverySetting();
             var minimum = configuration.Farming.MinimumAbove;
             var maximum = configuration.Farming.MaximumAbove;
             ImGui.SetNextItemWidth(150);
@@ -116,7 +118,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 if (farming.Enabled) setFarming(false);
                 save();
             }
-            Tip("Choose the level range for a new area (+1 to +5). Stay with that target band as BST levels up, then relocate when BST reaches its highest target level. Changing the range stops the current run. Missing data or locked destinations stop with a status message; duties are excluded; FATE participation is optional.");
+            Tip("Offsets always use your current BST level. Setting both to +5 targets exactly five levels above you, including after level-ups. Relocate when the area no longer supports that range. A full patrol with no eligible enemies skips that area for this range until you restart. Changing the range stops the run. Duties are excluded; FATE participation is optional.");
             var goal = configuration.Farming.TargetLevel;
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputInt("Target BST level (0 = no limit)", ref goal)) { configuration.Farming.TargetLevel = Math.Clamp(goal, 0, 100); save(); }
@@ -149,6 +151,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             Tip("Only uses the selected food and quality from the four inventory bags. Waits for Well Fed to expire; refreshes between fights while stationary and dismounted. Existing food buffs are preserved. No purchases or HQ substitutions.");
             ImGui.Separator();
             ImGui.TextWrapped(farming.Status);
+            ImGui.TextWrapped(farming.TargetRange);
             ImGui.TextWrapped(farming.SuppliesStatus);
             if (farming.Enabled && ImGui.Button("Stop farming")) setFarming(false);
             ImGui.EndTabItem();
@@ -318,6 +321,14 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             if (ImGui.Selectable(option.Label, channel == option.Id)) { channel = option.Id; changed = true; }
         ImGui.EndCombo();
         return changed;
+    }
+
+    private void DrawHealthRecoverySetting()
+    {
+        var fullHp = configuration.WaitForFullHpBeforeEngaging;
+        if (ImGui.Checkbox("Wait for full HP before engaging", ref fullHp))
+        { configuration.WaitForFullHpBeforeEngaging = fullHp; save(); }
+        Tip("Shared by Capture and Levelling. Wait for 100% of your own HP before pulling another enemy. Pauses movement toward new targets while healing; resumes automatically at full HP. Existing fights and defense against attackers continue. Off keeps the usual behavior, including Levelling's 70% HP minimum.");
     }
 
     private static void Tip(string text)

@@ -24,6 +24,7 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
     public bool UserInterrupted { get; private set; }
     public string LastActiveStatus { get; private set; } = "No capture attempt yet.";
     public string LastRecovery { get; private set; } = "No combat recovery needed.";
+    public string RotationStatus => rotation.CombatStatus;
     public string CompactStatus => Phase switch
     {
         CaptureRunPhase.Traveling => "Capture: traveling…",
@@ -53,6 +54,7 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
     private ulong interruptedTarget, defenseTarget;
     private bool defenseOnly;
     private long nextDefenseAttempt;
+    private long lastUpdate;
 
     public void Start(uint entry, TravelPlan destination, bool travelToArea)
     {
@@ -73,6 +75,7 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
             combatWatchdog.Reset(); LastRecovery = "No combat recovery needed.";
             capture.RunActive = true; capture.RunTarget = 0;
             var now = Environment.TickCount64;
+            lastUpdate = now;
             runDeadline = now + 1800000;
             nextVerify = nextScan = nextAction = 0;
             nextTargetSelection = 0;
@@ -93,6 +96,8 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
     {
         if (!Active) return;
         var now = Environment.TickCount64;
+        var elapsed = Math.Max(0, now - lastUpdate);
+        lastUpdate = now;
         try
         {
             var player = objects.LocalPlayer;
@@ -170,6 +175,16 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
                 if (!Matches(npc) || !npc.IsTargetable || npc.Level == 0 || npc.Level > player.Level ||
                     !CaptureRunPolicy.InArea(npc.Position, area.MapPoint, area.SearchRadius, area.TargetFloor))
                 { Stop("Capture target is no longer eligible or left the selected spawn area."); return; }
+            }
+            var preparingPull = Phase is CaptureRunPhase.Searching or CaptureRunPhase.Approaching or
+                CaptureRunPhase.Marking or CaptureRunPhase.WaitingForCapture;
+            if (preparingPull && PullHealthPolicy.ShouldWait(config.WaitForFullHpBeforeEngaging, player.CurrentHp, player.MaxHp,
+                conditions[ConditionFlag.InCombat] || (npc != null && OwnMark(npc, player.EntityId))))
+            {
+                rotation.SetRunning(false); capture.RunTarget = 0; StopMovement(); combatWatchdog.Pause(now);
+                deadline += elapsed; runDeadline += elapsed;
+                Status = $"Waiting for full HP before the next capture ({player.CurrentHp:N0}/{player.MaxHp:N0})…";
+                return;
             }
             if (now >= deadline) { Stop($"Capture run timed out during {Phase}. Select the entry again to retry."); return; }
             if (!recordsReady)
@@ -277,10 +292,10 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
                 if (Phase == CaptureRunPhase.Marking)
                     SetPhase(CaptureRunPhase.Fighting, now, 600000, $"Fighting #{number} {npc.Name} with Rotation Solver…");
                 rotation.SetRunning(true);
-                if (combatWatchdog.Check(targetId, npc.CurrentHp, now, !player.IsCasting))
+                if (combatWatchdog.Check(targetId, npc.CurrentHp, now, !player.IsCasting, rotation.LastSkillStamp))
                 {
                     rotation.Restart(() => capture.TryRecoveryStrike(targetId));
-                    LastRecovery = $"No damage for 8s on #{number} {npc.Name}; refreshed Rotation Solver (attempt {combatWatchdog.Recoveries}). {capture.RecoveryStatus}";
+                    LastRecovery = $"{combatWatchdog.Reason} on #{number} {npc.Name}; refreshed Rotation Solver (attempt {combatWatchdog.Recoveries}). {capture.RecoveryStatus}";
                     Status = LastRecovery;
                     log.Information(LastRecovery);
                 }
@@ -444,14 +459,14 @@ internal sealed class CaptureRun(Configuration config, CaptureStateReader captur
         }
         rotation.SetRunning(true);
         Status = $"Defending against {attacker.Name}; will resume Bestiary #{number} after combat…";
-        if (combatWatchdog.Check(defenseTarget, attacker.CurrentHp, now, !player.IsCasting))
+        if (combatWatchdog.Check(defenseTarget, attacker.CurrentHp, now, !player.IsCasting, rotation.LastSkillStamp))
         {
             rotation.Restart(() =>
             {
                 if (requiresCapture) capture.TryRecoveryStrike(defenseTarget);
                 else capture.TryDefenseStrike(defenseTarget);
             });
-            LastRecovery = $"Defense recovery on {attacker.Name}: {capture.RecoveryStatus}";
+            LastRecovery = $"{combatWatchdog.Reason}; defense recovery on {attacker.Name}: {capture.RecoveryStatus}";
             log.Information(LastRecovery);
         }
     }

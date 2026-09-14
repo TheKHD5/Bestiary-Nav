@@ -26,21 +26,26 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     public FarmingPhase Phase { get; private set; }
     public string Status { get; private set; } = "Farming is off.";
     public string SuppliesStatus => supplies.Status;
+    public string LastRecovery { get; private set; } = "No combat recovery needed.";
+    public string RotationStatus => rotation.CombatStatus;
+    public string TargetRange => selection == null ? $"BST +{config.Farming.MinimumAbove}–{config.Farming.MaximumAbove}; no area selected" :
+        $"Lv. {selection.Minimum}–{selection.Maximum}; {area?.Name}; catalog levels {selection.Area.MinimumLevel}–{selection.Area.MaximumLevel}";
     public IReadOnlyList<FarmingFood> FoodChoices() => supplies.FoodChoices();
     private FarmingSelection? selection;
     private TravelPlan? area;
     private readonly SpawnSearchRoute search = new();
     private readonly CaptureCombatWatchdog watchdog = new();
     private readonly Dictionary<FarmingArea, long> unavailable = [];
+    private readonly FarmingEmptyAreas emptyRanges = new();
     private ulong target;
     private bool ownsTravel, targetSelected, engaged, defending;
     private long nextScan, nextVerify, nextAction, waitUntil, targetDeadline, areaDeadline;
+    private long lastUpdate;
     private int reached;
     private ushort selectedFate;
     private readonly Dictionary<ushort, long> completedFates = [];
     private readonly HashSet<uint> notoriousBases = data.GetExcelSheet<NotoriousMonster>().Where(n => n.BNpcBase.RowId != 0).Select(n => n.BNpcBase.RowId).ToHashSet();
-    private readonly bool strikeValid = data.GetExcelSheet<Lumina.Excel.Sheets.Action>(ClientLanguage.English)
-        .GetRowOrDefault(44879) is { IsPlayerAction: true, CastType: 1 } strike && strike.Name.ExtractText() == "Smash Axe";
+    private readonly BstBasicCombo recoveryCombo = new(data);
 
     public void Start()
     {
@@ -52,10 +57,12 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 !client.IsLoggedIn || conditions[ConditionFlag.InCombat] || !uiAvailable())
                 throw new InvalidOperationException("Start farming as BST, out of combat, with compatible game data.");
             rotation.Acquire(bst);
+            LastRecovery = "No combat recovery needed.";
             if (FarmingPolicy.ReachedGoal(p.Level, config.Farming)) { Stop("Target BST level already reached."); return; }
-            unavailable.Clear(); selection = null; area = null;
+            unavailable.Clear(); emptyRanges.Clear(); selection = null; area = null;
             selectedFate = 0; completedFates.Clear();
             nextScan = nextVerify = nextAction = waitUntil = 0;
+            lastUpdate = Environment.TickCount64;
             Phase = FarmingPhase.Choosing; Status = "Choosing a farming area…";
         }
         catch (Exception ex) { Stop(ex.Message); }
@@ -65,6 +72,8 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     {
         if (!Enabled) return;
         var now = Environment.TickCount64;
+        var elapsed = Math.Max(0, now - lastUpdate);
+        lastUpdate = now;
         try
         {
             var state = travelPlayer();
@@ -102,6 +111,15 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (now >= nextVerify) { rotation.Verify(Phase != FarmingPhase.Traveling); nextVerify = now + 500; }
             var combat = conditions[ConditionFlag.InCombat];
             var actors = objects.OfType<IBattleNpc>().Where(n => n.BattleNpcKind == BattleNpcSubKind.Combatant).ToArray();
+            if (selection != null && (selection.Minimum != player.Level + config.Farming.MinimumAbove || selection.Maximum != player.Level + config.Farming.MaximumAbove))
+            {
+                selection = selection.AtLevel(player.Level, config.Farming);
+                if (area != null)
+                {
+                    search.Reset(area.MapPoint, area.SearchRadius); reached = 0;
+                    areaDeadline = now + 300000;
+                }
+            }
             var npc = actors.FirstOrDefault(n => n.GameObjectId == target);
             if (target != 0 && (npc == null || npc.IsDead || npc.CurrentHp == 0))
             {
@@ -118,6 +136,14 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             }
             if (target != 0 && npc != null)
             {
+                if (PullHealthPolicy.ShouldWait(config.WaitForFullHpBeforeEngaging, player.CurrentHp, player.MaxHp,
+                    engaged || defending || combat))
+                {
+                    rotation.SetRunning(false); StopMovement(); watchdog.Pause(now);
+                    targetDeadline += elapsed; areaDeadline += elapsed;
+                    Status = $"Waiting for full HP before the next pull ({player.CurrentHp:N0}/{player.MaxHp:N0})…";
+                    return;
+                }
                 Fight(npc, player, now);
                 return;
             }
@@ -133,11 +159,11 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (selection != null && area != null && client.TerritoryType == area.TerritoryId)
                 foreach (var nearby in actors.Where(n => Eligible(n, player.Level)))
                     selection = selection.Observe(nearby.Level, player.Level);
-            if (selection != null && selection.Complete(player.Level))
+            if (selection != null && !selection.SupportsRange)
             {
                 if (selectedFate != 0) { completedFates[selectedFate] = now + 120000; selectedFate = 0; }
                 rotation.SetRunning(false); StopMovement(); selection = null; area = null; Phase = FarmingPhase.Choosing;
-                Status = "You reached this area's highest target level; choosing a stronger area…";
+                Status = $"This area does not support Lv. {player.Level + config.Farming.MinimumAbove}–{player.Level + config.Farming.MaximumAbove}; choosing another area…";
             }
             if (selection == null) { if (!ChooseFate(player.Level, player.Position, now)) Choose(player.Level, now); return; }
             if (Phase is FarmingPhase.Searching or FarmingPhase.Preparing && selectedFate == 0 && ChooseFate(player.Level, player.Position, now)) return;
@@ -155,7 +181,13 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 Status = "Landing and dismounting for farming…"; return;
             }
             if (player.IsCasting) { StopMovement(); return; }
-            if (player.CurrentHp < player.MaxHp * 0.7f) { StopMovement(); Status = "Recovering HP before the next pull…"; return; }
+            if (PullHealthPolicy.ShouldWait(config.WaitForFullHpBeforeEngaging, player.CurrentHp, player.MaxHp, combat, 70))
+            {
+                rotation.SetRunning(false); StopMovement(); watchdog.Pause(now); areaDeadline += elapsed;
+                Status = config.WaitForFullHpBeforeEngaging ?
+                    $"Waiting for full HP before the next pull ({player.CurrentHp:N0}/{player.MaxHp:N0})…" : "Recovering HP before the next pull…";
+                return;
+            }
             if (Phase == FarmingPhase.Preparing)
             {
                 StopMovement(); rotation.SetRunning(false);
@@ -175,7 +207,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 if (supplies.Prepare(config.Farming, player, now)) { Status = supplies.Status; return; }
                 Pick(npc, false, now); return;
             }
-            if (now >= areaDeadline) { FailArea(now, "No eligible targets found after five minutes."); return; }
+            if (now >= areaDeadline) { RejectEmptyRange(now, "No eligible targets found after five minutes."); return; }
             if (ownsTravel)
             {
                 travel.Update(state, now, config.CancelTravelOnManualMovement);
@@ -189,7 +221,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (point == null)
             {
                 if (reached == 0) { FailArea(now, "No reachable farming patrol points."); return; }
-                search.Reset(area.MapPoint, area.SearchRadius); reached = 0; waitUntil = now + 3000; return;
+                RejectEmptyRange(now, $"Full patrol found no Lv. {selection.Minimum}–{selection.Maximum} enemies."); return;
             }
             ownsTravel = true;
             travel.Start(new(area.TerritoryId, point.Value, 0, 0, "farming patrol", 10, area.TargetFloor,
@@ -227,14 +259,14 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     {
         selection = FarmingPolicy.Select(database.Areas, level, config.Farming, client.TerritoryType, a =>
         {
-            if (unavailable.GetValueOrDefault(a) > now) return false;
+            if (unavailable.GetValueOrDefault(a) > now || emptyRanges.Contains(a, level, config.Farming)) return false;
             try { var p = plans.Build(a.Location, config.SpawnAreaRadius); return p.TerritoryId == client.TerritoryType || p.AetheryteId != 0; }
             catch { return false; }
         });
         if (selection == null)
         {
             if (unavailable.Values.Any(t => t > now)) { waitUntil = now + 10000; Status = "Waiting to retry farming areas…"; return; }
-            Stop($"No reachable documented farming area for BST level {level} +{config.Farming.MinimumAbove}–{config.Farming.MaximumAbove}. Adjust the range or unlock an aetheryte."); return;
+            Stop($"No suitable reachable area remains for Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Empty patrols are skipped for this range; adjust it or restart to retry."); return;
         }
         area = plans.Build(selection.Area.Location, config.SpawnAreaRadius);
         BeginTravel(now);
@@ -261,6 +293,19 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         if (selection != null) unavailable[selection.Area] = now + 120000;
         selection = null; area = null; Phase = FarmingPhase.Choosing; waitUntil = now + 3000;
         Status = reason + " Trying another farming area…";
+    }
+    private void RejectEmptyRange(long now, string reason)
+    {
+        if (selection != null && selectedFate == 0)
+        {
+            emptyRanges.Reject(selection);
+            unavailable.Remove(selection.Area);
+        }
+        EndTarget();
+        if (selectedFate != 0) completedFates[selectedFate] = now + 120000;
+        selectedFate = 0; selection = null; area = null;
+        Phase = FarmingPhase.Choosing; waitUntil = now + 3000;
+        Status = reason + " Choosing another area for the requested range…";
     }
     private void Pick(IBattleNpc npc, bool defense, long now)
     {
@@ -321,17 +366,20 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         if (!engaged && !player.IsCasting) engaged = TryStrike(npc, player);
         rotation.SetRunning(true);
         if (inCombat && npc.TargetObjectId == player.GameObjectId) engaged = true;
-        if (watchdog.Check(target, npc.CurrentHp, now, !player.IsCasting)) rotation.Restart(() => TryStrike(npc, player));
+        if (watchdog.Check(target, npc.CurrentHp, now, !player.IsCasting, rotation.LastSkillStamp))
+        {
+            rotation.Restart(() => TryStrike(npc, player));
+            LastRecovery = $"{watchdog.Reason} on {npc.Name}; refreshed Rotation Solver (attempt {watchdog.Recoveries}). {recoveryCombo.Status}";
+            log.Information(LastRecovery);
+        }
         Status = $"{(defending ? "Defending against" : "Farming")} {npc.Name}, Lv. {npc.Level} with Rotation Solver…";
     }
     private unsafe bool TryStrike(IBattleNpc npc, IPlayerCharacter player)
     {
-        if (!Enabled || !compatible() || !strikeValid || targets.Target?.GameObjectId != target || npc.GameObjectId != target ||
+        if (!Enabled || !compatible() || targets.Target?.GameObjectId != target || npc.GameObjectId != target ||
             npc.IsDead || !npc.IsTargetable || player.IsDead || player.IsCasting || player.ClassJob.RowId != bst ||
             (!defending && !engaged && !Eligible(npc, player.Level))) return false;
-        var a = ActionManager.Instance();
-        return a != null && !a->ActionQueued && a->AnimationLock <= 0 && a->GetActionStatus(ActionType.Action, 44879, target) == 0 &&
-            a->UseAction(ActionType.Action, 44879, target);
+        return recoveryCombo.TryUse(target, player.Level);
     }
     private void StopMovement() { if (ownsTravel) travel.Stop(); ownsTravel = false; }
     private void EndTarget()

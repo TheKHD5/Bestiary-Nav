@@ -10,6 +10,8 @@
     <Compile Include="..\BestiaryNav\AutoCapturePolicy.cs" Link="AutoCapturePolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureRunPolicy.cs" Link="CaptureRunPolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureCombatWatchdog.cs" Link="CaptureCombatWatchdog.cs" />
+    <Compile Include="..\BestiaryNav\BasicComboPolicy.cs" Link="BasicComboPolicy.cs" />
+    <Compile Include="..\BestiaryNav\PullHealthPolicy.cs" Link="PullHealthPolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureDefensePolicy.cs" Link="CaptureDefensePolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureAllController.cs" Link="CaptureAllController.cs" />
     <Compile Include="..\BestiaryNav\SpawnSearchRoute.cs" Link="SpawnSearchRoute.cs" />
