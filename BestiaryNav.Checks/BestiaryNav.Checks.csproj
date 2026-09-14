@@ -6,6 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\BestiaryNav\AutoCapturePolicy.cs" Link="AutoCapturePolicy.cs" />
+    <Compile Include="..\BestiaryNav\CaptureRunPolicy.cs" Link="CaptureRunPolicy.cs" />
+    <Compile Include="..\BestiaryNav\CaptureAllController.cs" Link="CaptureAllController.cs" />
+    <Compile Include="..\BestiaryNav\SpawnSearchRoute.cs" Link="SpawnSearchRoute.cs" />
+    <Compile Include="..\BestiaryNav\RotationSolverControl.cs" Link="RotationSolverControl.cs" />
     <Compile Include="..\BestiaryNav\Appearance.cs" Link="Appearance.cs" />
     <Compile Include="..\BestiaryNav\ChatPreferences.cs" Link="ChatPreferences.cs" />
     <Compile Include="..\BestiaryNav\LocationData.cs" Link="LocationData.cs" />

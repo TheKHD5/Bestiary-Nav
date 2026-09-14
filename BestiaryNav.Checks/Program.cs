@@ -140,6 +140,10 @@ Check(index[31].Locations[0].TravelFloor == null, "Gigantoad keeps ordinary surf
 ChatChecks.Run(Check);
 AppearanceChecks.Run(Check);
 AutoCaptureChecks.Run(Check);
+CaptureRunChecks.Run(Check);
+CaptureAllChecks.Run(Check);
+RotationSolverChecks.Run(Check);
+SpawnSearchChecks.Run(Check);
 ModelLabelChecks.Run(Check);
 CollectionChecks.Run(Check, Reject, index);
 Check(MapCoordinates.MarkerToWorld(1255, 100, 0) == 231 && MapCoordinates.MarkerToWorld(767, 100, 0) == -257, "Summerford map marker converts to world X/Z");

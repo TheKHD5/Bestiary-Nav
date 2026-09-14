@@ -36,6 +36,25 @@ internal static class TravelChecks
         check(ipc.Teleports == 0 && ipc.Moves == 1 && controller.Phase == TravelPhase.Moving, "same-zone route walks without teleport");
         controller.Update(player with { Position = target.MapPoint }, 2000);
         check(!controller.Active && ipc.Stops == 1 && controller.Status.StartsWith("Arrived"), "arrival stops owned movement");
+        check(controller.Arrived, "arrival has an explicit completion result for capture runs");
+        controller.Stop();
+        check(!controller.Arrived, "manual cancellation never appears to be successful arrival");
+
+        Reset(); ipc.Ground = null; ipc.MountAccepted = true;
+        var approach = target with { ExactDestination = true, AllowMount = false, AllowFlight = false, ArrivalDistance = 1.5f };
+        controller.Start(approach, player, 0); controller.Update(player, 1000);
+        check(controller.Phase == TravelPhase.FindingPath && ipc.Mounts == 0 && !ipc.FindFlying,
+            "capture approach uses live actor altitude and stays on foot");
+        ipc.Completion.SetResult([player.Position, approach.MapPoint]); controller.Update(player, 1100);
+        controller.Update(player with { Position = approach.MapPoint + new Vector3(4, 0, 0) }, 2000);
+        check(controller.Active && !controller.Arrived, "capture approach continues inside normal five-yalm arrival radius");
+        controller.Update(player with { Position = approach.MapPoint + new Vector3(1, 0, 0) }, 3000);
+        check(controller.Arrived, "capture approach finishes within melee distance");
+        foreach (var radius in new[] { float.NaN, 0.1f, 6f })
+        {
+            Reset(); controller.Start(approach with { ArrivalDistance = radius }, player, 0);
+            check(!controller.Active && !controller.Arrived, "invalid capture arrival tolerance cannot start movement");
+        }
 
         Reset(); controller.Start(target with { TerritoryId = 148 }, player, 0);
         check(ipc.Teleports == 1 && controller.Phase == TravelPhase.Teleporting, "cross-zone route teleports first");
@@ -44,6 +63,49 @@ internal static class TravelChecks
         check(ipc.Moves == 0 && controller.Phase == TravelPhase.Teleporting, "no movement during teleport loading");
         controller.Update(player with { Territory = 148 }, 7000);
         check(controller.Phase == TravelPhase.WaitingForMesh, "destination arrival waits for mesh");
+
+        // Coeurl #33: Upper La Noscea. The player object and UI can return later
+        // than the territory/BetweenAreas updates. Navigation must retain its plan.
+        Reset(); var coeurl = target with { TerritoryId = 139, Name = "Coeurl #33" };
+        controller.Start(coeurl, player, 0);
+        controller.Update(player with { Casting = true }, 1000);
+        controller.Update(player with { Territory = 0, Loading = true, WorldReady = false }, 5000);
+        controller.Update(player with { Territory = 139, Loading = false, WorldReady = false }, 11000);
+        check(controller.Active && controller.Phase == TravelPhase.Teleporting && ipc.Moves == 0,
+            "Coeurl teleport survives player/UI absence after loading flags clear");
+        controller.Update(player with { Territory = 139 }, 12000);
+        check(controller.Phase == TravelPhase.WaitingForMesh, "Coeurl arrival resumes into mesh wait");
+        controller.Update(player with { Territory = 139, WorldReady = false }, 12500);
+        ipc.Busy = true;
+        controller.Update(player with { Territory = 139 }, 14000);
+        check(controller.Active && controller.Phase == TravelPhase.WaitingForMesh,
+            "Lifestream finishing after teleport waits instead of canceling navigation");
+        ipc.Busy = false;
+        controller.Update(player with { Territory = 139 }, 15000);
+        ipc.Completion.SetResult([player.Position, coeurl.MapPoint]);
+        controller.Update(player with { Territory = 139 }, 16000);
+        check(controller.Phase == TravelPhase.Moving && ipc.Moves == 1, "Coeurl navigation continues toward destination after teleport");
+        controller.Update(player with { Territory = 139, Position = coeurl.MapPoint }, 17000);
+        check(controller.Arrived, "Coeurl cross-zone trip completes at its designated location");
+
+        Reset(); controller.Start(coeurl, player, 0);
+        controller.Update(player with { Loading = true, WorldReady = false }, 61000);
+        check(!controller.Active, "failed world transition remains bounded by teleport timeout");
+        Reset(); controller.Start(coeurl, player, 0);
+        controller.Update(player with { LoggedIn = false }, 500);
+        check(!controller.Active, "actual logout still cancels a teleport");
+
+        Reset(); var survey = target with { AllowMount = false, AllowFlight = false,
+            SearchBoundary = new(Vector3.Zero, 200, null) };
+        ipc.Ground = null; controller.Start(survey, player, 0); controller.Update(player, 1000);
+        check(controller.NoRoute && !controller.Active, "unmapped survey point is skippable");
+        Reset(); controller.Start(survey, player, 0); controller.Update(player, 1000);
+        ipc.Completion.SetResult([player.Position, new(300, 0, 0), survey.MapPoint]); controller.Update(player, 1100);
+        check(controller.NoRoute && ipc.Moves == 0, "survey route cannot leave selected spawn circle");
+        Reset(); controller.Start(survey, player, 0); controller.Update(player, 1000); controller.Update(player, 16000);
+        check(controller.NoRoute && ipc.Token.IsCancellationRequested, "unreachable survey route times out and cancels its path task");
+        Reset(); controller.Start(survey, player, 0); controller.Update(player with { ManualMovement = true }, 500, true);
+        check(!controller.Active && !controller.NoRoute, "manual cancellation stops search instead of skipping to another point");
 
         Reset(); ipc.MeshReady = false; controller.Start(target, player, 0); controller.Update(player, 1000);
         check(controller.Phase == TravelPhase.WaitingForMesh && ipc.Moves == 0, "mesh not ready waits");

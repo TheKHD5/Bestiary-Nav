@@ -55,6 +55,8 @@ internal static class AutoCaptureChecks
         marks.BeginScan(); marks.Observe(123, true, 120, 9000); marks.HasActiveMark(true, 9000);
         marks.BeginScan(); marks.Observe(123, false, 119, 10000);
         check(!marks.HasActiveMark(true, 10000), "dead marked actor no longer occupies capture");
+        marks.BeginScan();
+        check(!marks.HasActiveMark(true, 15000), "known defeated actor despawning during result wait does not block retry");
         marks.Reset(); marks.BeginScan();
         check(!marks.HasActiveMark(false, 0), "logout and territory reset clear capture tracking");
     }

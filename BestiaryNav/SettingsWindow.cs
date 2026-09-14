@@ -8,7 +8,8 @@ namespace BestiaryNav;
 
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
-    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus)
+    Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus,
+    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     public override void Draw()
@@ -38,7 +39,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 configuration.SpawnAreaRadius = radius;
                 save();
             }
-            Tip("Approximate search circles around reported spawn coordinates, not verified spawn boundaries. Applies when you next select a beast.");
+            Tip("Approximate search circles around reported spawn coordinates, not verified spawn boundaries. Capture runs walk survey points within this circle when no eligible beast is visible. Increase this for large spawn areas (up to 200 yalms). Applies when you next select a beast.");
             var blockCombat = configuration.BlockInCombat;
             if (ImGui.Checkbox("Skip navigation while in combat", ref blockCombat))
             {
@@ -70,13 +71,29 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
         }
         if (ImGui.BeginTabItem("Capture"))
         {
+            var all = captureAll.Enabled;
+            if (ImGui.Checkbox("Capture all available", ref all)) setCaptureAll(all);
+            Tip("Capture uncaptured overworld beasts at or below your current BST level using travel, spawn-area searches, Capture, and Rotation Solver. Enables capture runs and Location pop-up. Skips duties and quests. Stops when none remain at your level.\n\nFailed entries (including a lost or cleared target) retry after 15–120 seconds while this stays on, trying other eligible beasts and documented locations in between. Waits at least 3 seconds for capture results. Death, combat, missing dependencies, and job changes wait for recovery; it does not revive you or change jobs.\n\nTurn this off or use /bnav stop to cancel all retries. Manual movement (when enabled), another destination, logout, and plugin reload also stop the batch. Normal teleport costs apply. Session-only; never starts itself after a reload.");
+            ImGui.TextWrapped(captureAll.Status);
+            ImGui.Separator();
+            var run = configuration.CaptureRun;
+            if (ImGui.Checkbox("Auto capture run (Rotation Solver)", ref run))
+            {
+                configuration.CaptureRun = run;
+                if (!run) captureRun.Stop();
+                save();
+            }
+            Tip("BST only. Clicking an uncaptured Bestiary entry travels to its spawn area, selects the closest eligible beast, applies Capture, then starts Rotation Solver's BST rotation. Waits at least 3 seconds after defeat and rechecks capture records before trying another beast in that same area. Stops after capture, target changes, or /bnav stop. Location pop-up must be on.\n\nRequires Rotation Solver Reborn (7.5.6.8+ with its BST rotation selected), vnavmesh, and Lifestream. Start with Rotation Solver off; disable its Teaching Mode and Auto On settings. Bestiary Nav turns it on only for the marked main target and off between attempts. Changing its mode yourself stops the run. Duties must be entered manually; select the entry again near its beast inside. Runs expire after 30 minutes.");
+            if (run || captureRun.Active) ImGui.TextWrapped(captureRun.Status);
+            if ((captureRun.Active || captureAll.Enabled) && ImGui.Button("Stop capture run")) stopTravel();
+            ImGui.Separator();
             var autoCapture = configuration.AutoCapture;
             if (ImGui.Checkbox("Auto Capture main target", ref autoCapture)) { configuration.AutoCapture = autoCapture; save(); }
             Tip("Only while equipped as BST and in combat with a living, uncaptured main target at or below your level. Uses Capture when the game allows it. Waits while any beast has your Interest Captured effect, then retries if the main target remains eligible. Does not switch targets or start combat.");
             var hp = configuration.AutoCaptureMaxHpPercent;
             ImGui.SetNextItemWidth(190 * ImGuiHelpers.GlobalScale);
             if (ImGui.SliderInt("Target HP at or below (%)", ref hp, 1, 100)) { configuration.AutoCaptureMaxHpPercent = hp; save(); }
-            Tip("100% casts as soon as eligible. Lower values wait for weaker targets and improve the capture chance. The plugin never refreshes your active mark merely because HP has fallen.");
+            Tip("Applies to standalone Auto Capture. 100% casts as soon as eligible. Lower values wait for weaker targets and improve the capture chance. Capture runs always apply Capture before damage combos. The plugin never refreshes your active mark merely because HP has fallen.");
             ImGui.TextWrapped(captureStatus());
             ImGui.EndTabItem();
         }

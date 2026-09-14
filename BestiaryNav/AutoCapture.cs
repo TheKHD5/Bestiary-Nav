@@ -30,6 +30,10 @@ internal sealed class AutoCapture
     private long nextScan;
     private uint territory, playerId;
     public string Status { get; private set; } = "Auto Capture is off.";
+    public bool Compatible => compatible;
+    public bool RunActive { get; set; }
+    public ulong RunTarget { get; set; }
+    public void ObserveDefeat(uint entityId) => marks.Observe(entityId, false, null, Environment.TickCount64);
 
     public AutoCapture(Configuration config, CaptureStateReader captures,
         IReadOnlyDictionary<(uint Territory, uint NameId), uint> catalog, IObjectTable objects,
@@ -53,7 +57,7 @@ internal sealed class AutoCapture
 
     public unsafe void Update()
     {
-        if (!config.AutoCapture) { Reset(); Status = "Auto Capture is off."; return; }
+        if (!config.AutoCapture && !RunActive) { Reset(); Status = "Auto Capture is off."; return; }
         if (!compatible) { Reset(); Status = "Auto Capture needs compatible game and action data."; return; }
         if (!client.IsLoggedIn || objects.LocalPlayer is not { } player ||
             conditions[ConditionFlag.BetweenAreas] || conditions[ConditionFlag.BetweenAreas51])
@@ -86,17 +90,19 @@ internal sealed class AutoCapture
             // On enable/reload, a player buff can indicate a marked actor outside
             // the object table. Wait rather than replace that unseen capture.
             var captureBusy = marks.HasActiveMark(hasPlayerBuff, now);
+            if (RunActive && RunTarget == 0) return;
             if (captureBusy) { Status = "Waiting for your existing Interest Captured effect to end."; return; }
             if (!captures.TryRead(out var bits)) { Status = "Open Master's Bestiary once to load capture records."; return; }
             if (targets.Target is not IBattleNpc npc || npc.BattleNpcKind != BattleNpcSubKind.Combatant)
             { Status = "Select an uncaptured beast as your main target."; return; }
+            if (RunActive && npc.GameObjectId != RunTarget) return;
             var uncaptured = catalog.TryGetValue((client.TerritoryType, npc.NameId), out var number) && CaptureRules.IsUncaptured(bits, number);
             var ready = !player.IsDead && !player.IsCasting && !conditions[ConditionFlag.Mounted] && !conditions[ConditionFlag.InFlight] &&
                 !conditions[ConditionFlag.MountOrOrnamentTransition] && !conditions[ConditionFlag.WatchingCutscene] &&
                 !conditions[ConditionFlag.WatchingCutscene78] && !conditions[ConditionFlag.OccupiedInQuestEvent];
-            var state = new CaptureSnapshot(config.AutoCapture, compatible, player.ClassJob.RowId == bst, ready,
-                conditions[ConditionFlag.InCombat], (npc.StatusFlags & StatusFlags.InCombat) != 0, uncaptured,
-                !npc.IsDead, npc.IsTargetable, player.Level, npc.Level, npc.CurrentHp, npc.MaxHp, config.AutoCaptureMaxHpPercent,
+            var state = new CaptureSnapshot(config.AutoCapture || RunActive, compatible, player.ClassJob.RowId == bst, ready,
+                RunActive || conditions[ConditionFlag.InCombat], RunActive || (npc.StatusFlags & StatusFlags.InCombat) != 0, uncaptured,
+                !npc.IsDead, npc.IsTargetable, player.Level, npc.Level, npc.CurrentHp, npc.MaxHp, RunActive ? 100 : config.AutoCaptureMaxHpPercent,
                 captureBusy, true, npc.GameObjectId);
             if (!AutoCapturePolicy.Eligible(state)) { Status = "Waiting for an eligible main target in combat."; return; }
             var actions = ActionManager.Instance();
@@ -107,7 +113,8 @@ internal sealed class AutoCapture
             {
                 // Never change targets, send a chat command, or queue a capture
                 // against an actor that is no longer the player's main target.
-                if (!config.AutoCapture || targets.Target?.GameObjectId != target) return false;
+                if ((!config.AutoCapture && !RunActive) || targets.Target?.GameObjectId != target ||
+                    (RunActive && RunTarget != target)) return false;
                 return actions->UseAction(ActionType.Action, CaptureAction, target);
             });
             if (used)

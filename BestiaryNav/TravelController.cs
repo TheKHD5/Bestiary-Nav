@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 namespace BestiaryNav;
 
 internal sealed record TravelPlan(uint TerritoryId, Vector3 MapPoint, uint AetheryteId, byte SubIndex, string Name, float SearchRadius = 60,
-    TravelFloor? TargetFloor = null);
+    TravelFloor? TargetFloor = null, bool ExactDestination = false, bool AllowMount = true, bool AllowFlight = true,
+    float ArrivalDistance = 5, SpawnSearchBoundary? SearchBoundary = null);
 internal readonly record struct TravelPlayer(uint Territory, Vector3 Position, bool LoggedIn, bool Loading, bool Casting, string? BlockReason,
-    bool ManualMovement = false, bool Mounted = false, bool CanFly = false, bool InFlight = false, bool MountTransition = false);
+    bool ManualMovement = false, bool Mounted = false, bool CanFly = false, bool InFlight = false, bool MountTransition = false,
+    bool WorldReady = true);
 internal enum TravelPhase { Idle, Teleporting, WaitingForMesh, Mounting, FindingPath, Moving }
 
 internal interface ITravelBackend
@@ -32,6 +34,9 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
 {
     public TravelPhase Phase { get; private set; }
     public bool Active => Phase != TravelPhase.Idle;
+    public bool Arrived { get; private set; }
+    public bool NoRoute { get; private set; }
+    public bool AwaitingWorld => Phase is TravelPhase.Teleporting or TravelPhase.WaitingForMesh;
     public string CompactStatus => Phase switch
     {
         TravelPhase.Teleporting => "Teleporting…",
@@ -58,11 +63,11 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
         try
         {
             if (!backend.Available) { Status = "Auto travel requires enabled vnavmesh and Lifestream plugins with compatible IPC."; return; }
-            if (!player.LoggedIn || player.Loading || player.Casting || player.BlockReason != null)
+            if (!player.LoggedIn || player.Loading || !player.WorldReady || player.Casting || player.BlockReason != null)
             { Status = player.BlockReason ?? "Cannot start travel while loading or casting."; return; }
             if (backend.Busy) { Status = "vnavmesh or Lifestream is busy. Finish that travel first."; return; }
             if (next.TerritoryId == 0 || !Finite(next.MapPoint) || !float.IsFinite(next.SearchRadius) || next.SearchRadius is < 10 or > 200 ||
-                next.TargetFloor is { IsValid: false })
+                next.TargetFloor is { IsValid: false } || !float.IsFinite(next.ArrivalDistance) || next.ArrivalDistance is < 0.5f or > 5)
             { Status = "Invalid travel destination."; return; }
             if (next.TargetFloor != null && player.InFlight)
             { Status = "Land before starting this underground route, then select the beast again."; return; }
@@ -89,7 +94,7 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
         if (!Active || plan == null) return;
         try
         {
-            if (!player.LoggedIn || player.BlockReason != null)
+            if ((!player.LoggedIn && !player.Loading) || player.BlockReason != null)
             { Stop(player.BlockReason ?? "Travel stopped on logout."); return; }
             // Cancel before polling or consuming a completed path, including during teleport/mesh waits.
             if (cancelOnManualMovement && !player.Loading && player.ManualMovement)
@@ -97,7 +102,21 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
             if (!backend.Available) { Stop("Travel stopped: a dependency was disabled or reloaded."); return; }
             if (plan.TargetFloor != null && player.InFlight)
             { Stop("Underground travel requires a ground route. Land, then select the beast again."); return; }
-            if (now >= deadline) { Stop($"Travel timed out during {Phase}."); return; }
+            if (now >= deadline)
+            {
+                if (Phase == TravelPhase.FindingPath) StopNoRoute("Pathfinding timed out.");
+                else Stop($"Travel timed out during {Phase}.");
+                return;
+            }
+            // Object/UI availability and BetweenAreas do not change on the same
+            // frame. Keep the destination through both parts of the handoff.
+            if (AwaitingWorld && (player.Loading || !player.WorldReady))
+            {
+                readyAfter = now + 1000;
+                Status = "Waiting for the destination world to finish loading…";
+                return;
+            }
+            if (!player.WorldReady) { Stop("Travel stopped while the game world is unavailable."); return; }
             // Stop/combat checks stay immediate; avoid copying vnavmesh's waypoint
             // list and querying its state on every rendered frame.
             if (now < nextPoll) return;
@@ -105,6 +124,7 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
             if (Phase == TravelPhase.Teleporting)
             {
                 if (player.Casting) { sawCast = true; lastCast = now; }
+                if (now < readyAfter) return;
                 if (!player.Loading && !player.Casting && player.Territory == plan.TerritoryId) WaitForMesh(now);
                 else if (!player.Loading && player.Territory != sourceTerritory && player.Territory != plan.TerritoryId)
                     Stop("Travel stopped after an unexpected territory change.");
@@ -128,14 +148,16 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
             if (Phase == TravelPhase.WaitingForMesh)
             {
                 if (now < readyAfter || !backend.MeshReady) return;
-                if (backend.Busy) { Stop("Another navigation request started. Bestiary travel stopped."); return; }
-                var ground = backend.GroundPoint(plan.MapPoint, plan.SearchRadius, plan.TargetFloor);
+                if (backend.Busy) { Status = "Waiting for navigation to finish settling…"; return; }
+                var ground = plan.ExactDestination ? plan.MapPoint : backend.GroundPoint(plan.MapPoint, plan.SearchRadius, plan.TargetFloor);
                 if (ground == null || !Finite(ground.Value) || HorizontalDistance(ground.Value, plan.MapPoint) > MathF.Min(plan.SearchRadius, 20) ||
                     (plan.TargetFloor != null && !plan.TargetFloor.Contains(ground.Value.Y)))
-                { Stop("The spawn-circle center has no nearby mapped ground. Try another spawn area or approach manually."); return; }
+                { StopNoRoute("The search point has no nearby mapped ground."); return; }
+                if (plan.SearchBoundary is { } bounds && !bounds.Contains(ground.Value))
+                { StopNoRoute("The mapped search point is outside the selected spawn area."); return; }
                 destination = ground.Value;
-                if (Vector3.Distance(player.Position, destination) <= 5) { Stop($"Arrived at {plan.Name}."); return; }
-                if (!player.Mounted && !player.InFlight && backend.Mount())
+                if (Vector3.Distance(player.Position, destination) <= plan.ArrivalDistance) { CompleteArrival(); return; }
+                if (plan.AllowMount && !player.Mounted && !player.InFlight && backend.Mount())
                 {
                     Phase = TravelPhase.Mounting;
                     readyAfter = now + 5000;
@@ -149,14 +171,16 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
                 if (pathTask == null || !pathTask.IsCompleted) return;
                 List<Vector3>? path;
                 try { path = pathTask.GetAwaiter().GetResult(); }
-                catch when (flying && !player.InFlight) { path = null; }
+                catch when ((flying && !player.InFlight) || plan.SearchBoundary != null) { path = null; }
                 pathTask = null;
                 cancellation?.Dispose(); cancellation = null;
                 if (!ValidPath(path, player.Position, destination))
                 {
                     if (flying && !player.InFlight) { BeginPath(player, now, false); return; }
-                    Stop("No complete route to the spawn-circle center. Approach the area manually."); return;
+                    StopNoRoute("No complete route to the search point."); return;
                 }
+                if (plan.SearchBoundary is { } searchBounds && !path!.TrueForAll(searchBounds.Contains))
+                { StopNoRoute("The search route would leave the selected spawn area."); return; }
                 if (backend.MovementBusy) { Stop("Another plugin started moving. Bestiary travel stopped."); return; }
                 if (flying && (!player.Mounted || (!player.CanFly && !player.InFlight)))
                 { Stop("Flight is no longer available. Select the beast again for a ground route."); return; }
@@ -171,11 +195,11 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
             {
                 if (flying && (!player.Mounted || (!player.CanFly && !player.InFlight)))
                 { Stop("Flight stopped or is no longer available."); return; }
-                if (Vector3.Distance(player.Position, destination) <= 5) { Stop($"Arrived at {plan.Name}."); return; }
+                if (Vector3.Distance(player.Position, destination) <= plan.ArrivalDistance) { CompleteArrival(); return; }
                 if (!backend.OwnPathRunning) { Stop("Movement stopped or was replaced. Select the beast again to retry."); return; }
                 if (Vector3.DistanceSquared(player.Position, lastPosition) >= 1)
                 { lastPosition = player.Position; lastProgress = now; }
-                else if (now - lastProgress > 10000) Stop("Travel stopped: no movement progress for 10 seconds.");
+                else if (now - lastProgress > 10000) StopNoRoute("Travel stopped: no movement progress for 10 seconds.");
             }
         }
         catch (Exception ex) { Stop($"Travel stopped: {ex.Message}"); }
@@ -184,12 +208,12 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
     private void BeginPath(TravelPlayer player, long now, bool fly)
     {
         if (backend.Busy) { Stop("Another navigation request started. Bestiary travel stopped."); return; }
-        if (plan!.TargetFloor != null) fly = false;
+        if (plan!.TargetFloor != null || !plan.AllowFlight) fly = false;
         flying = fly;
         cancellation = new();
         pathTask = backend.FindPath(player.Position, destination, fly, cancellation.Token);
         Phase = TravelPhase.FindingPath;
-        deadline = now + 45000;
+        deadline = now + (plan.SearchBoundary != null ? 15000 : 45000);
         Status = $"Finding a {(fly ? "flying" : "ground")} route to the spawn-circle center at {plan!.Name}…";
     }
 
@@ -203,6 +227,8 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
 
     public void Stop(string message = "Auto travel stopped.")
     {
+        Arrived = false;
+        NoRoute = false;
         Phase = TravelPhase.Idle;
         flying = false;
         nextPoll = 0;
@@ -216,6 +242,18 @@ internal sealed class TravelController(ITravelBackend backend) : IDisposable
         try { backend.StopOwnedMovement(); }
         catch (Exception ex) { message += $" Could not send movement stop: {ex.Message}"; }
         Status = message;
+    }
+
+    private void CompleteArrival()
+    {
+        Stop($"Arrived at {plan!.Name}.");
+        Arrived = true;
+    }
+
+    private void StopNoRoute(string reason)
+    {
+        Stop(reason);
+        NoRoute = true;
     }
 
     internal static bool ValidPath(List<Vector3>? path, Vector3 start, Vector3 end) =>

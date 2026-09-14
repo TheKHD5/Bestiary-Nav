@@ -1,0 +1,10 @@
+- Optional capture runs with Rotation Solver Reborn's Beastmaster rotation.
+- Capture all available overworld beasts at your level, with automatic retries.
+- Go to next target and Capture all controls on the Bestiary toolbar.
+- Search the spawn area on foot when no eligible beast is nearby.
+- Continue toward the destination after teleporting to another zone.
+- Wait 3 seconds for capture results before trying another beast.
+- Retry after target loss; recognize respawns and preserve cancellation reasons.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav
