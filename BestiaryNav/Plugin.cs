@@ -145,12 +145,8 @@ public sealed class Plugin : IDalamudPlugin
             ClientState, Condition, Log, autoCapture, new CaptureRotationIpc(PluginInterface), travel, GetTravelPlayer, beastmasterJobId,
             () => !GameGui.GameUiHidden);
         var farmData = ReadResource<FarmingDatabase>("farming-areas.json");
-        var englishNames = Data.GetExcelSheet<BNpcName>(Dalamud.Game.ClientLanguage.English)
-            .GroupBy(n => n.Singular.ExtractText(), StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.Select(n => n.RowId).Where(id => id != 0).ToHashSet(), StringComparer.OrdinalIgnoreCase);
         foreach (var farmArea in farmData.Areas)
         {
-            if (englishNames.TryGetValue(farmArea.Name, out var ids)) farmArea.NameIds = ids;
             if (farmArea.Location.TerritoryTypeId == 0)
             {
                 var territory = Data.GetExcelSheet<TerritoryType>(Dalamud.Game.ClientLanguage.English)
@@ -173,7 +169,7 @@ public sealed class Plugin : IDalamudPlugin
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
             collectionWindow.Open, travel, StopTravel, SetLocationPopup, captureRun,
             () => CollectionPlanner.Recommend(monsters.Values, acquisition, collectionSnapshot),
-            n => QueueBeast(n, autoTravel: true, fromBestiaryClick: true), captureAll, SetCaptureAll);
+            n => QueueBeast(n, autoTravel: true, fromBestiaryClick: true), captureAll, SetCaptureAll, farming, SetFarming);
         windowSystem.AddWindow(settingsWindow);
         PluginInterface.UiBuilder.Draw += DrawWindows;
         PluginInterface.UiBuilder.Draw += markers.Draw;

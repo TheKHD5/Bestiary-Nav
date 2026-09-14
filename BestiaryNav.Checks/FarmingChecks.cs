@@ -43,6 +43,25 @@ internal static class FarmingChecks
         check(!FarmingPolicy.MayPull(true, 7, 7, options), "NM exclusion also applies inside FATE");
         options.IgnoreNotoriousMonsters = false;
         check(FarmingPolicy.MayPull(true, 7, 7, options), "NM option can be disabled explicitly");
+        options = new FarmingOptions();
+        var narrow = new FarmingArea { Name = "Catalog species", MinimumLevel = 33, MaximumLevel = 33, Location = new() { TerritoryTypeId = 1 } };
+        chosen = FarmingPolicy.Select([narrow], 30, options, 1, _ => true)!;
+        check(chosen.Minimum == 31 && chosen.Maximum == 35 && chosen.DepartureLevel == 33,
+            "single-species level data chooses a destination without narrowing the requested band");
+        var mixed = new[] { (Name: "Catalog species", Level: 33), (Name: "Different lower species", Level: 31),
+            (Name: "Different higher species", Level: 35), (Name: "Too strong", Level: 36), (Name: "Too weak", Level: 30) };
+        var eligible = mixed.Where(m => chosen.Eligible(m.Level, 30)).ToArray();
+        check(eligible.Length == 3 && eligible.Any(m => m.Name == "Different lower species") && eligible.Any(m => m.Name == "Different higher species"),
+            "mixed species across the full range are eligible, while outside levels are rejected");
+        check(chosen.Complete(33), "without other observations catalog maximum remains the departure threshold");
+        chosen = chosen.Observe(35, 30);
+        check(!chosen.Complete(33) && !chosen.Complete(34) && chosen.Complete(35),
+            "discovered higher eligible species postpones departure until its level is reached");
+        check(chosen.Observe(40, 30) == chosen && chosen.Observe(30, 30) == chosen,
+            "above-band and equal-level enemies cannot extend the stay");
+        var fresh = FarmingPolicy.Select([narrow], 30, options, 1, _ => true)!;
+        check(!fresh.Observe(34, 33).Complete(33), "observe additional species before departure on a level-up frame");
+        check(chosen.Eligible(35, 34) && !chosen.Eligible(34, 34), "mixed-species levelling still excludes targets already outleveled");
         var db = JsonSerializer.Deserialize<FarmingDatabase>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "farming-areas.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         check(db.Areas.Count >= 40, "farming catalog includes original and additional overworld areas");
         foreach (var area in db.Areas)

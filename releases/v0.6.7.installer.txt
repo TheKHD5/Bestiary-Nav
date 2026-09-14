@@ -1,0 +1,7 @@
+- Level against all eligible enemy types inside the patrol circle.
+- Use the full chosen level range instead of the destination monster's range.
+- Account for higher eligible enemies nearby before moving to another area.
+- Add a Levelling mode quick toggle beside Capture all available.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

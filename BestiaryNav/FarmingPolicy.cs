@@ -36,15 +36,16 @@ internal sealed class FarmingArea
     public int MaximumLevel { get; set; }
     public MapLocation Location { get; set; } = new();
     public string Source { get; set; } = "";
-    public HashSet<uint> NameIds { get; set; } = [];
 }
 
-internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maximum)
+internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maximum, int DepartureLevel = 0)
 {
     // Lock the chosen band until it is outleveled. Reapplying the minimum offset
     // at each level-up would leave an area before its highest target is reached.
-    public bool Complete(int playerLevel) => playerLevel >= Maximum;
+    public bool Complete(int playerLevel) => playerLevel >= (DepartureLevel > 0 ? DepartureLevel : Maximum);
     public bool Eligible(int mobLevel, int playerLevel) => mobLevel > playerLevel && mobLevel >= Minimum && mobLevel <= Maximum;
+    public FarmingSelection Observe(int mobLevel, int playerLevel) => Eligible(mobLevel, playerLevel) && mobLevel > (DepartureLevel > 0 ? DepartureLevel : Maximum)
+        ? this with { DepartureLevel = mobLevel } : this;
 }
 
 internal static class FarmingPolicy
@@ -56,7 +57,9 @@ internal static class FarmingPolicy
         uint territory, Func<FarmingArea, bool> reachable) => areas
         .Where(a => a.MinimumLevel > 0 && a.MaximumLevel >= a.MinimumLevel && a.MaximumLevel <= 100 &&
             a.MinimumLevel <= level + options.MaximumAbove && a.MaximumLevel >= level + options.MinimumAbove && reachable(a))
-        .Select(a => new FarmingSelection(a, Math.Max(a.MinimumLevel, level + options.MinimumAbove), Math.Min(a.MaximumLevel, level + options.MaximumAbove)))
+        // The catalog chooses a destination; it must not narrow which enemy
+        // species or levels can be pulled once inside that area's patrol circle.
+        .Select(a => new FarmingSelection(a, level + options.MinimumAbove, level + options.MaximumAbove, Math.Min(a.MaximumLevel, level + options.MaximumAbove)))
         .OrderBy(a => a.Area.Location.TerritoryTypeId == territory ? 0 : 1)
-        .ThenByDescending(a => a.Maximum).ThenBy(a => a.Minimum).FirstOrDefault();
+        .ThenByDescending(a => a.DepartureLevel).ThenBy(a => a.Area.MinimumLevel).FirstOrDefault();
 }

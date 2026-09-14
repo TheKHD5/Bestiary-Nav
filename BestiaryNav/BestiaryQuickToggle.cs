@@ -12,7 +12,8 @@ namespace BestiaryNav;
 internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui gui,
     IClientState client, ICondition conditions, bool bindingActive, Action<bool> setAutoTravel, Action openSettings,
     Action openCollection, TravelController travel, Action stopTravel, Action<bool> setLocationPopup, CaptureRun captureRun,
-    Func<MonsterEntry?> nextTarget, Action<uint> goToNextTarget, CaptureAllController captureAll, Action<bool> setCaptureAll)
+    Func<MonsterEntry?> nextTarget, Action<uint> goToNextTarget, CaptureAllController captureAll, Action<bool> setCaptureAll,
+    FarmingRun farming, Action<bool> setFarming)
 {
     public unsafe void Draw()
     {
@@ -32,6 +33,8 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
         using var theme = new UiThemeScope(configuration.Appearance);
         const string label = "Auto Navigate";
         const string trackingLabel = "Location pop-up";
+        const string captureAllLabel = "Capture all available";
+        const string levellingLabel = "Levelling mode";
         var viewport = ImGui.GetMainViewport();
         var padding = new Vector2(8, 4);
         var frameHeight = ImGui.GetFrameHeight();
@@ -41,10 +44,14 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
         size.X += ImGui.CalcTextSize(trackingLabel).X + frameHeight +
             ImGui.GetStyle().ItemInnerSpacing.X + ImGui.GetStyle().ItemSpacing.X;
         size.Y += 2 * (frameHeight + ImGui.GetStyle().ItemSpacing.Y);
+        // Reserve room for both bottom-row checkboxes at the current font scale.
+        var modeRowWidth = ImGui.CalcTextSize(captureAllLabel).X + ImGui.CalcTextSize(levellingLabel).X +
+            2 * (frameHeight + ImGui.GetStyle().ItemInnerSpacing.X) + ImGui.GetStyle().ItemSpacing.X + padding.X * 2;
+        size.X = MathF.Max(size.X, modeRowWidth);
         var nextButtonWidth = ImGui.CalcTextSize(label).X + ImGui.CalcTextSize(trackingLabel).X + 2 * frameHeight +
             2 * ImGui.GetStyle().ItemInnerSpacing.X + ImGui.GetStyle().ItemSpacing.X;
-        var active = travel.Active || captureRun.Active || captureAll.Enabled;
-        var status = captureRun.Active ? captureRun.CompactStatus : captureAll.Enabled ? "Capture all: waiting…" : travel.CompactStatus;
+        var active = travel.Active || captureRun.Active || captureAll.Enabled || farming.Enabled;
+        var status = farming.Enabled ? "Levelling: active" : captureRun.Active ? captureRun.CompactStatus : captureAll.Enabled ? "Capture all: waiting…" : travel.CompactStatus;
         if (active)
             size.X += ImGui.CalcTextSize(status).X + ImGui.CalcTextSize("Stop").X +
                 2 * ImGui.GetStyle().ItemSpacing.X + 2 * ImGui.GetStyle().FramePadding.X;
@@ -86,7 +93,7 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
                 if (active)
                 {
                     ImGui.SameLine(); ImGui.TextUnformatted(status);
-                    if (ImGui.IsItemHovered()) ImGui.SetTooltip(captureRun.Active ? captureRun.Status : captureAll.Enabled ? captureAll.Status : travel.Status);
+                    if (ImGui.IsItemHovered()) ImGui.SetTooltip(farming.Enabled ? farming.Status : captureRun.Active ? captureRun.Status : captureAll.Enabled ? captureAll.Status : travel.Status);
                     ImGui.SameLine(); if (ImGui.Button("Stop")) stopTravel();
                 }
                 // A separate second row keeps this action below both toggles,
@@ -104,8 +111,12 @@ internal sealed class BestiaryQuickToggle(Configuration configuration, IGameGui 
                         next == null ? "No eligible uncaptured target. Open the Bestiary to load capture records." :
                         $"Go to #{next.BestiaryNumber} {next.DisplayName}.\nUses the collection's next uncaptured target at your level. Starts travel to outdoor targets; duties open in Duty Finder. Uses the capture run if enabled.");
                 var all = captureAll.Enabled;
-                if (ImGui.Checkbox("Capture all available", ref all)) setCaptureAll(all);
+                if (ImGui.Checkbox(captureAllLabel, ref all)) setCaptureAll(all);
                 if (ImGui.IsItemHovered()) ImGui.SetTooltip("Capture eligible overworld entries in sequence. Retry failures while enabled.\nStops when none remain at your level. /bnav stop cancels the batch.\n" + captureAll.Status);
+                ImGui.SameLine();
+                var levelling = farming.Enabled;
+                if (ImGui.Checkbox(levellingLabel, ref levelling)) setFarming(levelling);
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Levelling (Experimental). Use your configured level range and options.\nStarting Levelling stops Capture all; starting Capture all stops Levelling.\nConfigure it in /bnav config. /bnav stop cancels.\n" + farming.Status);
             }
             finally { ImGui.End(); }
         }

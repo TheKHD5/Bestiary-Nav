@@ -128,6 +128,11 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 completedFates[selectedFate] = now + 120000;
                 StopMovement(); selectedFate = 0; selection = null; area = null; Phase = FarmingPhase.Choosing;
             }
+            // Look at all eligible species before checking whether the area is
+            // outleveled, including on the frame after a level-up.
+            if (selection != null && area != null && client.TerritoryType == area.TerritoryId)
+                foreach (var nearby in actors.Where(n => Eligible(n, player.Level)))
+                    selection = selection.Observe(nearby.Level, player.Level);
             if (selection != null && selection.Complete(player.Level))
             {
                 if (selectedFate != 0) { completedFates[selectedFate] = now + 120000; selectedFate = 0; }
@@ -190,7 +195,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             travel.Start(new(area.TerritoryId, point.Value, 0, 0, "farming patrol", 10, area.TargetFloor,
                 AllowMount: false, AllowFlight: false, ArrivalDistance: 3,
                 SearchBoundary: new(area.MapPoint, area.SearchRadius, area.TargetFloor)), state, now);
-            Status = $"Farming {selection.Area.Name} (Lv. {selection.Minimum}–{selection.Maximum}): patrolling {search.Visited + 1}/{search.Total}…";
+            Status = $"Levelling (Lv. {selection.Minimum}–{selection.Maximum}): patrolling {search.Visited + 1}/{search.Total} for eligible enemies…";
         }
         catch (Exception ex) { log.Error(ex, "Farming stopped after an error."); Stop(ex.Message); }
     }
@@ -199,7 +204,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private bool Notorious(IBattleNpc npc) => notoriousBases.Contains(npc.BaseId) || data.GetExcelSheet<BNpcBase>().GetRowOrDefault(npc.BaseId)?.Rank is 2 or 6;
     private bool Eligible(IBattleNpc npc, byte level) => selection != null && area != null && npc.IsTargetable &&
         !npc.IsDead && npc.CurrentHp > 0 && FarmingPolicy.MayPull(Notorious(npc), FateId(npc), selectedFate, config.Farming) &&
-        (selectedFate != 0 ? FateId(npc) == selectedFate : selection.Area.NameIds.Contains(npc.NameId)) && selection.Eligible(npc.Level, level) &&
+        (selectedFate == 0 || FateId(npc) == selectedFate) && selection.Eligible(npc.Level, level) &&
         CaptureRunPolicy.InArea(npc.Position, area.MapPoint, area.SearchRadius, area.TargetFloor);
 
     private bool ChooseFate(byte level, Vector3 position, long now)
@@ -222,7 +227,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     {
         selection = FarmingPolicy.Select(database.Areas, level, config.Farming, client.TerritoryType, a =>
         {
-            if (a.NameIds.Count == 0 || unavailable.GetValueOrDefault(a) > now) return false;
+            if (unavailable.GetValueOrDefault(a) > now) return false;
             try { var p = plans.Build(a.Location, config.SpawnAreaRadius); return p.TerritoryId == client.TerritoryType || p.AetheryteId != 0; }
             catch { return false; }
         });
@@ -239,7 +244,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     {
         rotation.SetRunning(false); StopMovement(); ownsTravel = true; Phase = FarmingPhase.Traveling;
         travel.Start(area! with { ArrivalDistance = 1, AllowAreaFallback = true }, travelPlayer(), now);
-        Status = $"Traveling to {selection!.Area.Name}, Lv. {selection.Minimum}–{selection.Maximum}: {area!.Name}";
+        Status = $"Traveling to a Lv. {selection!.Minimum}–{selection.Maximum} levelling area: {area!.Name}";
     }
     private void UpdateTravel(TravelPlayer state, long now)
     {
