@@ -1,0 +1,6 @@
+- Select multiple monster groups and zones for Levelling.
+- Retry empty patrols and failed routes without turning Levelling off.
+- Keep patrolling groups that partially overlap your target level range.
+- Start a fresh patrol locally when already inside the spawn circle.
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

@@ -118,17 +118,17 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 if (farming.Enabled) setFarming(false);
                 save();
             }
-            Tip("Offsets always use your current BST level. Setting both to +5 targets exactly five levels above you, including after level-ups. Relocate when the area no longer supports that range. A full patrol with no eligible enemies skips that area for this range until you restart. Changing the range stops the run. Duties are excluded; FATE participation is optional.");
+            Tip("Offsets always use your current BST level. Setting both to +5 targets exactly five levels above you, including after level-ups. Partial overlaps stay eligible. Empty patrols pause for 60 seconds, then retry; route failures retry after two minutes. Other eligible selected groups can be tried during the pause. Changing the range stops the run. Duties are excluded; FATE participation is optional.");
             DrawFarmingGroups();
             var goal = configuration.Farming.TargetLevel;
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputInt("Target BST level (0 = no limit)", ref goal)) { configuration.Farming.TargetLevel = Math.Clamp(goal, 0, 100); save(); }
             Tip("Stops farming as soon as your BST level reaches this value, before selecting another target or destination.");
             var fates = configuration.Farming.ParticipateInFates;
-            ImGui.BeginDisabled(!string.IsNullOrEmpty(configuration.Farming.SelectedGroup));
+            ImGui.BeginDisabled(configuration.Farming.SelectedGroups.Count > 0);
             if (ImGui.Checkbox("Participate in FATEs", ref fates)) { configuration.Farming.ParticipateInFates = fates; save(); }
             ImGui.EndDisabled();
-            Tip("Available with Automatic monster selection. Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. A specific monster group keeps its chosen location and does not detour to FATEs.");
+            Tip("Available with Automatic monster selection. Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. Selected monster groups keep their chosen locations and do not detour to FATEs.");
             var ignore = configuration.Farming.IgnoreNotoriousMonsters;
             if (ImGui.Checkbox("Ignore Notorious Monsters", ref ignore)) { configuration.Farming.IgnoreNotoriousMonsters = ignore; save(); }
             Tip("Skip hunt marks and enemies with boss rank when choosing farming or FATE pulls. Self-defense against an enemy already attacking you still takes priority.");
@@ -328,30 +328,43 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
 
     private void DrawFarmingGroups()
     {
-        ImGui.TextUnformatted("Monster group / area");
-        Tip("Choose Automatic to fight all eligible enemy types and change areas as you level. Choosing a group restricts new pulls to that monster at its listed location; defense still takes priority. The list includes all matching groups in the documented ARR catalog, up to level 49. It is not a complete list of every game enemy. Partial level-range overlaps are shown; only enemies within your min/max are pulled. Changing this choice stops the run. If your chosen group falls outside the range after levelling, choose another group or Automatic.");
+        ImGui.TextUnformatted("Monster groups / areas");
+        Tip("Check multiple groups to allow their monsters and destinations. Automatic fights all eligible types; clearing the last group returns to Automatic. Selected species in the current zone can be fought inside the active patrol circle, within your min/max. Defense still takes priority. The documented ARR catalog has 44 groups up to level 49; partial overlaps qualify. Empty patrols and route failures retry while Levelling remains on. Stop when all selected groups are out of range or inaccessible. Changing selections stops the current run.");
         var groups = farming.GroupChoices();
         ImGui.SetNextItemWidth(-1);
         if (ImGui.BeginCombo("##FarmingGroup", farming.SelectedGroupLabel, ImGuiComboFlags.HeightLarge))
         {
-            if (ImGui.Selectable("Automatic — all eligible enemies", string.IsNullOrEmpty(configuration.Farming.SelectedGroup)))
-                SelectGroup("");
+            if (ImGui.Selectable("Automatic — all eligible enemies", configuration.Farming.SelectedGroups.Count == 0))
+                SelectGroup("", false);
             foreach (var group in groups)
-                if (ImGui.Selectable(group.Label + "###" + group.Key, configuration.Farming.SelectedGroup == group.Key))
-                    SelectGroup(group.Key);
+            {
+                var selected = configuration.Farming.SelectedGroups.Contains(group.Key);
+                if (ImGui.Checkbox(group.Label + "###" + group.Key, ref selected)) SelectGroup(group.Key, selected);
+            }
             if (groups.Count == 0) ImGui.TextDisabled("No documented groups match. Equip BST or adjust the range.");
+            // Keep saved choices removable even after a level-up hides them from the matching list.
+            foreach (var key in configuration.Farming.SelectedGroups.ToArray())
+            {
+                if (System.Linq.Enumerable.Any(groups, g => g.Key == key)) continue;
+                var selected = true;
+                if (ImGui.Checkbox(farming.SavedGroupLabel(key) + " (outside range / unavailable)###" + key, ref selected))
+                    SelectGroup(key, selected);
+            }
             ImGui.EndCombo();
         }
-        if (!string.IsNullOrEmpty(configuration.Farming.SelectedGroup) &&
-            !System.Linq.Enumerable.Any(groups, g => g.Key == configuration.Farming.SelectedGroup))
-            ImGui.TextWrapped("Selected group is outside the current range or unavailable. Choose another group or Automatic.");
+        if (configuration.Farming.SelectedGroups.Count > 0 &&
+            !System.Linq.Enumerable.Any(groups, g => configuration.Farming.SelectedGroups.Contains(g.Key)))
+            ImGui.TextWrapped("No selected group overlaps the current range. Select more groups or Automatic.");
     }
 
-    private void SelectGroup(string key)
+    private void SelectGroup(string key, bool selected)
     {
-        if (configuration.Farming.SelectedGroup == key) return;
+        if (key.Length == 0 && configuration.Farming.SelectedGroups.Count == 0) return;
         if (farming.Enabled) setFarming(false);
-        configuration.Farming.SelectedGroup = key;
+        if (key.Length == 0) configuration.Farming.SelectedGroups.Clear();
+        else if (selected && !configuration.Farming.SelectedGroups.Contains(key)) configuration.Farming.SelectedGroups.Add(key);
+        else if (!selected) configuration.Farming.SelectedGroups.Remove(key);
+        configuration.Farming.SelectedGroup = "";
         save();
     }
 

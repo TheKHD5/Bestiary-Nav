@@ -476,7 +476,8 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Capture run: enabled={configuration.CaptureRun}; phase={captureRun.Phase}; {captureRun.Status}");
         report.AppendLine($"Farming: enabled={farming.Enabled}; phase={farming.Phase}; {farming.Status}");
         report.AppendLine($"Levelling target range: {farming.TargetRange}");
-        report.AppendLine($"Levelling group: {farming.SelectedGroupLabel}");
+        report.AppendLine($"Levelling groups: {farming.SelectedGroupDetails}");
+        report.AppendLine($"Levelling search: {farming.LastSearchResult}");
         report.AppendLine($"Levelling companion: objectId={farming.CompanionId}");
         report.AppendLine($"Farming supplies: {farming.SuppliesStatus}");
         report.AppendLine($"Levelling last stop: {farming.LastStopReason}");

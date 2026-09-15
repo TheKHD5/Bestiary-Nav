@@ -9,7 +9,8 @@ public sealed class FarmingOptions
 {
     public int MinimumAbove { get; set; } = 1;
     public int MaximumAbove { get; set; } = 5;
-    public string SelectedGroup { get; set; } = ""; // Empty = automatic destination and all eligible species.
+    public string SelectedGroup { get; set; } = ""; // Legacy single choice; migrated by Normalize.
+    public List<string> SelectedGroups { get; set; } = []; // Empty = Automatic.
     public bool SummonChocobo { get; set; }
     public bool UseFood { get; set; }
     public uint FoodId { get; set; } // Includes HQ offset, so the selected quality is preserved.
@@ -21,7 +22,10 @@ public sealed class FarmingOptions
     {
         MinimumAbove = Math.Clamp(MinimumAbove, 1, 10);
         MaximumAbove = Math.Clamp(MaximumAbove, MinimumAbove, 10);
-        SelectedGroup ??= "";
+        SelectedGroups ??= [];
+        if (SelectedGroups.Count == 0 && !string.IsNullOrWhiteSpace(SelectedGroup)) SelectedGroups.Add(SelectedGroup);
+        SelectedGroups = SelectedGroups.Where(k => !string.IsNullOrWhiteSpace(k)).Distinct(StringComparer.Ordinal).ToList();
+        SelectedGroup = "";
         TargetLevel = Math.Clamp(TargetLevel, 0, 100);
     }
 }
@@ -63,9 +67,11 @@ internal static class FarmingPolicy
     public static IEnumerable<FarmingArea> Choices(IEnumerable<FarmingArea> areas, int level, FarmingOptions options) =>
         areas.Where(a => InRange(a, level, options)).OrderBy(a => a.MinimumLevel).ThenBy(a => a.Location.Area).ThenBy(a => a.Name);
     public static bool MatchesGroup(FarmingArea area, FarmingOptions options) =>
-        string.IsNullOrEmpty(options.SelectedGroup) || area.Key == options.SelectedGroup;
-    public static bool MatchesEnemy(FarmingArea area, FarmingOptions options, string? englishName) =>
-        string.IsNullOrEmpty(options.SelectedGroup) || string.Equals(area.Name, englishName, StringComparison.OrdinalIgnoreCase);
+        options.SelectedGroups.Count == 0 || options.SelectedGroups.Contains(area.Key);
+    public static bool MatchesEnemy(FarmingArea area, FarmingOptions options, string? englishName, IEnumerable<FarmingArea> groups) =>
+        options.SelectedGroups.Count == 0 || groups.Any(g => options.SelectedGroups.Contains(g.Key) &&
+            g.Location.TerritoryTypeId == area.Location.TerritoryTypeId &&
+            string.Equals(g.Name, englishName, StringComparison.OrdinalIgnoreCase));
     public static bool ReachedGoal(int level, FarmingOptions options) => options.TargetLevel > 0 && level >= options.TargetLevel;
     public static bool MayPull(bool notorious, uint fateId, uint selectedFate, FarmingOptions options) =>
         (!notorious || !options.IgnoreNotoriousMonsters) && (fateId == 0 || (options.ParticipateInFates && fateId == selectedFate));
@@ -79,12 +85,14 @@ internal static class FarmingPolicy
         .ThenByDescending(a => a.DepartureLevel).ThenBy(a => a.Area.MinimumLevel).FirstOrDefault();
 }
 
-// An empty completed sweep is evidence about this area at this level band,
-// not a reason to repeatedly select the same area every retry interval.
+// Empty sweeps may mean respawns or temporarily unavailable targets. Cool down
+// this range briefly so another selected group can be tried, then patrol again.
 internal sealed class FarmingEmptyAreas
 {
-    private readonly HashSet<(FarmingArea Area, int Minimum, int Maximum)> entries = [];
+    public const long RetryDelay = 60000;
+    private readonly Dictionary<(FarmingArea Area, int Minimum, int Maximum), long> entries = [];
     public void Clear() => entries.Clear();
-    public void Reject(FarmingSelection selection) => entries.Add((selection.Area, selection.Minimum, selection.Maximum));
-    public bool Contains(FarmingArea area, int level, FarmingOptions options) => entries.Contains((area, level + options.MinimumAbove, level + options.MaximumAbove));
+    public void Reject(FarmingSelection selection, long now) => entries[(selection.Area, selection.Minimum, selection.Maximum)] = now + RetryDelay;
+    public long RetryAt(FarmingArea area, int level, FarmingOptions options) => entries.GetValueOrDefault((area, level + options.MinimumAbove, level + options.MaximumAbove));
+    public bool Contains(FarmingArea area, int level, FarmingOptions options, long now) => RetryAt(area, level, options) > now;
 }

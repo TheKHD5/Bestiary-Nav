@@ -36,8 +36,16 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     public IReadOnlyList<FarmingFood> FoodChoices() => supplies.FoodChoices();
     public IReadOnlyList<FarmingArea> GroupChoices() => FarmingPolicy.Choices(database.Areas,
         objects.LocalPlayer?.ClassJob.RowId == bst ? objects.LocalPlayer.Level : 0, config.Farming).ToArray();
-    public string SelectedGroupLabel => string.IsNullOrEmpty(config.Farming.SelectedGroup) ? "Automatic — all eligible enemies" :
-        database.Areas.FirstOrDefault(a => a.Key == config.Farming.SelectedGroup)?.Label ?? "Saved group unavailable — choose another";
+    public string SelectedGroupLabel => config.Farming.SelectedGroups.Count switch
+    {
+        0 => "Automatic — all eligible enemies",
+        1 => SavedGroupLabel(config.Farming.SelectedGroups[0]),
+        _ => $"{config.Farming.SelectedGroups.Count} groups selected",
+    };
+    public string SelectedGroupDetails => config.Farming.SelectedGroups.Count == 0 ? SelectedGroupLabel :
+        string.Join("; ", config.Farming.SelectedGroups.Select(SavedGroupLabel));
+    public string SavedGroupLabel(string key) => database.Areas.FirstOrDefault(a => a.Key == key)?.Label ?? "Saved group unavailable";
+    public string LastSearchResult { get; private set; } = "No completed patrol yet.";
     private readonly Dictionary<uint, string> enemyNames = BuildEnemyNames(data, database);
     private static Dictionary<uint, string> BuildEnemyNames(IDataManager data, FarmingDatabase database)
     {
@@ -78,17 +86,18 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (!recovering && conditions[ConditionFlag.InCombat])
                 throw new InvalidOperationException("Leave combat before starting Levelling.");
             if (!recovering && !uiAvailable()) throw new InvalidOperationException("Show the game UI before starting Levelling.");
-            if (!recovering && !string.IsNullOrEmpty(config.Farming.SelectedGroup))
+            if (!recovering && config.Farming.SelectedGroups.Count > 0)
             {
-                var group = database.Areas.FirstOrDefault(a => a.Key == config.Farming.SelectedGroup);
-                if (group == null || !FarmingPolicy.InRange(group, p.Level, config.Farming))
-                    throw new InvalidOperationException("The selected monster group is outside the current level range or unavailable. Choose another group or Automatic.");
-                if (!enemyNames.Values.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("The selected monster's game identity could not be verified. Choose another group or Automatic.");
+                var groups = database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming) && FarmingPolicy.InRange(a, p.Level, config.Farming)).ToArray();
+                if (groups.Length == 0)
+                    throw new InvalidOperationException("No selected monster group overlaps the current level range. Select more groups or Automatic.");
+                if (!groups.Any(g => enemyNames.Values.Contains(g.Name, StringComparer.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException("The selected monsters' game identities could not be verified. Choose other groups or Automatic.");
             }
             LastRecovery = "No combat recovery needed.";
             if (!recovering && FarmingPolicy.ReachedGoal(p.Level, config.Farming)) { Stop("Target BST level already reached."); return; }
             unavailable.Clear(); emptyRanges.Clear(); selection = null; area = null;
+            LastSearchResult = "No completed patrol yet.";
             selectedFate = 0; completedFates.Clear();
             nextScan = nextVerify = nextAction = waitUntil = 0;
             lastUpdate = Environment.TickCount64;
@@ -294,12 +303,12 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private bool Eligible(IBattleNpc npc, byte level) => selection != null && area != null && npc.IsTargetable &&
         !npc.IsDead && npc.CurrentHp > 0 && FarmingPolicy.MayPull(Notorious(npc), FateId(npc), selectedFate, config.Farming) &&
         (selectedFate == 0 || FateId(npc) == selectedFate) && selection.Eligible(npc.Level, level) &&
-        FarmingPolicy.MatchesEnemy(selection.Area, config.Farming, enemyNames.GetValueOrDefault(npc.NameId)) &&
+        FarmingPolicy.MatchesEnemy(selection.Area, config.Farming, enemyNames.GetValueOrDefault(npc.NameId), database.Areas) &&
         CaptureRunPolicy.InArea(npc.Position, area.MapPoint, area.SearchRadius, area.TargetFloor);
 
     private bool ChooseFate(byte level, Vector3 position, long now)
     {
-        if (!config.Farming.ParticipateInFates || !string.IsNullOrEmpty(config.Farming.SelectedGroup) || conditions[ConditionFlag.InCombat]) return false;
+        if (!config.Farming.ParticipateInFates || config.Farming.SelectedGroups.Count > 0 || conditions[ConditionFlag.InCombat]) return false;
         var fate = fates.Where(f => f.State == FateState.Running && f.TimeRemaining > 60 &&
                 (f.IconId == 60721 || (f.IconId == 60722 && !config.Farming.IgnoreNotoriousMonsters)) &&
                 f.Level >= level + config.Farming.MinimumAbove && f.Level <= level + config.Farming.MaximumAbove &&
@@ -317,17 +326,25 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     {
         selection = FarmingPolicy.Select(database.Areas, level, config.Farming, client.TerritoryType, a =>
         {
-            if (unavailable.GetValueOrDefault(a) > now || emptyRanges.Contains(a, level, config.Farming)) return false;
+            if (unavailable.GetValueOrDefault(a) > now || emptyRanges.Contains(a, level, config.Farming, now)) return false;
+            if (config.Farming.SelectedGroups.Count > 0 && !enemyNames.Values.Contains(a.Name, StringComparer.OrdinalIgnoreCase)) return false;
             try { var p = plans.Build(a.Location, config.SpawnAreaRadius); return p.TerritoryId == client.TerritoryType || p.AetheryteId != 0; }
             catch { return false; }
         });
         if (selection == null)
         {
-            if (unavailable.Any(p => p.Value > now && FarmingPolicy.MatchesGroup(p.Key, config.Farming) && FarmingPolicy.InRange(p.Key, level, config.Farming)))
-            { waitUntil = now + 10000; Status = "Waiting to retry farming areas…"; return; }
-            if (!string.IsNullOrEmpty(config.Farming.SelectedGroup))
-            { Stop("The selected group has no reachable matching targets for the current range. Choose another group or Automatic."); return; }
-            Stop($"No suitable reachable area remains for Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Empty patrols are skipped for this range; adjust it or restart to retry."); return;
+            var retry = database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming) && FarmingPolicy.InRange(a, level, config.Farming))
+                .Select(a => Math.Max(unavailable.GetValueOrDefault(a), emptyRanges.RetryAt(a, level, config.Farming)))
+                .Where(t => t > now).DefaultIfEmpty(0).Min();
+            if (retry > now)
+            {
+                waitUntil = Math.Min(retry, now + 1000);
+                Status = $"Levelling remains on: retrying eligible groups in {(retry - now + 999) / 1000}s. {LastSearchResult}";
+                return;
+            }
+            if (config.Farming.SelectedGroups.Count > 0)
+            { Stop("No selected group supports the current range with a verified identity and accessible destination. Select more groups or Automatic."); return; }
+            Stop($"No documented accessible area supports Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Adjust the range."); return;
         }
         area = plans.Build(selection.Area.Location, config.SpawnAreaRadius);
         BeginTravel(now);
@@ -335,7 +352,17 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
 
     private void BeginTravel(long now)
     {
-        rotation.SetRunning(false); StopMovement(); ownsTravel = true; Phase = FarmingPhase.Traveling;
+        rotation.SetRunning(false); StopMovement();
+        // A fresh sweep can start where we are. Do not route back to a possibly
+        // unmapped center when we are already inside the correct spawn circle.
+        if (objects.LocalPlayer is { } player && client.TerritoryType == area!.TerritoryId &&
+            CaptureRunPolicy.InArea(player.Position, area.MapPoint, area.SearchRadius, area.TargetFloor))
+        {
+            Phase = FarmingPhase.Preparing;
+            Status = "Inside the spawn area; preparing a new patrol…";
+            return;
+        }
+        ownsTravel = true; Phase = FarmingPhase.Traveling;
         travel.Start(area! with { ArrivalDistance = 1, AllowAreaFallback = true }, travelPlayer(), now);
         Status = $"Traveling to a Lv. {selection!.Minimum}–{selection.Maximum} levelling area: {area!.Name}";
     }
@@ -349,24 +376,26 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     }
     private void FailArea(long now, string reason)
     {
+        LastSearchResult = $"{area?.Name}: {reason}";
         EndTarget();
         if (selectedFate != 0) { completedFates[selectedFate] = now + 120000; selectedFate = 0; }
         if (selection != null) unavailable[selection.Area] = now + 120000;
         selection = null; area = null; Phase = FarmingPhase.Choosing; waitUntil = now + 3000;
-        Status = reason + " Trying another farming area…";
+        Status = reason + " Trying another eligible group, or retrying this route in two minutes…";
     }
     private void RejectEmptyRange(long now, string reason)
     {
+        LastSearchResult = $"{area?.Name}: {reason}";
         if (selection != null && selectedFate == 0)
         {
-            emptyRanges.Reject(selection);
+            emptyRanges.Reject(selection, now);
             unavailable.Remove(selection.Area);
         }
         EndTarget();
         if (selectedFate != 0) completedFates[selectedFate] = now + 120000;
         selectedFate = 0; selection = null; area = null;
         Phase = FarmingPhase.Choosing; waitUntil = now + 3000;
-        Status = reason + " Choosing another area for the requested range…";
+        Status = reason + " Trying another eligible group, or restarting this patrol in 60s…";
     }
     private void Pick(IBattleNpc npc, bool defense, long now)
     {
