@@ -3,7 +3,7 @@
     "Author": "TheKHD5",
     "Name": "Bestiary Nav",
     "InternalName": "BestiaryNav",
-    "AssemblyVersion": "0.6.12.0",
+    "AssemblyVersion": "0.6.13.0",
     "Description": "Click a Bestiary entry to find its capture location or duty. Highlight nearby uncaptured beasts and optionally travel to them with Lifestream and vnavmesh. /bnav opens the Bestiary; /bnav config opens settings.",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/TheKHD5/Bestiary-Nav",
@@ -26,10 +26,10 @@
     ],
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.12/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.12/latest.zip",
-    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.12/latest.zip",
-    "LastUpdate": 1789452483,
-    "Changelog": "- Fight all eligible species near the selected Levelling patrol group.\n- Choose Target/Ignore for individual species in each zone.\n- Search known zone enemies, with Target all and Ignore all controls.\n- Remember species choices and discover additional nearby enemies.\n- Record custom patrol checkpoints and loop saved Levelling routes.\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
+    "DownloadLinkInstall": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.13/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.13/latest.zip",
+    "DownloadLinkTesting": "https://github.com/TheKHD5/Bestiary-Nav/releases/download/v0.6.13/latest.zip",
+    "LastUpdate": 1789454792,
+    "Changelog": "- Group Levelling patrol locations and monsters together by zone.\n- Show every known species matching your level range within its category.\n- Target or ignore species directly inside the grouped selector.\nFull details on GitHub repo:\nhttps://github.com/TheKHD5/Bestiary-Nav"
   }
 ]

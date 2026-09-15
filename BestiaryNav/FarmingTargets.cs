@@ -37,6 +37,15 @@ internal sealed record FarmingTargetSpecies
 
 internal sealed record FarmingTargetZone(uint TerritoryId, uint PlaceNameId, string Name);
 
+internal static class FarmingSpeciesChoices
+{
+    // Catalog ranges describe possible zone levels. Actual spawned levels and
+    // combat filters still govern pulls; unknown levels remain in the full editor.
+    public static IReadOnlyList<FarmingTargetSpecies> InRange(IEnumerable<FarmingTargetSpecies> species, int level, FarmingOptions options) =>
+        level <= 0 ? [] : species.Where(s => s.MinimumLevel > 0 && s.MaximumLevel >= level + options.MinimumAbove &&
+            s.MinimumLevel <= level + options.MaximumAbove).OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase).ThenBy(s => s.NameId).ToArray();
+}
+
 // Location records populate the list before travelling. Live sightings extend
 // it without requiring a Bestiary entry or changing any saved targeting choice.
 internal sealed class FarmingTargetCatalog

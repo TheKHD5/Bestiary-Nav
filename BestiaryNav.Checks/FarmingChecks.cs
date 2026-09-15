@@ -62,6 +62,18 @@ internal static class FarmingChecks
         options.AreaTargets[145] = new();
         options.AreaTargets[145].Set(knight.NameId, false);
         check(options.AllowsTarget(145, fleece.NameId) && !options.AllowsTarget(145, knight.NameId), "reported mixed-species case can explicitly ignore only Mirrorknight");
+        var highlands = bundled.Species.Where(s => s.PlaceNameId == 63).ToArray();
+        var band = new FarmingOptions { MinimumAbove = 1, MaximumAbove = 1 };
+        var matching = FarmingSpeciesChoices.InRange(highlands, 38, band);
+        check(new[] { "Snowstorm Goobbue", "Bateleur", "Ice Sprite" }.All(name => matching.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase))),
+            "Coerthas category includes Goobbue, Bateleur and Ice Sprite together for a level-39 target band");
+        check(matching.All(s => s.MinimumLevel <= 39 && s.MaximumLevel >= 39), "category species list excludes nonoverlapping level ranges");
+        check(FarmingSpeciesChoices.InRange(highlands, 0, band).Count == 0, "no BST level does not invent matching species");
+        check(!FarmingSpeciesChoices.InRange(highlands, 40, band).Any(s => s.Name.Equals("Snowstorm Goobbue", StringComparison.OrdinalIgnoreCase)) &&
+            FarmingSpeciesChoices.InRange(highlands, 40, band).Any(s => s.Name.Equals("Ice Sprite", StringComparison.OrdinalIgnoreCase)),
+            "category species recalculate on level-up independently of the old named anchor");
+        check(FarmingSpeciesChoices.InRange([new() { NameId = 9, Name = "Unknown" }], 38, band).Count == 0,
+            "unknown levels stay in the full editor rather than claiming eligibility");
     }
 
     public static void Run(Action<bool, string> check)
@@ -146,6 +158,15 @@ internal static class FarmingChecks
         var groupA = new FarmingArea { Name = "Mob A", MinimumLevel = 34, MaximumLevel = 38, Location = new() { Area = "Zone A", TerritoryTypeId = 1, X = 10, Y = 20 } };
         var groupB = new FarmingArea { Name = "Mob A", MinimumLevel = 39, MaximumLevel = 40, Location = new() { Area = "Zone B", TerritoryTypeId = 2, X = 10, Y = 20 } };
         check(groupA.Key != groupB.Key, "same monster name in different zones has a distinct saved choice");
+        var secondAnchor = new FarmingArea { Name = "Other anchor", MinimumLevel = 35, MaximumLevel = 39,
+            Location = new() { Area = "Zone A", TerritoryTypeId = 1, X = 12, Y = 21 } };
+        var categories = FarmingPolicy.Categories([groupA, groupB, secondAnchor]);
+        check(categories.Count == 2 && categories.Single(c => c.TerritoryId == 1).Areas.Count == 2,
+            "multiple named anchors in a zone appear under one category");
+        check(categories.Single(c => c.TerritoryId == 1).Areas.Contains(groupA) && groupA.Key.StartsWith("Mob A|"),
+            "grouped UI retains original objects and saved selection keys");
+        check(groupA.AreaLabel.Contains("Zone A") && !groupA.AreaLabel.Contains("Mob A"),
+            "selected location summary identifies the area instead of a single monster");
         check(FarmingPolicy.Choices([groupA, groupB], 30, specific).Count() == 2, "dropdown includes every matching documented group");
         specific.SelectedGroups = [groupB.Key];
         check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, _ => true)?.Area == groupB, "manual group overrides current-zone preference");

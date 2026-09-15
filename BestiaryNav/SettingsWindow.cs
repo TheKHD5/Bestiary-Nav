@@ -338,18 +338,36 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
 
     private void DrawFarmingGroups()
     {
-        ImGui.TextUnformatted("Monster groups / areas");
-        Tip("Check multiple groups to choose patrol destinations. This does not restrict enemy species: use Targets in this area below to choose what to fight. Automatic chooses destinations from all eligible groups; clearing the last group returns to Automatic. The documented ARR catalog has 44 groups up to level 49; partial overlaps qualify. Empty patrols and route failures retry while Levelling remains on. Changing selections stops the current run.");
+        ImGui.TextUnformatted("Patrol areas / monsters");
+        Tip("Expand a zone to choose patrol locations and target species together. Location checkboxes choose where to travel; species checkboxes choose what to fight. The species list shows known zone enemies whose level ranges overlap yours; actual levels, patrol bounds and FATE/NM rules still govern pulls. Species may spawn elsewhere in the zone or only during events. Changing choices stops Levelling.");
         var groups = farming.GroupChoices();
         ImGui.SetNextItemWidth(-1);
         if (ImGui.BeginCombo("##FarmingGroup", farming.SelectedGroupLabel, ImGuiComboFlags.HeightLarge))
         {
             if (ImGui.Selectable("Automatic — choose patrol areas", configuration.Farming.SelectedGroups.Count == 0))
                 SelectGroup("", false);
-            foreach (var group in groups)
+            foreach (var category in FarmingPolicy.Categories(groups))
             {
-                var selected = configuration.Farming.SelectedGroups.Contains(group.Key);
-                if (ImGui.Checkbox(group.Label + "###" + group.Key, ref selected)) SelectGroup(group.Key, selected);
+                var active = category.Areas.Any(a => configuration.Farming.SelectedGroups.Contains(a.Key));
+                ImGui.SetNextItemOpen(active, ImGuiCond.Appearing);
+                if (!ImGui.TreeNode(category.Name + "###PatrolZone" + category.TerritoryId)) continue;
+                ImGui.TextDisabled("Patrol locations");
+                foreach (var group in category.Areas)
+                {
+                    var selected = configuration.Farming.SelectedGroups.Contains(group.Key);
+                    if (ImGui.Checkbox(group.PatrolLabel + "###" + group.Key, ref selected)) SelectGroup(group.Key, selected);
+                    if (ImGui.IsItemHovered()) ImGui.SetTooltip($"Catalog anchor: {group.Name}. Every allowed species in range can be targeted around this point.");
+                }
+                var species = farming.EligibleGroupSpecies(category.TerritoryId);
+                ImGui.TextDisabled($"Monsters matching your level range ({species.Count}, zone-wide)");
+                foreach (var mob in species)
+                {
+                    var target = configuration.Farming.AllowsTarget(category.TerritoryId, mob.NameId);
+                    if (ImGui.Checkbox($"{mob.Name} · {mob.Levels}###GroupSpecies{category.TerritoryId}/{mob.NameId}", ref target))
+                        EditFarmingTargets(category.TerritoryId, f => f.Set(mob.NameId, target));
+                }
+                if (species.Count == 0) ImGui.TextDisabled("No known species match. The full species editor remains below.");
+                ImGui.TreePop();
             }
             if (groups.Count == 0) ImGui.TextDisabled("No documented groups match. Equip BST or adjust the range.");
             // Keep saved choices removable even after a level-up hides them from the matching list.

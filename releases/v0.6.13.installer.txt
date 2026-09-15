@@ -1,0 +1,5 @@
+- Group Levelling patrol locations and monsters together by zone.
+- Show every known species matching your level range within its category.
+- Target or ignore species directly inside the grouped selector.
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

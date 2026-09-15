@@ -63,7 +63,11 @@ internal sealed class FarmingArea
     public string Source { get; set; } = "";
     public string Key => string.Create(CultureInfo.InvariantCulture, $"{Name}|{Location.Area}|{Location.X:R}|{Location.Y:R}");
     public string Label => $"{Name} · Lv. {MinimumLevel}–{MaximumLevel} · {Location.Area} (X:{Location.X:0.0}, Y:{Location.Y:0.0})";
+    public string PatrolLabel => $"Patrol (X:{Location.X:0.0}, Y:{Location.Y:0.0}) · Lv. {MinimumLevel}–{MaximumLevel}";
+    public string AreaLabel => $"{Location.Area} (X:{Location.X:0.0}, Y:{Location.Y:0.0})";
 }
+
+internal sealed record FarmingGroupCategory(uint TerritoryId, string Name, IReadOnlyList<FarmingArea> Areas);
 
 internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maximum, int DepartureLevel = 0)
 {
@@ -79,6 +83,11 @@ internal sealed record FarmingSelection(FarmingArea Area, int Minimum, int Maxim
 
 internal static class FarmingPolicy
 {
+    public static IReadOnlyList<FarmingGroupCategory> Categories(IEnumerable<FarmingArea> areas) => areas
+        .GroupBy(a => (a.Location.TerritoryTypeId, a.Location.Area))
+        .Select(g => new FarmingGroupCategory(g.Key.TerritoryTypeId, g.Key.Area,
+            g.OrderBy(a => a.MinimumLevel).ThenBy(a => a.Location.X).ThenBy(a => a.Location.Y).ToArray()))
+        .OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ThenBy(g => g.TerritoryId).ToArray();
     public static bool InRange(FarmingArea area, int level, FarmingOptions options) =>
         level > 0 && area.MinimumLevel > 0 && area.MaximumLevel >= area.MinimumLevel && area.MaximumLevel <= 100 &&
         area.MinimumLevel <= level + options.MaximumAbove && area.MaximumLevel >= level + options.MinimumAbove;

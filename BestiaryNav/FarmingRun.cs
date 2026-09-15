@@ -36,15 +36,17 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     public IReadOnlyList<FarmingFood> FoodChoices() => supplies.FoodChoices();
     public IReadOnlyList<FarmingArea> GroupChoices() => FarmingPolicy.Choices(database.Areas,
         objects.LocalPlayer?.ClassJob.RowId == bst ? objects.LocalPlayer.Level : 0, config.Farming).ToArray();
+    public IReadOnlyList<FarmingTargetSpecies> EligibleGroupSpecies(uint territory) => FarmingSpeciesChoices.InRange(TargetChoices(territory),
+        objects.LocalPlayer?.ClassJob.RowId == bst ? objects.LocalPlayer.Level : 0, config.Farming);
     public string SelectedGroupLabel => config.Farming.SelectedGroups.Count switch
     {
         0 => "Automatic — choose patrol areas",
         1 => SavedGroupLabel(config.Farming.SelectedGroups[0]),
-        _ => $"{config.Farming.SelectedGroups.Count} groups selected",
+        _ => $"{config.Farming.SelectedGroups.Count} patrol locations selected",
     };
     public string SelectedGroupDetails => config.Farming.SelectedGroups.Count == 0 ? SelectedGroupLabel :
         string.Join("; ", config.Farming.SelectedGroups.Select(SavedGroupLabel));
-    public string SavedGroupLabel(string key) => database.Areas.FirstOrDefault(a => a.Key == key)?.Label ?? "Saved group unavailable";
+    public string SavedGroupLabel(string key) => database.Areas.FirstOrDefault(a => a.Key == key)?.AreaLabel ?? "Saved group unavailable";
     public string LastSearchResult { get; private set; } = "No completed patrol yet.";
     private FarmingPatrol? activePatrol;
     private readonly FarmingPatrolCursor patrolCursor = new();
