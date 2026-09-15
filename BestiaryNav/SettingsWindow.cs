@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
@@ -12,6 +13,10 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
     CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
+    private uint farmingTargetTerritory;
+    private string farmingSpeciesSearch = "";
+    private string patrolName = "";
+    private string patrolEditStatus = "";
     public override void Draw()
     {
         using var spacing = new UiContentSpacingScope(configuration.Appearance);
@@ -119,16 +124,20 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 save();
             }
             Tip("Offsets always use your current BST level. Setting both to +5 targets exactly five levels above you, including after level-ups. Partial overlaps stay eligible. Empty patrols pause for 60 seconds, then retry; route failures retry after two minutes. Other eligible selected groups can be tried during the pause. Changing the range stops the run. Duties are excluded; FATE participation is optional.");
+            ImGui.BeginDisabled(configuration.Farming.SelectedPatrol.Length > 0);
             DrawFarmingGroups();
+            ImGui.EndDisabled();
+            DrawFarmingTargets();
+            DrawFarmingPatrols();
             var goal = configuration.Farming.TargetLevel;
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputInt("Target BST level (0 = no limit)", ref goal)) { configuration.Farming.TargetLevel = Math.Clamp(goal, 0, 100); save(); }
             Tip("Stops farming as soon as your BST level reaches this value, before selecting another target or destination.");
             var fates = configuration.Farming.ParticipateInFates;
-            ImGui.BeginDisabled(configuration.Farming.SelectedGroups.Count > 0);
+            ImGui.BeginDisabled(configuration.Farming.SelectedGroups.Count > 0 || configuration.Farming.SelectedPatrol.Length > 0);
             if (ImGui.Checkbox("Participate in FATEs", ref fates)) { configuration.Farming.ParticipateInFates = fates; save(); }
             ImGui.EndDisabled();
-            Tip("Available with Automatic monster selection. Detour to active combat FATEs in the current territory within the configured level range, fight their enemies, then resume area selection. Selected monster groups keep their chosen locations and do not detour to FATEs.");
+            Tip("Available with Automatic monster selection and catalog patrols. Custom routines and selected groups keep their chosen locations and do not detour to FATEs.");
             var ignore = configuration.Farming.IgnoreNotoriousMonsters;
             if (ImGui.Checkbox("Ignore Notorious Monsters", ref ignore)) { configuration.Farming.IgnoreNotoriousMonsters = ignore; save(); }
             Tip("Skip hunt marks and enemies with boss rank when choosing farming or FATE pulls. Self-defense against an enemy already attacking you still takes priority.");
@@ -155,6 +164,7 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
             ImGui.Separator();
             ImGui.TextWrapped(farming.Status);
             ImGui.TextWrapped(farming.TargetRange);
+            if (configuration.Farming.SelectedPatrol.Length > 0) ImGui.TextWrapped(farming.PatrolStatus);
             ImGui.TextWrapped(farming.SuppliesStatus);
             if (farming.Enabled && ImGui.Button("Stop farming")) setFarming(false);
             ImGui.EndTabItem();
@@ -329,12 +339,12 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
     private void DrawFarmingGroups()
     {
         ImGui.TextUnformatted("Monster groups / areas");
-        Tip("Check multiple groups to allow their monsters and destinations. Automatic fights all eligible types; clearing the last group returns to Automatic. Selected species in the current zone can be fought inside the active patrol circle, within your min/max. Defense still takes priority. The documented ARR catalog has 44 groups up to level 49; partial overlaps qualify. Empty patrols and route failures retry while Levelling remains on. Stop when all selected groups are out of range or inaccessible. Changing selections stops the current run.");
+        Tip("Check multiple groups to choose patrol destinations. This does not restrict enemy species: use Targets in this area below to choose what to fight. Automatic chooses destinations from all eligible groups; clearing the last group returns to Automatic. The documented ARR catalog has 44 groups up to level 49; partial overlaps qualify. Empty patrols and route failures retry while Levelling remains on. Changing selections stops the current run.");
         var groups = farming.GroupChoices();
         ImGui.SetNextItemWidth(-1);
         if (ImGui.BeginCombo("##FarmingGroup", farming.SelectedGroupLabel, ImGuiComboFlags.HeightLarge))
         {
-            if (ImGui.Selectable("Automatic — all eligible enemies", configuration.Farming.SelectedGroups.Count == 0))
+            if (ImGui.Selectable("Automatic — choose patrol areas", configuration.Farming.SelectedGroups.Count == 0))
                 SelectGroup("", false);
             foreach (var group in groups)
             {
@@ -365,6 +375,130 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
         else if (selected && !configuration.Farming.SelectedGroups.Contains(key)) configuration.Farming.SelectedGroups.Add(key);
         else if (!selected) configuration.Farming.SelectedGroups.Remove(key);
         configuration.Farming.SelectedGroup = "";
+        save();
+    }
+
+    private void DrawFarmingPatrols()
+    {
+        if (!ImGui.TreeNode("Custom patrol routines")) return;
+        Tip("Create a routine, walk to each location and Register checkpoint. All checkpoints must be in one overworld zone. Selected routines replace the group patrol, loop in order, and use ground paths with recorded height. At each checkpoint, fight eligible enemies within the search radius, then continue. Level range, Target/Ignore choices, healing and target-level stop still apply. FATE detours are disabled. Editing stops Levelling; enable it after recording. /bnav stop cancels.");
+        var options = configuration.Farming;
+        var selected = options.Patrols.FirstOrDefault(p => p.Id == options.SelectedPatrol);
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.BeginCombo("##PatrolRoutine", selected?.Name ?? (options.SelectedPatrol.Length == 0 ? "Use catalog patrols" : "Saved routine unavailable")))
+        {
+            if (ImGui.Selectable("Use catalog patrols", options.SelectedPatrol.Length == 0))
+            { StopForPatrolEdit(); options.SelectedPatrol = ""; save(); }
+            foreach (var routine in options.Patrols)
+                if (ImGui.Selectable(routine.Name + "##" + routine.Id, options.SelectedPatrol == routine.Id))
+                { StopForPatrolEdit(); options.SelectedPatrol = routine.Id; save(); }
+            ImGui.EndCombo();
+        }
+        ImGui.InputTextWithHint("##NewPatrolName", "Routine name…", ref patrolName, 80);
+        if (ImGui.Button("Create patrol routine"))
+        {
+            StopForPatrolEdit();
+            var routine = new FarmingPatrol { Name = string.IsNullOrWhiteSpace(patrolName) ? $"Patrol {options.Patrols.Count + 1}" : patrolName.Trim() };
+            options.Patrols.Add(routine); options.SelectedPatrol = routine.Id; patrolName = "";
+            patrolEditStatus = "Walk to your first location and register a checkpoint."; save();
+        }
+        selected = options.Patrols.FirstOrDefault(p => p.Id == options.SelectedPatrol);
+        if (selected != null)
+        {
+            var name = selected.Name;
+            if (ImGui.InputText("Routine name", ref name, 80)) { StopForPatrolEdit(); selected.Name = name; save(); }
+            var radius = selected.SearchRadius;
+            if (ImGui.SliderFloat("Checkpoint search radius", ref radius, 10, 100, "%.0f yalms"))
+            { StopForPatrolEdit(); selected.SearchRadius = radius; save(); }
+            if (ImGui.Button("Register checkpoint"))
+            { StopForPatrolEdit(); patrolEditStatus = farming.RegisterCheckpoint(selected); save(); }
+            ImGui.SameLine();
+            if (ImGui.Button("Delete routine"))
+            { StopForPatrolEdit(); options.Patrols.Remove(selected); options.SelectedPatrol = ""; patrolEditStatus = "Routine deleted."; save(); ImGui.TreePop(); return; }
+            var zone = farming.TargetZones().FirstOrDefault(z => z.TerritoryId == selected.TerritoryId)?.Name ?? "Zone assigned at first checkpoint";
+            ImGui.TextWrapped($"{zone} · {selected.Checkpoints.Count} checkpoints · loops in order");
+            if (ImGui.BeginChild("##PatrolCheckpoints", new Vector2(0, 180 * ImGuiHelpers.GlobalScale)))
+            {
+                for (var i = 0; i < selected.Checkpoints.Count; i++)
+                {
+                    var point = selected.Checkpoints[i];
+                    ImGui.PushID(i);
+                    ImGui.TextUnformatted($"{i + 1}. X:{point.MapX:0.1}, Y:{point.MapY:0.1} · height {point.Y:0.1}");
+                    ImGui.BeginDisabled(i == 0);
+                    var up = ImGui.SmallButton("Up");
+                    ImGui.EndDisabled(); ImGui.SameLine();
+                    ImGui.BeginDisabled(i == selected.Checkpoints.Count - 1);
+                    var down = ImGui.SmallButton("Down");
+                    ImGui.EndDisabled(); ImGui.SameLine();
+                    var remove = ImGui.SmallButton("Remove");
+                    ImGui.PopID();
+                    if (up || down || remove)
+                    {
+                        StopForPatrolEdit();
+                        if (remove) selected.Checkpoints.RemoveAt(i);
+                        else { var next = i + (up ? -1 : 1); (selected.Checkpoints[i], selected.Checkpoints[next]) = (selected.Checkpoints[next], selected.Checkpoints[i]); }
+                        save(); break;
+                    }
+                }
+            }
+            ImGui.EndChild();
+        }
+        if (patrolEditStatus.Length > 0) ImGui.TextWrapped(patrolEditStatus);
+        ImGui.TreePop();
+    }
+
+    private void StopForPatrolEdit()
+    {
+        if (farming.Enabled) setFarming(false);
+    }
+
+    private void DrawFarmingTargets()
+    {
+        if (!ImGui.TreeNode("Targets in this area")) return;
+        Tip("Checked = target; unchecked = ignore. Choices save separately for each zone and apply to new Levelling pulls, including FATEs. All eligible species are targeted by default, regardless of the selected destination's monster name. Actual enemy level, patrol-circle bounds and your FATE/NM options still apply. Defense against attackers continues even for ignored species. Changing targets stops the run; enable Levelling again when finished.");
+        var zones = farming.TargetZones();
+        if (zones.Count == 0) { ImGui.TextDisabled("Select a patrol area or enter an overworld zone."); ImGui.TreePop(); return; }
+        var zone = System.Linq.Enumerable.FirstOrDefault(zones, z => z.TerritoryId == farmingTargetTerritory) ?? zones[0];
+        farmingTargetTerritory = zone.TerritoryId;
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.BeginCombo("##TargetZone", zone.Name))
+        {
+            foreach (var choice in zones)
+                if (ImGui.Selectable(choice.Name + "##" + choice.TerritoryId, choice.TerritoryId == farmingTargetTerritory))
+                { farmingTargetTerritory = choice.TerritoryId; farmingSpeciesSearch = ""; }
+            ImGui.EndCombo();
+        }
+        // Defer the newly chosen zone to the next frame, rather than editing the old one.
+        if (zone.TerritoryId != farmingTargetTerritory) { ImGui.TreePop(); return; }
+        if (ImGui.Button("Target all")) EditFarmingTargets(zone.TerritoryId, f => f.SetAll(true));
+        ImGui.SameLine();
+        if (ImGui.Button("Ignore all")) EditFarmingTargets(zone.TerritoryId, f => f.SetAll(false));
+        Tip("Target all also allows newly discovered species. Ignore all excludes new species until checked. Neither button overrides your level range or other combat filters.");
+        ImGui.SetNextItemWidth(-1);
+        ImGui.InputTextWithHint("##SpeciesSearch", "Search species…", ref farmingSpeciesSearch, 128);
+        var species = farming.TargetChoices(zone.TerritoryId);
+        ImGui.TextDisabled($"{species.Count} known zone species");
+        Tip("Includes cataloged ordinary and special/event enemies throughout this zone, not just Bestiary beasts. Live sightings extend the list. Catalog levels are informational; enemies may be outside the patrol circle or not currently spawned. The list is not guaranteed exhaustive.");
+        if (ImGui.BeginChild("##FarmingSpecies", new Vector2(0, 200 * ImGuiHelpers.GlobalScale)))
+        {
+            foreach (var mob in species)
+            {
+                if (!mob.Name.Contains(farmingSpeciesSearch, StringComparison.OrdinalIgnoreCase)) continue;
+                var enabled = configuration.Farming.AllowsTarget(zone.TerritoryId, mob.NameId);
+                if (ImGui.Checkbox($"{mob.Name} · {mob.Levels}##{mob.NameId}", ref enabled))
+                    EditFarmingTargets(zone.TerritoryId, f => f.Set(mob.NameId, enabled));
+            }
+        }
+        ImGui.EndChild();
+        ImGui.TreePop();
+    }
+
+    private void EditFarmingTargets(uint territory, Action<FarmingTargetFilter> edit)
+    {
+        if (farming.Enabled) setFarming(false);
+        if (!configuration.Farming.AreaTargets.TryGetValue(territory, out var filter))
+            configuration.Farming.AreaTargets[territory] = filter = new();
+        edit(filter);
         save();
     }
 

@@ -146,6 +146,7 @@ PullHealthChecks.Run(Check);
 FarmingRecoveryChecks.Run(Check);
 CaptureDefenseChecks.Run(Check);
 FarmingChecks.Run(Check);
+FarmingPatrolChecks.Run(Check);
 CaptureAllChecks.Run(Check);
 RotationSolverChecks.Run(Check);
 SpawnSearchChecks.Run(Check);

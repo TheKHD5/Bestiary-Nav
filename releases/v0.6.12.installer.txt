@@ -1,0 +1,7 @@
+- Fight all eligible species near the selected Levelling patrol group.
+- Choose Target/Ignore for individual species in each zone.
+- Search known zone enemies, with Target all and Ignore all controls.
+- Remember species choices and discover additional nearby enemies.
+- Record custom patrol checkpoints and loop saved Levelling routes.
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

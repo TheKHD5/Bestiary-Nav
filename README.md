@@ -12,7 +12,8 @@ Find your next capture. Bestiary Nav connects Final Fantasy XIV's Master's Besti
 - **Search the spawn area:** capture runs walk the configured circle when no eligible beast is nearby. Widen **Search radius** for larger habitats.
 - **Heal between fights:** optionally wait for full HP before new Capture and Levelling pulls. Existing fights and defense continue.
 - **Protect your chocobo:** Levelling also fights enemies attacking your summoned companion, including while waiting to heal.
-- **Levelling (Experimental):** target enemies +1 to +10 levels above BST. Select multiple monster groups and zones, or Automatic for all eligible types. Empty patrols and route failures retry while enabled; move between eligible selected groups as you level. Optional chocobo, food, combat FATEs in Automatic mode, auto respawn, and a stop level. Toggle it beside **Capture all available**. The catalog covers 44 ARR spawn groups up to level 49.
+- **Levelling (Experimental):** target enemies +1 to +10 levels above BST. Select multiple patrol groups or Automatic, then use **Targets in this area** to target or ignore individual species per zone. All eligible species are allowed by default. Empty patrols and failed routes retry while enabled. Optional chocobo, food, combat FATEs in Automatic mode, auto respawn, and a stop level. The catalog covers 44 ARR spawn groups up to level 49.
+- **Custom patrol routines:** walk to locations and register checkpoints. Save, reorder, and loop a route within one zone; fight eligible enemies around each checkpoint before continuing.
 - **Capture all available:** toggle a batch from the Bestiary toolbar or Capture settings. Collect eligible overworld beasts at your current BST level, retry the selected entry until capture is confirmed, and stop when none remain. `/bnav stop` cancels the batch and retries.
 - **Location pop-up:** toggle navigation from Bestiary clicks, directly above the Bestiary. Turning it off also disables Auto Navigate and stops the current trip.
 - **Spot uncaptured beasts:** customize label size, colors, range, and model/enemy-list visibility. Duty labels identify capture/gourd encounters.
@@ -39,6 +40,7 @@ Install **Lifestream** and **vnavmesh** separately to use Auto Navigate. Future 
 - [Plugin source](BestiaryNav/): Bestiary integration, collection planner, settings, labels, map circles, travel, Auto Capture, and Rotation Solver capture runs.
 - [Collection data](BestiaryNav/collection.json): acquisition levels and gourd information for all 50 beasts.
 - [Farming areas](BestiaryNav/farming-areas.json): sourced enemy levels and spawn coordinates for farming.
+- [Levelling species](BestiaryNav/farming-targets.json): known zone enemies for the Target/Ignore checklist; [data notes](BestiaryNav/FARMING-TARGETS.md).
 - [Spawn-area notes](BestiaryNav/SPAWN-AREAS.md): circle coordinates, radius, and validation details.
 - [Acquisition locations](BestiaryNav/LOCATIONS.md): map, duty, and quest destinations for all 50 beasts.
 - [Installer images](assets/): icon, in-game previews, and original image sources.

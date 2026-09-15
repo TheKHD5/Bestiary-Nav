@@ -6,6 +6,64 @@ using BestiaryNav;
 
 internal static class FarmingChecks
 {
+    private static void CheckTargetFilters(Action<bool, string> check, FarmingOptions options)
+    {
+        var filter = new FarmingTargetFilter();
+        options.AreaTargets[1] = filter;
+        filter.Set(101, false);
+        check(!options.AllowsTarget(1, 101) && options.AllowsTarget(1, 102) && options.AllowsTarget(2, 101), "ignoring a species affects only its saved zone");
+        filter.SetAll(false);
+        check(!options.HasEnabledTargets(1) && !options.AllowsTarget(1, 999), "ignore all disables this zone and future discoveries");
+        filter.Set(102, true);
+        check(options.HasEnabledTargets(1) && options.AllowsTarget(1, 102) && !options.AllowsTarget(1, 101), "checking one species after ignore all enables only that species");
+        var saved = JsonSerializer.Deserialize<FarmingOptions>(JsonSerializer.Serialize(options))!;
+        saved.Normalize();
+        check(saved.SelectedGroups.SequenceEqual(options.SelectedGroups) && saved.AllowsTarget(1, 102) && !saved.AllowsTarget(1, 999), "zone choices and selected destinations survive reload together");
+        saved.SelectedGroups.Clear();
+        check(!saved.AllowsTarget(1, 101), "switching to Automatic preserves species exclusions");
+        filter.Set(102, false);
+        check(!options.HasEnabledTargets(1) && !options.AllowsTarget(1, 102), "clearing the final target never silently enables everything");
+        filter.SetAll(true);
+        check(filter.Overrides.Count == 0 && options.AllowsTarget(1, 999) && options.HasEnabledTargets(1), "target all resets exclusions and includes future discoveries");
+        filter.Set(0, true);
+        check(!filter.Allows(0) && filter.Overrides.Count == 0, "zero identity cannot become a target");
+        var malformed = JsonSerializer.Deserialize<FarmingOptions>("{\"AreaTargets\":{\"0\":{},\"1\":null,\"2\":{\"Overrides\":null}}}")!;
+        malformed.Normalize();
+        check(malformed.AreaTargets.Count == 1 && malformed.AllowsTarget(2, 101), "invalid saved zone filters normalize safely");
+        malformed = JsonSerializer.Deserialize<FarmingOptions>("{\"AreaTargets\":null}")!;
+        malformed.Normalize();
+        check(malformed.AllowsTarget(1, 101), "old or null settings preserve all-species defaults");
+
+        var catalog = new FarmingTargetCatalog();
+        var specimen = new FarmingTargetSpecies { PlaceNameId = 44, NameId = 101, Name = "Example", MinimumLevel = 40, MaximumLevel = 42 };
+        catalog.Add(specimen);
+        catalog.Add(specimen with { MinimumLevel = 41, MaximumLevel = 44, Observed = true });
+        catalog.Add(specimen with { MinimumLevel = 0, MaximumLevel = 0 });
+        check(catalog.Choices(44).Count == 1 && catalog.Choices(44)[0] is { MinimumLevel: 40, MaximumLevel: 44, Observed: true }, "repeated sightings merge levels without duplicate rows or unknown-level loss");
+        catalog.Add(specimen with { PlaceNameId = 45, MinimumLevel = 20, MaximumLevel = 22 });
+        check(catalog.Choices(45).Single().MinimumLevel == 20, "same identity in another zone has independent levels");
+        catalog.Add(specimen with { NameId = 102, Name = "New species", MinimumLevel = 0, MaximumLevel = 0 });
+        catalog.Add(specimen with { NameId = 102, Name = "New species", MinimumLevel = 41, MaximumLevel = 41, Observed = true });
+        check(catalog.Choices(44).Single(s => s.NameId == 102).MinimumLevel == 41, "live species can fill an unknown saved entry");
+        catalog.Add(specimen with { NameId = 0 });
+        catalog.Add(specimen with { PlaceNameId = 0 });
+        catalog.Add(specimen with { NameId = 103, Name = " " });
+        catalog.Add(specimen with { NameId = 103, MinimumLevel = 45, MaximumLevel = 44 });
+        catalog.Add(specimen with { NameId = 103, MaximumLevel = 101 });
+        check(catalog.Choices(44).Count == 2 && catalog.Choices(0).Count == 0, "invalid catalog identities and levels are rejected");
+        var bundled = JsonSerializer.Deserialize<FarmingTargetDatabase>(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "farming-targets.json")), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        check(bundled.Species.Count > 1000 && bundled.Species.Select(s => s.PlaceNameId).Distinct().Count() == 16, "bundled list covers every current farming zone with non-Bestiary species");
+        check(bundled.Species.Select(s => (s.PlaceNameId, s.NameId)).Distinct().Count() == bundled.Species.Count, "bundled species are unique per zone");
+        check(bundled.Species.All(s => s.PlaceNameId != 0 && s.NameId != 0 && !string.IsNullOrWhiteSpace(s.Name) && s.MinimumLevel >= 0 && s.MaximumLevel >= s.MinimumLevel && s.MaximumLevel <= 100), "bundled identities and levels are valid");
+        var eastern = bundled.Species.Where(s => s.PlaceNameId == 44).ToArray();
+        var fleece = eastern.First(s => s.Name.Equals("Golden Fleece", StringComparison.OrdinalIgnoreCase));
+        var knight = eastern.First(s => s.Name.Equals("Mirrorknight", StringComparison.OrdinalIgnoreCase));
+        check(fleece.NameId != knight.NameId && options.AllowsTarget(145, fleece.NameId) && options.AllowsTarget(145, knight.NameId), "Golden Fleece destination allows both Fleece and Mirrorknight by default");
+        options.AreaTargets[145] = new();
+        options.AreaTargets[145].Set(knight.NameId, false);
+        check(options.AllowsTarget(145, fleece.NameId) && !options.AllowsTarget(145, knight.NameId), "reported mixed-species case can explicitly ignore only Mirrorknight");
+    }
+
     public static void Run(Action<bool, string> check)
     {
         var options = new FarmingOptions { MinimumAbove = -3, MaximumAbove = 80, TargetLevel = -1 };
@@ -92,14 +150,14 @@ internal static class FarmingChecks
         specific.SelectedGroups = [groupB.Key];
         check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, _ => true)?.Area == groupB, "manual group overrides current-zone preference");
         check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, a => a != groupB) == null, "unreachable manual choice never silently falls back to another group");
-        check(FarmingPolicy.MatchesEnemy(groupB, specific, "mob a", [groupA, groupB]) && !FarmingPolicy.MatchesEnemy(groupB, specific, "Mob B", [groupA, groupB]) &&
-            !FarmingPolicy.MatchesEnemy(groupB, specific, null, [groupA, groupB]), "manual choice filters other species and unverified name IDs");
+        check(specific.AllowsTarget(2, 100) && specific.AllowsTarget(2, 101) && !specific.AllowsTarget(2, 0),
+            "manual destination allows different species by default while excluding missing identities");
         check(FarmingPolicy.Choices([groupA, groupB], 30, specific).Count() == 2, "selected group does not hide alternatives from dropdown");
         specific.MinimumAbove = specific.MaximumAbove = 10;
         check(FarmingPolicy.Select([groupA, groupB], 30, specific, 1, _ => true)?.Area == groupB, "exact +10 chooses level-40 group at BST 30");
         check(FarmingPolicy.Select([groupA, groupB], 31, specific, 1, _ => true) == null, "outgrown manual group stops instead of changing the user's selection");
         specific.SelectedGroups.Clear();
-        check(FarmingPolicy.MatchesEnemy(groupB, specific, "Different species", [groupA, groupB]), "Automatic preserves all-species combat");
+        check(specific.AllowsTarget(2, 102), "Automatic preserves all-species combat");
         check(!FarmingPolicy.Choices(db.Areas, 0, specific).Any(), "no BST level does not produce misleading dropdown results");
         check(db.Areas.Select(a => a.Key).Distinct().Count() == db.Areas.Count, "all shipped group IDs are distinct");
         var saved = JsonSerializer.Deserialize<FarmingOptions>(JsonSerializer.Serialize(new FarmingOptions { MinimumAbove = 10, MaximumAbove = 10, SelectedGroup = groupB.Key }))!;
@@ -129,9 +187,8 @@ internal static class FarmingChecks
         check(FarmingPolicy.Select([groupA, groupB], 38, multiple, 1, _ => true) == null, "all selected groups outgrown still ends the eligible destination set");
         var sameZone = new FarmingArea { Name = "Mob C", MinimumLevel = 35, MaximumLevel = 40, Location = new() { Area = "Zone A", TerritoryTypeId = 1, X = 11, Y = 20 } };
         multiple.SelectedGroups.Add(sameZone.Key);
-        check(FarmingPolicy.MatchesEnemy(groupA, multiple, "Mob C", [groupA, groupB, sameZone]), "any selected species in the current zone can qualify inside the patrol circle");
-        check(!FarmingPolicy.MatchesEnemy(groupB, multiple, "Mob C", [groupA, groupB, sameZone]), "selection of a species in another zone does not enable pulls here");
-        check(!FarmingPolicy.MatchesEnemy(groupA, multiple, "Unselected", [groupA, groupB, sameZone, unselected]), "multiple groups do not enable unrelated species");
+        check(multiple.AllowsTarget(1, 103) && multiple.AllowsTarget(1, 104), "multiple destinations do not restrict target species");
+        CheckTargetFilters(check, multiple);
         var fleece = new FarmingArea { Name = "Golden Fleece", MinimumLevel = 40, MaximumLevel = 42, Location = new() { Area = "Eastern Thanalan", TerritoryTypeId = 145, X = 30, Y = 24 } };
         var fleeceOptions = new FarmingOptions { MinimumAbove = 3, MaximumAbove = 10, SelectedGroups = [fleece.Key] };
         var fleeceSelection = FarmingPolicy.Select([fleece], 38, fleeceOptions, 145, _ => true)!;

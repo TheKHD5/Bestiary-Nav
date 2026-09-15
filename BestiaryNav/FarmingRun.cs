@@ -20,7 +20,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     ITargetManager targets, IClientState client, ICondition conditions, IPluginLog log,
     CaptureRotationIpc rotation, TravelController travel, TravelPlanBuilder plans, Func<TravelPlayer> travelPlayer,
     Func<bool> compatible, Func<bool> uiAvailable, uint bst, FarmingSupplies supplies, IDataManager data,
-    IFateTable fates, FarmingRespawn respawn) : IDisposable
+    IFateTable fates, FarmingRespawn respawn, FarmingTargetDatabase targetData) : IDisposable
 {
     public bool Enabled => Phase != FarmingPhase.Idle;
     public FarmingPhase Phase { get; private set; }
@@ -38,7 +38,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         objects.LocalPlayer?.ClassJob.RowId == bst ? objects.LocalPlayer.Level : 0, config.Farming).ToArray();
     public string SelectedGroupLabel => config.Farming.SelectedGroups.Count switch
     {
-        0 => "Automatic — all eligible enemies",
+        0 => "Automatic — choose patrol areas",
         1 => SavedGroupLabel(config.Farming.SelectedGroups[0]),
         _ => $"{config.Farming.SelectedGroups.Count} groups selected",
     };
@@ -46,12 +46,71 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         string.Join("; ", config.Farming.SelectedGroups.Select(SavedGroupLabel));
     public string SavedGroupLabel(string key) => database.Areas.FirstOrDefault(a => a.Key == key)?.Label ?? "Saved group unavailable";
     public string LastSearchResult { get; private set; } = "No completed patrol yet.";
-    private readonly Dictionary<uint, string> enemyNames = BuildEnemyNames(data, database);
-    private static Dictionary<uint, string> BuildEnemyNames(IDataManager data, FarmingDatabase database)
+    private FarmingPatrol? activePatrol;
+    private readonly FarmingPatrolCursor patrolCursor = new();
+    public string PatrolStatus => activePatrol == null ?
+        (config.Farming.Patrols.FirstOrDefault(p => p.Id == config.Farming.SelectedPatrol) is { } saved ? $"{saved.Name}: routine selected; Levelling is off" : "Catalog patrols") :
+        $"{activePatrol.Name}: checkpoint {patrolCursor.Index + 1}/{activePatrol.Checkpoints.Count}";
+    public string RegisterCheckpoint(FarmingPatrol routine)
     {
-        var names = database.Areas.Select(a => a.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return data.GetExcelSheet<BNpcName>(ClientLanguage.English)
-            .Where(n => names.Contains(n.Singular.ExtractText())).ToDictionary(n => n.RowId, n => n.Singular.ExtractText());
+        if (Enabled) return "Stop Levelling before recording checkpoints.";
+        if (!compatible() || !client.IsLoggedIn || objects.LocalPlayer is not { } player || player.IsDead ||
+            conditions[ConditionFlag.BetweenAreas] || conditions[ConditionFlag.BetweenAreas51] ||
+            conditions[ConditionFlag.InFlight] || conditions[ConditionFlag.InCombat] || TargetZone(client.TerritoryType) is not { } zone)
+            return "Stand on the ground in an overworld zone, out of combat, to register a checkpoint.";
+        var territory = data.GetExcelSheet<TerritoryType>().GetRow(client.TerritoryType);
+        var map = territory.Map.Value;
+        if (map.SizeFactor == 0) return "The current map is unavailable.";
+        var position = player.Position;
+        var point = new FarmingCheckpoint { X = position.X, Y = position.Y, Z = position.Z, MapId = map.RowId,
+            MapX = MapCoordinates.WorldToMap(position.X, map.SizeFactor, map.OffsetX),
+            MapY = MapCoordinates.WorldToMap(position.Z, map.SizeFactor, map.OffsetY) };
+        if (!point.IsValid || !MapCoordinates.IsOnMap(point.MapX, map.SizeFactor) || !MapCoordinates.IsOnMap(point.MapY, map.SizeFactor))
+            return "This position cannot be registered on the current map.";
+        if (!routine.Add(point, client.TerritoryType))
+            return routine.TerritoryId != client.TerritoryType ? "Keep all checkpoints in the same zone. Create another routine for this zone." :
+                "Move at least two yalms from the last checkpoint.";
+        return $"Registered checkpoint {routine.Checkpoints.Count} in {zone.Name} (X:{point.MapX:0.1}, Y:{point.MapY:0.1}).";
+    }
+    private readonly FarmingTargetCatalog targetCatalog = BuildTargets(data, targetData);
+    private long nextTargetScan;
+    private static FarmingTargetCatalog BuildTargets(IDataManager data, FarmingTargetDatabase targetData)
+    {
+        var catalog = new FarmingTargetCatalog();
+        var names = data.GetExcelSheet<BNpcName>(ClientLanguage.English);
+        foreach (var entry in targetData.Species)
+            if (names.GetRowOrDefault(entry.NameId) is { } row && !string.IsNullOrWhiteSpace(row.Singular.ExtractText()))
+                catalog.Add(entry with { Name = row.Singular.ExtractText() });
+        return catalog;
+    }
+    private FarmingTargetZone? TargetZone(uint territory) => data.GetExcelSheet<TerritoryType>().GetRowOrDefault(territory) is { } row &&
+        row.Map.RowId != 0 && row.ContentFinderCondition.RowId == 0 ? new(territory, row.PlaceName.RowId, row.PlaceName.Value.Name.ExtractText()) : null;
+    public IReadOnlyList<FarmingTargetZone> TargetZones() => database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming))
+        .Select(a => a.Location.TerritoryTypeId).Concat(config.Farming.Patrols.Where(p => p.Id == config.Farming.SelectedPatrol).Select(p => p.TerritoryId))
+        .Append(client.TerritoryType).Distinct().Select(TargetZone)
+        .OfType<FarmingTargetZone>().OrderBy(z => z.TerritoryId == client.TerritoryType ? 0 : 1).ThenBy(z => z.Name).ToArray();
+    public IReadOnlyList<FarmingTargetSpecies> TargetChoices(uint territory)
+    {
+        if (TargetZone(territory) is not { } zone) return [];
+        // Retain saved decisions even if an observed species isn't in the bundled index.
+        if (config.Farming.AreaTargets.TryGetValue(territory, out var filter))
+            foreach (var id in filter.Overrides.Keys)
+                if (data.GetExcelSheet<BNpcName>(ClientLanguage.English).GetRowOrDefault(id) is { } name)
+                    targetCatalog.Add(new() { PlaceNameId = zone.PlaceNameId, NameId = id, Name = name.Singular.ExtractText() });
+        return targetCatalog.Choices(zone.PlaceNameId);
+    }
+    public string TargetFilterStatus => config.Farming.AreaTargets.TryGetValue(client.TerritoryType, out var filter) ?
+        $"{TargetZone(client.TerritoryType)?.Name}: new species {(filter.DefaultTarget ? "targeted" : "ignored")}; {filter.Overrides.Count} species overrides" :
+        "All eligible species in the patrol area";
+    private void RefreshTargetCatalog(long now)
+    {
+        if (now < nextTargetScan) return;
+        nextTargetScan = now + 1000;
+        if (!compatible() || !client.IsLoggedIn || conditions[ConditionFlag.BetweenAreas] || conditions[ConditionFlag.BetweenAreas51] ||
+            TargetZone(client.TerritoryType) is not { } zone) return;
+        foreach (var npc in objects.OfType<IBattleNpc>().Where(n => n.BattleNpcKind == BattleNpcSubKind.Combatant))
+            targetCatalog.Add(new() { PlaceNameId = zone.PlaceNameId, NameId = npc.NameId, Name = npc.Name.ToString(),
+                MinimumLevel = npc.Level, MaximumLevel = npc.Level, Observed = true });
     }
     private FarmingSelection? selection;
     private TravelPlan? area;
@@ -76,6 +135,15 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         try
         {
             config.Farming.Normalize();
+            patrolCursor.Reset();
+            if (config.Farming.SelectedPatrol.Length > 0)
+            {
+                activePatrol = config.Farming.Patrols.FirstOrDefault(p => p.Id == config.Farming.SelectedPatrol);
+                if (activePatrol == null || activePatrol.Checkpoints.Count == 0 || TargetZone(activePatrol.TerritoryId) == null)
+                    throw new InvalidOperationException("Select a saved overworld patrol with at least one checkpoint.");
+                if (!config.Farming.HasEnabledTargets(activePatrol.TerritoryId))
+                    throw new InvalidOperationException("Enable at least one species in Targets in this area for the patrol zone.");
+            }
             if (!compatible()) throw new InvalidOperationException("Levelling needs compatible game data.");
             if (!client.IsLoggedIn || objects.LocalPlayer is not { } p)
                 throw new InvalidOperationException("Log in and wait for the player to load before starting Levelling.");
@@ -86,13 +154,11 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (!recovering && conditions[ConditionFlag.InCombat])
                 throw new InvalidOperationException("Leave combat before starting Levelling.");
             if (!recovering && !uiAvailable()) throw new InvalidOperationException("Show the game UI before starting Levelling.");
-            if (!recovering && config.Farming.SelectedGroups.Count > 0)
+            if (!recovering && activePatrol == null && config.Farming.SelectedGroups.Count > 0)
             {
                 var groups = database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming) && FarmingPolicy.InRange(a, p.Level, config.Farming)).ToArray();
                 if (groups.Length == 0)
                     throw new InvalidOperationException("No selected monster group overlaps the current level range. Select more groups or Automatic.");
-                if (!groups.Any(g => enemyNames.Values.Contains(g.Name, StringComparer.OrdinalIgnoreCase)))
-                    throw new InvalidOperationException("The selected monsters' game identities could not be verified. Choose other groups or Automatic.");
             }
             LastRecovery = "No combat recovery needed.";
             if (!recovering && FarmingPolicy.ReachedGoal(p.Level, config.Farming)) { Stop("Target BST level already reached."); return; }
@@ -111,6 +177,9 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
 
     public unsafe void Update()
     {
+        // Populate the checklist even while Levelling is off. This only reads actors.
+        try { RefreshTargetCatalog(Environment.TickCount64); }
+        catch (Exception ex) { nextTargetScan = Environment.TickCount64 + 10000; log.Warning(ex, "Could not refresh the Levelling species list."); }
         if (!Enabled) return;
         var now = Environment.TickCount64;
         var elapsed = Math.Max(0, now - lastUpdate);
@@ -225,7 +294,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
             if (selection != null && area != null && client.TerritoryType == area.TerritoryId)
                 foreach (var nearby in actors.Where(n => Eligible(n, player.Level)))
                     selection = selection.Observe(nearby.Level, player.Level);
-            if (selection != null && !selection.SupportsRange)
+            if (activePatrol == null && selection != null && !selection.SupportsRange)
             {
                 if (selectedFate != 0) { completedFates[selectedFate] = now + 120000; selectedFate = 0; }
                 rotation.SetRunning(false); StopMovement(); selection = null; area = null; Phase = FarmingPhase.Choosing;
@@ -259,7 +328,10 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 StopMovement(); rotation.SetRunning(false);
                 if (supplies.Prepare(config.Farming, player, now)) { Status = supplies.Status; return; }
                 // An interrupted journey may have ended well outside the destination.
-                if (!CaptureRunPolicy.InArea(player.Position, area.MapPoint, area.SearchRadius, area.TargetFloor)) { BeginTravel(now); return; }
+                if (activePatrol != null ? !patrolCursor.Arrived && Vector3.Distance(player.Position, area.MapPoint) > 3 :
+                    !CaptureRunPolicy.InArea(player.Position, area.MapPoint, area.SearchRadius, area.TargetFloor)) { BeginTravel(now); return; }
+                if (activePatrol != null && !patrolCursor.Arrived)
+                { patrolCursor.Reach(); waitUntil = now + 1500; Status = $"{PatrolStatus}: looking for eligible enemies…"; return; }
                 search.Reset(area.MapPoint, area.SearchRadius); reached = 0;
                 Phase = FarmingPhase.Searching; areaDeadline = now + 300000;
             }
@@ -273,6 +345,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 if (supplies.Prepare(config.Farming, player, now)) { Status = supplies.Status; return; }
                 Pick(npc, false, now); return;
             }
+            if (activePatrol != null) { AdvanceCheckpoint(now, false, "No more eligible targets at this checkpoint."); return; }
             if (now >= areaDeadline) { RejectEmptyRange(now, "No eligible targets found after five minutes."); return; }
             if (ownsTravel)
             {
@@ -303,12 +376,13 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private bool Eligible(IBattleNpc npc, byte level) => selection != null && area != null && npc.IsTargetable &&
         !npc.IsDead && npc.CurrentHp > 0 && FarmingPolicy.MayPull(Notorious(npc), FateId(npc), selectedFate, config.Farming) &&
         (selectedFate == 0 || FateId(npc) == selectedFate) && selection.Eligible(npc.Level, level) &&
-        FarmingPolicy.MatchesEnemy(selection.Area, config.Farming, enemyNames.GetValueOrDefault(npc.NameId), database.Areas) &&
+        config.Farming.AllowsTarget(client.TerritoryType, npc.NameId) &&
         CaptureRunPolicy.InArea(npc.Position, area.MapPoint, area.SearchRadius, area.TargetFloor);
 
     private bool ChooseFate(byte level, Vector3 position, long now)
     {
-        if (!config.Farming.ParticipateInFates || config.Farming.SelectedGroups.Count > 0 || conditions[ConditionFlag.InCombat]) return false;
+        if (activePatrol != null || !config.Farming.ParticipateInFates || config.Farming.SelectedGroups.Count > 0 || conditions[ConditionFlag.InCombat] ||
+            !config.Farming.HasEnabledTargets(client.TerritoryType)) return false;
         var fate = fates.Where(f => f.State == FateState.Running && f.TimeRemaining > 60 &&
                 (f.IconId == 60721 || (f.IconId == 60722 && !config.Farming.IgnoreNotoriousMonsters)) &&
                 f.Level >= level + config.Farming.MinimumAbove && f.Level <= level + config.Farming.MaximumAbove &&
@@ -322,18 +396,51 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         BeginTravel(now); return true;
     }
 
+    private void ChooseCheckpoint(int level, long now)
+    {
+        var routine = activePatrol!;
+        var point = routine.Checkpoints[patrolCursor.Index];
+        try
+        {
+            var location = new MapLocation { TerritoryTypeId = routine.TerritoryId, MapId = point.MapId,
+                X = point.MapX, Y = point.MapY, Area = routine.Name,
+                TravelFloor = new() { MinimumY = point.Y - 5, MaximumY = point.Y + 5 } };
+            var plan = plans.Build(location, routine.SearchRadius);
+            if (routine.TerritoryId != client.TerritoryType && plan.AetheryteId == 0)
+            { Stop("Travel to the custom patrol's zone before starting: no unlocked teleport destination is available."); return; }
+            area = plan with { MapPoint = point.Position, Name = PatrolStatus, SearchRadius = routine.SearchRadius,
+                ExactDestination = true, AllowMount = false, AllowFlight = false, ArrivalDistance = 3, AllowAreaFallback = false };
+            selection = new(new FarmingArea { Name = routine.Name, MinimumLevel = 1, MaximumLevel = 100, Location = location },
+                level + config.Farming.MinimumAbove, level + config.Farming.MaximumAbove);
+            BeginTravel(now);
+        }
+        catch (Exception ex) { AdvanceCheckpoint(now, true, ex.Message); }
+    }
+
+    private void AdvanceCheckpoint(long now, bool failed, string reason)
+    {
+        LastSearchResult = $"{PatrolStatus}: {reason}";
+        EndTarget();
+        waitUntil = patrolCursor.Advance(activePatrol!.Checkpoints.Count, now, failed);
+        selection = null; area = null; nextScan = 0; Phase = FarmingPhase.Choosing;
+        Status = waitUntil >= now + 60000 ? $"No checkpoint was reachable; retrying the routine in 60s. {reason}" :
+            $"{reason} Continuing to {PatrolStatus}.";
+    }
+
     private void Choose(int level, long now)
     {
+        if (activePatrol != null) { ChooseCheckpoint(level, now); return; }
         selection = FarmingPolicy.Select(database.Areas, level, config.Farming, client.TerritoryType, a =>
         {
             if (unavailable.GetValueOrDefault(a) > now || emptyRanges.Contains(a, level, config.Farming, now)) return false;
-            if (config.Farming.SelectedGroups.Count > 0 && !enemyNames.Values.Contains(a.Name, StringComparer.OrdinalIgnoreCase)) return false;
+            if (!config.Farming.HasEnabledTargets(a.Location.TerritoryTypeId)) return false;
             try { var p = plans.Build(a.Location, config.SpawnAreaRadius); return p.TerritoryId == client.TerritoryType || p.AetheryteId != 0; }
             catch { return false; }
         });
         if (selection == null)
         {
-            var retry = database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming) && FarmingPolicy.InRange(a, level, config.Farming))
+            var retry = database.Areas.Where(a => FarmingPolicy.MatchesGroup(a, config.Farming) && FarmingPolicy.InRange(a, level, config.Farming) &&
+                    config.Farming.HasEnabledTargets(a.Location.TerritoryTypeId))
                 .Select(a => Math.Max(unavailable.GetValueOrDefault(a), emptyRanges.RetryAt(a, level, config.Farming)))
                 .Where(t => t > now).DefaultIfEmpty(0).Min();
             if (retry > now)
@@ -343,8 +450,8 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
                 return;
             }
             if (config.Farming.SelectedGroups.Count > 0)
-            { Stop("No selected group supports the current range with a verified identity and accessible destination. Select more groups or Automatic."); return; }
-            Stop($"No documented accessible area supports Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Adjust the range."); return;
+            { Stop("No selected area supports the current range with enabled target species and an accessible destination. Check Targets in this area, or select more groups."); return; }
+            Stop($"No documented accessible area with enabled targets supports Lv. {level + config.Farming.MinimumAbove}–{level + config.Farming.MaximumAbove}. Check the range and Targets in this area."); return;
         }
         area = plans.Build(selection.Area.Location, config.SpawnAreaRadius);
         BeginTravel(now);
@@ -356,14 +463,15 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         // A fresh sweep can start where we are. Do not route back to a possibly
         // unmapped center when we are already inside the correct spawn circle.
         if (objects.LocalPlayer is { } player && client.TerritoryType == area!.TerritoryId &&
-            CaptureRunPolicy.InArea(player.Position, area.MapPoint, area.SearchRadius, area.TargetFloor))
+            (activePatrol != null ? Vector3.Distance(player.Position, area.MapPoint) <= 3 :
+                CaptureRunPolicy.InArea(player.Position, area.MapPoint, area.SearchRadius, area.TargetFloor)))
         {
             Phase = FarmingPhase.Preparing;
             Status = "Inside the spawn area; preparing a new patrol…";
             return;
         }
         ownsTravel = true; Phase = FarmingPhase.Traveling;
-        travel.Start(area! with { ArrivalDistance = 1, AllowAreaFallback = true }, travelPlayer(), now);
+        travel.Start(area! with { ArrivalDistance = activePatrol != null ? 3 : 1, AllowAreaFallback = activePatrol == null }, travelPlayer(), now);
         Status = $"Traveling to a Lv. {selection!.Minimum}–{selection.Maximum} levelling area: {area!.Name}";
     }
     private void UpdateTravel(TravelPlayer state, long now)
@@ -372,10 +480,12 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         if (travel.Active) { Status = travel.Status; return; }
         ownsTravel = false;
         if (!travel.Arrived) { FailArea(now, travel.Status); return; }
+        if (activePatrol != null) { patrolCursor.Reach(); waitUntil = now + 1500; }
         Phase = FarmingPhase.Preparing;
     }
     private void FailArea(long now, string reason)
     {
+        if (activePatrol != null) { AdvanceCheckpoint(now, true, reason); return; }
         LastSearchResult = $"{area?.Name}: {reason}";
         EndTarget();
         if (selectedFate != 0) { completedFates[selectedFate] = now + 120000; selectedFate = 0; }
@@ -481,6 +591,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
     private void StopMovement() { if (ownsTravel) travel.Stop(); ownsTravel = false; }
     private void BeginRecovery(long now)
     {
+        patrolCursor.ResumeTravel();
         Phase = FarmingPhase.Recovering;
         if (selection != null) unavailable[selection.Area] = now + 120000;
         selection = null; area = null; selectedFate = 0; waitUntil = 0;
@@ -504,7 +615,7 @@ internal sealed class FarmingRun(Configuration config, FarmingDatabase database,
         Phase = FarmingPhase.Idle; StopMovement();
         try { rotation.Release(); } catch (Exception ex) { log.Warning(ex, "Could not release farming rotation."); }
         if (target != 0 && targets.Target?.GameObjectId == target) targets.Target = null;
-        target = companionId = 0; selection = null; area = null; Status = reason;
+        target = companionId = 0; selection = null; area = null; activePatrol = null; Status = reason;
     }
     public void Dispose() { Stop(); rotation.Dispose(); }
 }

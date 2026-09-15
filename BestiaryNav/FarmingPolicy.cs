@@ -11,6 +11,13 @@ public sealed class FarmingOptions
     public int MaximumAbove { get; set; } = 5;
     public string SelectedGroup { get; set; } = ""; // Legacy single choice; migrated by Normalize.
     public List<string> SelectedGroups { get; set; } = []; // Empty = Automatic.
+    public List<FarmingPatrol> Patrols { get; set; } = [];
+    public string SelectedPatrol { get; set; } = ""; // Empty = catalog groups.
+    public Dictionary<uint, FarmingTargetFilter> AreaTargets { get; set; } = []; // Territory -> target/ignore species.
+    public bool HasEnabledTargets(uint territory) => !AreaTargets.TryGetValue(territory, out var filter) ||
+        filter.DefaultTarget || filter.Overrides.Values.Any(v => v);
+    public bool AllowsTarget(uint territory, uint nameId) => nameId != 0 &&
+        (!AreaTargets.TryGetValue(territory, out var filter) || filter.Allows(nameId));
     public bool SummonChocobo { get; set; }
     public bool UseFood { get; set; }
     public uint FoodId { get; set; } // Includes HQ offset, so the selected quality is preserved.
@@ -26,6 +33,17 @@ public sealed class FarmingOptions
         if (SelectedGroups.Count == 0 && !string.IsNullOrWhiteSpace(SelectedGroup)) SelectedGroups.Add(SelectedGroup);
         SelectedGroups = SelectedGroups.Where(k => !string.IsNullOrWhiteSpace(k)).Distinct(StringComparer.Ordinal).ToList();
         SelectedGroup = "";
+        Patrols ??= [];
+        Patrols.RemoveAll(p => p == null);
+        foreach (var patrol in Patrols) patrol.Normalize();
+        Patrols = Patrols.DistinctBy(p => p.Id).ToList();
+        SelectedPatrol ??= "";
+        AreaTargets ??= [];
+        foreach (var key in AreaTargets.Keys.ToArray())
+        {
+            if (key == 0 || AreaTargets[key] == null) AreaTargets.Remove(key);
+            else AreaTargets[key].Normalize();
+        }
         TargetLevel = Math.Clamp(TargetLevel, 0, 100);
     }
 }
@@ -68,10 +86,6 @@ internal static class FarmingPolicy
         areas.Where(a => InRange(a, level, options)).OrderBy(a => a.MinimumLevel).ThenBy(a => a.Location.Area).ThenBy(a => a.Name);
     public static bool MatchesGroup(FarmingArea area, FarmingOptions options) =>
         options.SelectedGroups.Count == 0 || options.SelectedGroups.Contains(area.Key);
-    public static bool MatchesEnemy(FarmingArea area, FarmingOptions options, string? englishName, IEnumerable<FarmingArea> groups) =>
-        options.SelectedGroups.Count == 0 || groups.Any(g => options.SelectedGroups.Contains(g.Key) &&
-            g.Location.TerritoryTypeId == area.Location.TerritoryTypeId &&
-            string.Equals(g.Name, englishName, StringComparison.OrdinalIgnoreCase));
     public static bool ReachedGoal(int level, FarmingOptions options) => options.TargetLevel > 0 && level >= options.TargetLevel;
     public static bool MayPull(bool notorious, uint fateId, uint selectedFate, FarmingOptions options) =>
         (!notorious || !options.IgnoreNotoriousMonsters) && (fateId == 0 || (options.ParticipateInFates && fateId == selectedFate));

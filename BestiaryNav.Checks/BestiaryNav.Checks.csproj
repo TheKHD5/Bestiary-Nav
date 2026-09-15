@@ -6,6 +6,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\BestiaryNav\FarmingPolicy.cs" Link="FarmingPolicy.cs" />
+    <Compile Include="..\BestiaryNav\FarmingPatrol.cs" Link="FarmingPatrol.cs" />
+    <Compile Include="..\BestiaryNav\FarmingTargets.cs" Link="FarmingTargets.cs" />
+    <Content Include="..\BestiaryNav\farming-targets.json" Link="farming-targets.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\BestiaryNav\farming-areas.json" Link="farming-areas.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="..\BestiaryNav\AutoCapturePolicy.cs" Link="AutoCapturePolicy.cs" />
     <Compile Include="..\BestiaryNav\CaptureRunPolicy.cs" Link="CaptureRunPolicy.cs" />

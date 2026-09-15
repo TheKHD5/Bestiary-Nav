@@ -157,7 +157,8 @@ public sealed class Plugin : IDalamudPlugin
         }
         farming = new FarmingRun(configuration, farmData, Objects, Targets, ClientState, Condition, Log,
             new CaptureRotationIpc(PluginInterface), travel, travelPlans, GetTravelPlayer, () => bindingActive,
-            () => !GameGui.GameUiHidden, beastmasterJobId, new FarmingSupplies(Data, Inventory, Buddies), Data, Fates, new FarmingRespawn(GameGui));
+            () => !GameGui.GameUiHidden, beastmasterJobId, new FarmingSupplies(Data, Inventory, Buddies), Data, Fates, new FarmingRespawn(GameGui),
+            ReadResource<FarmingTargetDatabase>("farming-targets.json"));
         spawnAreas = new SpawnAreaMap(Data, bindingActive);
         dutySelection = new DutySelection(GameGui, CanEditDutySelection, message => PrintMessage(ChatMessageKind.Warnings, message));
         collectionWindow = new CollectionWindow(monsters, acquisition, configuration, () => collectionSnapshot,
@@ -477,6 +478,8 @@ public sealed class Plugin : IDalamudPlugin
         report.AppendLine($"Farming: enabled={farming.Enabled}; phase={farming.Phase}; {farming.Status}");
         report.AppendLine($"Levelling target range: {farming.TargetRange}");
         report.AppendLine($"Levelling groups: {farming.SelectedGroupDetails}");
+        report.AppendLine($"Levelling targets: {farming.TargetFilterStatus}");
+        report.AppendLine($"Levelling patrol: {farming.PatrolStatus}");
         report.AppendLine($"Levelling search: {farming.LastSearchResult}");
         report.AppendLine($"Levelling companion: objectId={farming.CompanionId}");
         report.AppendLine($"Farming supplies: {farming.SuppliesStatus}");
