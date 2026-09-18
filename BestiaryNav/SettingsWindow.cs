@@ -10,8 +10,7 @@ namespace BestiaryNav;
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
     Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus,
-    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming,
-    Func<string> usageStatus)
+    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     private uint farmingTargetTerritory;
@@ -238,10 +237,6 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
                 save();
             }
             Tip("Creates a new random ID locally. It is not derived from your character or hardware. Earlier records remain until they expire and may count separately.");
-            ImGui.TextWrapped(usageStatus());
-            ImGui.Separator();
-            ImGui.TextWrapped("The reporting database keeps hashed IDs and activity records for up to 90 days, with cleanup on later service traffic. Network infrastructure processes IP addresses; the application uses short-lived keyed hashes for rate limiting and stores no raw IPs.");
-            if (ImGui.Button("Copy reporting privacy link")) ImGui.SetClipboardText(UsageReporter.PrivacyUrl);
             ImGui.EndTabItem();
         }
         ImGui.EndTabBar();

@@ -167,8 +167,7 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(collectionWindow);
         settingsWindow = new SettingsWindow(configuration, bindingIssue ?? binding.ValidationNotice, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup,
-            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming,
-            () => usageReporter.Status);
+            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
             collectionWindow.Open, travel, StopTravel, SetLocationPopup, captureRun,
             () => CollectionPlanner.Recommend(monsters.Values, acquisition, collectionSnapshot),

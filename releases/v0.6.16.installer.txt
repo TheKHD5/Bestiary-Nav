@@ -1,0 +1,4 @@
+- Simplify Privacy settings by removing the reporting footer and privacy-link button.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav
