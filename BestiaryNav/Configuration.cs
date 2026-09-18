@@ -9,6 +9,7 @@ namespace BestiaryNav;
 public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 1;
+    public UsageReportingOptions UsageReporting { get; set; } = new();
     public ChatPreferences ChatOutput { get; set; } = new();
     public Appearance Appearance { get; set; } = new();
     public FarmingOptions Farming { get; set; } = new();

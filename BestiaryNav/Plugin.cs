@@ -52,6 +52,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly bool bindingActive;
     private readonly string? bindingIssue;
     private readonly Configuration configuration;
+    private readonly UsageReporter usageReporter;
     private readonly WindowSystem windowSystem = new("BestiaryNav");
     private readonly SettingsWindow settingsWindow;
     private readonly BestiaryQuickToggle quickToggle;
@@ -92,6 +93,10 @@ public sealed class Plugin : IDalamudPlugin
         binding = ReadResource<BindingProfile>("binding.json");
         configuration = PluginInterface.GetPluginConfig() as Configuration
             ?? new Configuration { BlockInCombat = binding.BlockInCombat };
+        configuration.UsageReporting ??= new();
+        if (configuration.UsageReporting.EnsureIdentity()) PluginInterface.SavePluginConfig(configuration);
+        usageReporter = new UsageReporter(typeof(Plugin).Assembly.GetName().Version?.ToString() ?? "0.0.0");
+        usageReporter.Configure(configuration.UsageReporting);
         monsters = ReadResource<LocationDatabase>("locations.json").BuildIndex();
         var gameVersion = Data.GameData.Repositories.TryGetValue("ffxiv", out var repository)
             ? repository.Version?.Trim() ?? "" : "";
@@ -162,7 +167,8 @@ public sealed class Plugin : IDalamudPlugin
         windowSystem.AddWindow(collectionWindow);
         settingsWindow = new SettingsWindow(configuration, bindingIssue ?? binding.ValidationNotice, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup,
-            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming);
+            () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming,
+            () => usageReporter.Status);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
             collectionWindow.Open, travel, StopTravel, SetLocationPopup, captureRun,
             () => CollectionPlanner.Recommend(monsters.Values, acquisition, collectionSnapshot),
@@ -198,6 +204,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private void SaveConfiguration()
     {
+        configuration.UsageReporting.EnsureIdentity();
+        usageReporter.Configure(configuration.UsageReporting);
         markers.Reset();
         if (captureAll.Enabled && (!configuration.CaptureRun || !configuration.MapTrackingOnClick || !configuration.EnableClickNavigation))
             StopTravel();
@@ -319,6 +327,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnFrameworkUpdate(IFramework _)
     {
+        usageReporter.Tick();
         if (disposed)
             return;
         markers.Update();
@@ -826,6 +835,7 @@ public sealed class Plugin : IDalamudPlugin
         if (disposed)
             return;
         disposed = true;
+        usageReporter.Dispose();
         farming.Dispose();
         captureRun.Dispose();
         dutySelection.Cancel();

@@ -10,7 +10,8 @@ namespace BestiaryNav;
 internal sealed class SettingsWindow(Configuration configuration, string? bindingIssue, Action save, Func<string> markerStatus,
     TravelController travel, Func<bool> travelAvailable, Action stopTravel, Action<bool> setAutoTravel,
     Action openCollection, Func<string> diagnostics, Action<bool> setLocationPopup, Func<string> lastNotification, Func<string> captureStatus,
-    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming)
+    CaptureRun captureRun, CaptureAllController captureAll, Action<bool> setCaptureAll, FarmingRun farming, Action<bool> setFarming,
+    Func<string> usageStatus)
     : Window("Bestiary Nav###BestiaryNavSettings")
 {
     private uint farmingTargetTerritory;
@@ -216,6 +217,31 @@ internal sealed class SettingsWindow(Configuration configuration, string? bindin
         if (ImGui.BeginTabItem("Appearance"))
         {
             DrawAppearance();
+            ImGui.EndTabItem();
+        }
+        if (ImGui.BeginTabItem("Privacy"))
+        {
+            ImGui.TextWrapped("Optional reports help TheKHD5 understand plugin adoption and which versions need support. Only the maintainer can view the usage statistics.");
+            ImGui.Spacing();
+            ImGui.TextWrapped("Sends a random installation ID and plugin version about every five minutes while the plugin is loaded. The server records receipt times. No character, account, world, location, inventory or combat data is sent.");
+            ImGui.Spacing();
+            var reporting = configuration.UsageReporting.Enabled;
+            if (ImGui.Checkbox("Share optional usage statistics", ref reporting))
+            {
+                configuration.UsageReporting.Enabled = reporting;
+                save();
+            }
+            Tip("Off by default. Turning this off stops future check-ins; a request already in flight may still arrive. Reporting never controls plugin features.");
+            if (ImGui.Button("Reset reporting ID"))
+            {
+                configuration.UsageReporting.ResetIdentity();
+                save();
+            }
+            Tip("Creates a new random ID locally. It is not derived from your character or hardware. Earlier records remain until they expire and may count separately.");
+            ImGui.TextWrapped(usageStatus());
+            ImGui.Separator();
+            ImGui.TextWrapped("The reporting database keeps hashed IDs and activity records for up to 90 days, with cleanup on later service traffic. Network infrastructure processes IP addresses; the application uses short-lived keyed hashes for rate limiting and stores no raw IPs.");
+            if (ImGui.Button("Copy reporting privacy link")) ImGui.SetClipboardText(UsageReporter.PrivacyUrl);
             ImGui.EndTabItem();
         }
         ImGui.EndTabBar();

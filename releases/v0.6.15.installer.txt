@@ -1,0 +1,6 @@
+- Add optional usage reporting under Settings → Privacy; off by default.
+- Share only a random installation ID and plugin version, with an ID reset control.
+- Add a private maintainer dashboard for activity, versions and downloads.
+
+Full details on GitHub repo:
+https://github.com/TheKHD5/Bestiary-Nav

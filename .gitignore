@@ -8,3 +8,5 @@ artifacts/
 *.log
 *.dmp
 .DS_Store
+**/node_modules/
+**/tsconfig.tsbuildinfo
