@@ -1,9 +1,9 @@
 # September 2026 compatibility candidate
 
-Status: **candidate, awaiting remaining in-game acceptance**. A local installation
+Status: **public release authorized, with remaining in-game checks documented**. A local installation
 test was performed, then the previous installed files were restored at the user's
-request. No release was published. Worktree: `compat-15.0.3.5`, branch
-`codex/compat-dalamud-15-0-3-5`, based on `84d9436` (0.6.13). Candidate: 0.6.14.
+request. The owner then explicitly directed publication through the normal public
+release channel. Worktree: `compat-15.0.3.5`, based on `84d9436` (0.6.13). Release: 0.6.14.
 
 ## Stable update and root cause
 
@@ -66,16 +66,16 @@ coordinates and level ranges were not newly surveyed in-game.
 
 `binding.json` retains the last verified pair and separately specifies the
 candidate pair. Runtime guards permit only that exact pair in this build, reject
-incomplete profiles, and show `candidate - live validation pending` in diagnostics.
-The settings Navigation tab and plugin log identify the test build.
-`prepare-release.ps1` rejects candidates before building, packaging or changing
-the public index. Its rejection of this candidate was tested.
+incomplete profiles, and show `updated bindings - additional live checks pending`
+in diagnostics. The settings Navigation tab and plugin log disclose that status.
+The release script normally rejects a pending profile; `-AllowPendingLiveValidation`
+permits an explicitly authorized public release without changing verification claims.
 
 - Release build: zero warnings/errors against the new installed libraries.
 - Functional checks: 1,735 passed, including 13 compatibility-profile cases.
 - Native allocated-fixture checks: 44 passed. These do not call the live game.
 
-## Live acceptance before promotion
+## Remaining live checks
 
 The user supplied diagnostics from 0.6.14.0 on game 2026.09.15.0000.0000 and
 Dalamud 15.0.3.5. These confirm the candidate loads, reports capture records ready
@@ -99,7 +99,7 @@ No computer-use is authorized. Keep automated combat/travel off for initial chec
 5. Check Auto Navigate and manual-movement cancellation. Capture/levelling combat,
    supplies and revival remain additional native behavior checks if used.
 
-Record actual results, not an assumed full acceptance matrix. After required
-checks pass, promote the candidate versions to the verified fields, remove both
-candidate fields, update release notes and follow RELEASING.md. Until then, do
-not publish 0.6.14 or report native compatibility as verified.
+Record actual results, not an assumed full acceptance matrix. After remaining
+checks pass, promote the candidate versions to the verified fields and remove both
+candidate fields in a subsequent release. The owner authorized public publication
+of 0.6.14 before these checks were completed; it does not claim full verification.

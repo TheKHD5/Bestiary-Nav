@@ -1,6 +1,6 @@
 #Requires -Version 7.2
 [CmdletBinding()]
-param([string]$Dotnet = 'dotnet', [switch]$SkipBuild)
+param([string]$Dotnet = 'dotnet', [switch]$SkipBuild, [switch]$AllowPendingLiveValidation)
 
 $ErrorActionPreference = 'Stop'
 $taskRepoRoot = Split-Path -Parent $PSScriptRoot
@@ -8,7 +8,10 @@ $taskProject = Join-Path $taskRepoRoot 'BestiaryNav/BestiaryNav.csproj'
 $taskBinding = Get-Content -LiteralPath (Join-Path $taskRepoRoot 'BestiaryNav/binding.json') -Raw | ConvertFrom-Json
 if (![string]::IsNullOrWhiteSpace($taskBinding.CandidateGameVersion) -or
     ![string]::IsNullOrWhiteSpace($taskBinding.CandidateDalamudVersion)) {
-    throw 'Compatibility candidate cannot be published. Record live acceptance and promote the audited version pair first.'
+    if (!$AllowPendingLiveValidation) {
+        throw 'Live validation is pending. Record acceptance or use -AllowPendingLiveValidation for an explicitly authorized release with accurate validation notes.'
+    }
+    Write-Warning 'Packaging an explicitly authorized compatibility update with remaining live checks documented.'
 }
 if (!$SkipBuild) {
     & $Dotnet build $taskProject -c Release --nologo

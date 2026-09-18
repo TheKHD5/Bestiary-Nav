@@ -8,14 +8,14 @@ public sealed class BindingProfile
     public string AddonName { get; set; } = "";
     public bool BlockInCombat { get; set; } = true;
 
-    // A local test build can target an audited pair without claiming live verification.
-    // Publishing rejects these fields until acceptance is recorded and they are removed.
+    // An audited pair can be active without claiming complete live verification.
+    // Publishing with remaining live checks requires an explicit packaging option.
     public string CandidateGameVersion { get; set; } = "";
     public string CandidateDalamudVersion { get; set; } = "";
     public bool IsCandidate => !string.IsNullOrWhiteSpace(CandidateGameVersion) ||
         !string.IsNullOrWhiteSpace(CandidateDalamudVersion);
-    public string? ValidationNotice => IsCandidate ? "Compatibility test build: in-game validation is pending." : null;
-    public string Status => IsCandidate ? "candidate - live validation pending" : "verified";
+    public string? ValidationNotice => IsCandidate ? "Compatibility update: additional in-game checks are pending." : null;
+    public string Status => IsCandidate ? "updated bindings - additional live checks pending" : "verified";
 
     public string? GetIssue(string gameVersion, string dalamudVersion, string expectedAddon)
     {
