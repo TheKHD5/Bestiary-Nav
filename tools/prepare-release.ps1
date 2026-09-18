@@ -5,6 +5,11 @@ param([string]$Dotnet = 'dotnet', [switch]$SkipBuild)
 $ErrorActionPreference = 'Stop'
 $taskRepoRoot = Split-Path -Parent $PSScriptRoot
 $taskProject = Join-Path $taskRepoRoot 'BestiaryNav/BestiaryNav.csproj'
+$taskBinding = Get-Content -LiteralPath (Join-Path $taskRepoRoot 'BestiaryNav/binding.json') -Raw | ConvertFrom-Json
+if (![string]::IsNullOrWhiteSpace($taskBinding.CandidateGameVersion) -or
+    ![string]::IsNullOrWhiteSpace($taskBinding.CandidateDalamudVersion)) {
+    throw 'Compatibility candidate cannot be published. Record live acceptance and promote the audited version pair first.'
+}
 if (!$SkipBuild) {
     & $Dotnet build $taskProject -c Release --nologo
     if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }

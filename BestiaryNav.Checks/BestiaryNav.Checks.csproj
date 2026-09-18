@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BestiaryNav\BindingProfile.cs" Link="BindingProfile.cs" />
     <Compile Include="..\BestiaryNav\FarmingPolicy.cs" Link="FarmingPolicy.cs" />
     <Compile Include="..\BestiaryNav\FarmingPatrol.cs" Link="FarmingPatrol.cs" />
     <Compile Include="..\BestiaryNav\FarmingTargets.cs" Link="FarmingTargets.cs" />

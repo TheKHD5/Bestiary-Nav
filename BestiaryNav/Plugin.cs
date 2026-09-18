@@ -100,15 +100,11 @@ public sealed class Plugin : IDalamudPlugin
         actualDalamudVersion = dalamudVersion;
         acquisition = ReadResource<CollectionMetadata>("collection.json").BuildIndex(monsters);
 
-        bindingIssue = !binding.Enabled ? "Bestiary integration is disabled in this build." :
-            gameVersion != binding.VerifiedGameVersion
-                ? $"Unsupported FFXIV version {gameVersion}; this build supports {binding.VerifiedGameVersion}. Update Bestiary Nav." :
-            dalamudVersion != binding.VerifiedDalamudVersion
-                ? $"Unsupported Dalamud version {dalamudVersion}; this build supports {binding.VerifiedDalamudVersion}. Update Bestiary Nav." :
-            binding.AddonName != BestiarySelectionReader.AddonName ? "Invalid Bestiary addon profile. Update Bestiary Nav." : null;
+        bindingIssue = binding.GetIssue(gameVersion, dalamudVersion, BestiarySelectionReader.AddonName);
         bindingActive = bindingIssue == null;
         Log.Information($"Bestiary binding active: {bindingActive}; game: {gameVersion}; Dalamud: {dalamudVersion}.");
         if (bindingIssue != null) Log.Warning(bindingIssue);
+        else if (binding.ValidationNotice != null) Log.Warning(binding.ValidationNotice);
         configuration.MarkerRange = float.IsFinite(configuration.MarkerRange)
             ? Math.Clamp(configuration.MarkerRange, 10, 100) : 50;
         configuration.SpawnAreaRadius = float.IsFinite(configuration.SpawnAreaRadius) ? Math.Clamp(configuration.SpawnAreaRadius, 10, 200) : 60;
@@ -164,7 +160,7 @@ public sealed class Plugin : IDalamudPlugin
         collectionWindow = new CollectionWindow(monsters, acquisition, configuration, () => collectionSnapshot,
             n => QueueBeast(n), SaveConfiguration, () => pendingBestiaryOpen = true);
         windowSystem.AddWindow(collectionWindow);
-        settingsWindow = new SettingsWindow(configuration, bindingIssue, SaveConfiguration, () => markers.Status,
+        settingsWindow = new SettingsWindow(configuration, bindingIssue ?? binding.ValidationNotice, SaveConfiguration, () => markers.Status,
             travel, () => travelIpc.Available, StopTravel, SetAutoTravel, collectionWindow.Open, () => diagnosticReport, SetLocationPopup,
             () => lastNotification, () => autoCapture.Status, captureRun, captureAll, SetCaptureAll, farming, SetFarming);
         quickToggle = new BestiaryQuickToggle(configuration, GameGui, ClientState, Condition, bindingActive, SetAutoTravel, OpenUi,
@@ -468,7 +464,7 @@ public sealed class Plugin : IDalamudPlugin
         var report = new StringBuilder();
         report.AppendLine($"Bestiary Nav {typeof(Plugin).Assembly.GetName().Version}");
         report.AppendLine($"FFXIV: {actualGameVersion}; Dalamud: {actualDalamudVersion}");
-        report.AppendLine($"Compatibility: {bindingIssue ?? "verified"}");
+        report.AppendLine($"Compatibility: {bindingIssue ?? binding.Status}");
         report.AppendLine($"Player: job={player?.ClassJob.RowId}; level={player?.Level}; HP={player?.CurrentHp}/{player?.MaxHp}; dead={player?.IsDead}; combat={Condition[ConditionFlag.InCombat]}");
         report.AppendLine($"Wait for full HP before engaging: {configuration.WaitForFullHpBeforeEngaging}");
         report.AppendLine($"Travel dependencies: {(travelIpc.Available ? "connected" : "unavailable")}; phase: {travel.Phase}");
@@ -854,13 +850,4 @@ public sealed class Plugin : IDalamudPlugin
         Framework.Update -= OnFrameworkUpdate;
         Commands.RemoveHandler(Command);
     }
-}
-
-public sealed class BindingProfile
-{
-    public bool Enabled { get; set; }
-    public string VerifiedGameVersion { get; set; } = "";
-    public string VerifiedDalamudVersion { get; set; } = "";
-    public string AddonName { get; set; } = "";
-    public bool BlockInCombat { get; set; } = true;
 }

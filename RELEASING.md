@@ -4,6 +4,12 @@
 
 ## Prepare
 
+Compatibility candidates keep `candidateGameVersion` and `candidateDalamudVersion`
+separate from the last verified pair in `binding.json`. The release script rejects
+them. Record the required live acceptance, promote the candidate pair to the verified
+fields, and remove both candidate fields before publishing. Do not promote a game
+update based only on build or fixture-test success.
+
 1. Update `BestiaryNav/BestiaryNav.csproj` with the new numeric version. Never overwrite an already published version or release asset.
 2. Record full release notes under `releases/v<version>.md` and a short installer summary under `releases/v<version>.installer.txt`: 1–7 brief `- ` bullets (at most 100 characters each), then `Full details on GitHub repo:` and the repository URL on the next line. The build embeds this summary in the plugin manifest, and packaging copies it into the repository index. Update the README if features or installation change. Revalidate native bindings when the game or Dalamud changes.
 3. Build, validate the package, and regenerate the repository index with PowerShell 7.2 or later:

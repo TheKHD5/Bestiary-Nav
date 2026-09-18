@@ -19,6 +19,8 @@ void Reject(Action action, string message)
     throw new Exception(message);
 }
 
+BindingChecks.Run(Check);
+
 // Independent anchors: center and the left/right texture boundaries at two scales.
 Near(MapCoordinates.WorldToMap(0, 100, 0), 21.5f, "100% center");
 Near(MapCoordinates.WorldToMap(-1024, 100, 0), 1, "100% left");

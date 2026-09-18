@@ -18,7 +18,7 @@ internal sealed unsafe class CaptureStateReader
             return;
         try
         {
-            // Verified 2026.09.01: the gourd registration check reads ItemAction.Data[0],
+            // Static executable audit 2026.09.15: the gourd registration check reads ItemAction.Data[0],
             // obtains the capture-state singleton, checks Loaded == 3 and tests bit (id-1).
             // Resolve its getter instead of embedding an ASLR-dependent address.
             var check = scanner.ScanText("40 53 48 83 EC 20 41 0F B7 58 02 E8 ?? ?? ?? ?? 84 C0 74 ?? E8 ?? ?? ?? ?? 83 78 14 03");

@@ -34,6 +34,10 @@ Sort/filter changes and non-left-button behavior remain additional manual regres
 
 ## Revalidation after patches
 
+The September 18 [compatibility candidate audit](COMPATIBILITY-2026-09-18.md)
+targets Dalamud 15.0.3.5 and game 2026.09.15.0000.0000. It is awaiting live
+acceptance; older results below do not validate that patch.
+
 ### Dalamud 15.0.3.4 compatibility (2026-09-10)
 
 The game remains `2026.09.01.0000.0000`. Reviewed the upstream Dalamud

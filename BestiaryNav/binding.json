@@ -2,6 +2,8 @@
   "enabled": true,
   "verifiedGameVersion": "2026.09.01.0000.0000",
   "verifiedDalamudVersion": "15.0.3.4",
+  "candidateGameVersion": "2026.09.15.0000.0000",
+  "candidateDalamudVersion": "15.0.3.5",
   "addonName": "XBMMonsterNotebook",
   "blockInCombat": true
 }
